@@ -18,7 +18,7 @@
 //#include "nrf_gpio.h"
 #include "boards.h"
 
-#include "modules/radio.h"
+#include "modules/transport.h"
 
 const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
 void toggleLEDs() {
@@ -32,9 +32,10 @@ void toggleLEDs() {
 
 int main(void)
 {
-	Radio radio;
+	RawTransport transport;
 
-	radio.configure();
+	transport.powerOn();
+	transport.configure();
 
     // Configure LED-pins as outputs.
     LEDS_CONFIGURE(LEDS_MASK);
@@ -44,11 +45,11 @@ int main(void)
     	int buf;
 
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
-    	radio.transmit(&buf);
-    	radio.startReceiver();
+    	transport.transmit(&buf);
+    	transport.startReceiver();
     	// wait for msg or timeout(timeout);
     	if (true) toggleLEDs();	// isMessageReceived
-    	radio.stopReceiver();
+    	transport.stopReceiver();
     	// If delay is small, led will toggle almost continuously except when there are collisions
     	// delay
     }

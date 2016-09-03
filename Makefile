@@ -53,6 +53,7 @@ $(abspath ../../../main.c)
 # other source
 # $(abspath ../../../../../../components/drivers_nrf/delay/nrf_delay.c) 
 C_SOURCE_FILES +=  modules/radio.c
+C_SOURCE_FILES +=  modules/transport.c
 
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
