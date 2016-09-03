@@ -1,7 +1,43 @@
 
+#include <cassert>
+
 #include "nrf.h"
 
 #include "radio.h"
+
+/*
+ * IRQ Handler
+ */
+void Radio::eventHandler(void)
+{
+    if (isPacketDone())
+    {
+        // We don't sample RSSI
+        clearPacketDoneFlag();
+        if (isCRCValid()) dispatchPacketCallback();
+    }
+    else
+    {
+        // Unexpected, interrupts other than 'packet done'
+    	// TODO log
+    	// TODO clear flags
+    }
+
+    // We don't have a queue and we don't have a callback for idle
+}
+
+
+void Radio::dispatchPacketCallback() {
+	// Dispatch to Radio owner callbacks
+	if ( wasTransmitting() )
+	{
+		// TODO receiveCallback()
+	}
+	else
+	{
+		// TODO transmitCallback()
+	}
+}
 
 void Radio::configure() {
 
@@ -30,11 +66,61 @@ void Radio::transmit(void * data){
 	startXmit();
 };
 
-void Radio::turnOnReceiver() {
+
+void Radio::powerOn() {
+	// not require off; might be on already
+	NRF_RADIO->POWER = 1;
+	// spin until radio ramps up
+	while ( ! isReady() ) {};
+	// ensure ready
+}
+
+void Radio::powerOff() {
+	// not require on; might be off already
+	// not require disabled
+	NRF_RADIO->POWER = 0;
+	// not ensure not ready; caller must spin if necessary
+}
+
+bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
+
+
+
+
+void Radio::startReceiver() {
 	int data;	// TODO allocate buffers
 
 	setupXmitOrRcv(&data);
 	startRcv();
+}
+
+void Radio::stopReceiver(){
+
+}
+
+
+
+// Private
+
+
+
+bool Radio::isDisabled() {
+	// i.e. not busy with (in midst of) xmit or rcv
+	return NRF_RADIO->EVENTS_DISABLED; // == 1;
+}
+
+bool Radio::isPacketDone() {
+	// packet was received.
+	// radio state usually RXIDLE or TXIDLE and
+	return NRF_RADIO->EVENTS_END;  // == 1;
+}
+
+void Radio::clearPacketDoneFlag() {
+	NRF_RADIO->EVENTS_END = 0;
+}
+
+bool Radio::isCRCValid() {
+	return NRF_RADIO->CRCSTATUS == 1;	// CRCOk;
 }
 
 
@@ -44,10 +130,13 @@ void Radio::setupXmitOrRcv(void * data) {
 	// setup shortcuts, i.e. avoid some events
 	NRF_RADIO->SHORTS = RADIO_SHORTS_READY_START_Msk | RADIO_SHORTS_END_DISABLE_Msk | RADIO_SHORTS_ADDRESS_RSSISTART_Msk;
 
+	// point to packet in memory, must fit in 4 byte register
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
-	// interrupt enable ???
+
+	// enable interrupt for 'packet done'
 	NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk;
 
+	// clear packet done flag
 	NRF_RADIO->EVENTS_END = 0;
 	//NRF_RADIO->PREFIX1	= ((m_alt_aa >> 24) & 0x000000FF);
 	//NRF_RADIO->BASE1    = ((m_alt_aa <<  8) & 0xFFFFFF00);
@@ -59,14 +148,15 @@ void Radio::setupXmitOrRcv(void * data) {
  * Not keeping our own state (radio peripheral device has a state.)
  */
 void Radio::startXmit() {
-	// require radio state is
+	assert(isDisabled);  // require, else behaviour undefined per datasheet
 	NRF_RADIO->TASKS_TXEN = 1;
-	// assert radio state is
+	// assert radio state will soon be TXRU
 }
 
 void Radio::startRcv() {
+	assert(isDisabled);  // require, else behaviour undefined per datasheet
     NRF_RADIO->TASKS_RXEN = 1;
-	// assert radio state is
+	// assert radio state will soon be RXRU
 }
 
 

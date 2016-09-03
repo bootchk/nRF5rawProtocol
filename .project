@@ -38,7 +38,7 @@
 		<link>
 			<name>Device/gcc_startup_nrf52.s</name>
 			<type>1</type>
-			<locationURI>copy_PARENT/components/toolchain/gcc/gcc_startup_nrf52.s</locationURI>
+			<locationURI>copy_PARENT/components/toolchain/gcc/gcc_startup_nrf52.S</locationURI>
 		</link>
 		<link>
 			<name>Device/system_nrf52.c</name>
@@ -49,7 +49,7 @@
 	<variableList>
 		<variable>
 			<name>copy_PARENT</name>
-			<value>$%7BPARENT-2-PROJECT_LOC%7D/Downloads/nRF</value>
+			<value>file:/home/bootch/Downloads/nRF</value>
 		</variable>
 	</variableList>
 </projectDescription>

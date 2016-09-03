@@ -55,16 +55,21 @@ $(abspath ../../../main.c)
 C_SOURCE_FILES +=  modules/radio.c
 
 #assembly files common to all targets
+#lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
+#lkk was lower case .s
 ASM_SOURCE_FILES  = $(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.s)
+# ASM_SOURCE_FILES  = gcc_startup_nrf52.s
 
 #includes common to all targets
+#lkk !!! Case sensitive, and since the SDK comes from Windows case insensitive, often SDK has vagaries of capitalization?
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain)
 INC_PATHS += -I$(abspath ../../..)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/examples/bsp)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/device)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
+#lkk capitalization was INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/cmsis/include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/hal)
 
 OBJECT_DIRECTORY = _build
