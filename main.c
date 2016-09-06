@@ -17,6 +17,7 @@
 #include <inttypes.h>
 //#include "nrf_gpio.h"
 #include "boards.h"
+#include "app_timer.h"
 
 #include "modules/transport.h"
 
@@ -29,13 +30,43 @@ void toggleLEDs() {
 	}
 }
 
+bool isMessageReceived;	// flag set by callback
 
+void msgReceivedCallback() {
+	// just indicate state in app's basic state machine: [xmittedThenListening, woken for message, woken for timeout]
+	isMessageReceived = true;
+}
+
+
+
+void sleep() {
+	// Enter System ON sleep mode
+	__WFE();
+	// Make sure any pending events are cleared
+	__SEV();
+	__WFE();
+
+	// For more information on the WFE - SEV - WFE sequence, please refer to the following Devzone article:
+	// https://devzone.nordicsemi.com/index.php/how-do-you-put-the-nrf51822-chip-to-sleep#reply-1589
+}
+
+
+/*
+ * This is main without SD (SoftDevice i.e. Nordic-provided wireless stack)
+ * Interrupt handlers defined in gcc_startup_nrf52.s
+ * Waits are low-level
+ */
 int main(void)
 {
+	APP_TIMER_INIT(PRESCALER, OP_QUEUE_SIZE, scheduler_function);
+
 	RawTransport transport;
 
+	// ??? Can we configure before power on?
+	// Assume power means: just the transceiver itself, and not the radio's interface
 	transport.powerOn();
 	transport.configure();
+	// TODO pass callback to transport
 
     // Configure LED-pins as outputs.
     LEDS_CONFIGURE(LEDS_MASK);
@@ -45,13 +76,35 @@ int main(void)
     	int buf;
 
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
+
+    	// After power on, spin wait for ready
+    	while (!transport.isReady()) {}
+
     	transport.transmit(&buf);
+    	// assert radio disabled when xmit complete but still powered on
+
     	transport.startReceiver();
+
+    	// TODO timer for timeout
     	// wait for msg or timeout(timeout);
-    	if (true) toggleLEDs();	// isMessageReceived
+    	sleep();
+
+    	if ( isMessageReceived ) {
+    		toggleLEDs();
+    		isMessageReceived = false;
+    	}
+    	else {
+    		// timed out
+    	}
+
     	transport.stopReceiver();
-    	// If delay is small, led will toggle almost continuously except when there are collisions
-    	// delay
+    	// If timeout is small, led will toggle almost continuously except when there are collisions?
+    	// TODO analyze whether two units get in lockstep, missing each other's xmits
+
+    	// TODO larger delay here
+
+
+    	// TODO test with radio power off in each cycle
     }
 }
 

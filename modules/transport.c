@@ -16,8 +16,14 @@ void RawTransport::eventHandler(void)
     if (radio.isPacketDone())
     {
         // We don't sample RSSI
+    	// We don't use DAI device address match (which is a prefix of the payload)
+    	// We don't use RXMATCH to check which logical address was received (assumed environment with few foreign 2.4Mhz radios.)
+    	// We do check CRC (messages destroyed by noise.)
+
         radio.clearPacketDoneFlag();
+
         if (radio.isCRCValid()) dispatchPacketCallback();
+        // else garbled message received, ignore it
     }
     else
     {

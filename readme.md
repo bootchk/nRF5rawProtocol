@@ -24,13 +24,14 @@ Dev environment
 Uses:
 - Eclipse project.
 - gcc ARM toolchain.
-- hand maintained Makefile.
-- linked resources (to the NRF SDK.)
+- hand maintained Makefile (as do most Nordic examples?)
+- linked resources (to the NRF SDK, as do most Nordic examples?)
 I followed the tutorial for this combination on Nordic website, and hacked the Makefile.
 
-Derives from:
-- ble-mesh repository on github (it implements a rawish protocol that cooperates with a BT protocol.)
-- Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)
+Derives from:  https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh . That implements a rawish protocol that cooperates with a BT protocol.  
+Here, I have hacked out the SoftDevice (BT stack) and the Trickle algorithm, leaving just a raw wireless protocol.
+
+You might also read Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)
  
  Compatibility
  -
@@ -38,11 +39,13 @@ Derives from:
  Uses nRF52 family chip.
  Might be compatible with earlier chips nRF51, but I noticed in passing that the state diagram for the radio has changed and I have not explored this thoroughly.
  
+ Developed using NRF SDK v11, and then v12.
+ 
 Hacking
 -
-Follow the tutorial on the Nordic website.  https://devzone.nordicsemi.com/tutorials/7/  This is a brief synopsis.
+Follow the tutorial on the Nordic website.  https://devzone.nordicsemi.com/tutorials/7/  Follows a brief synopsis.
 
-Install Eclipse C/C++ and GNU dev tools like make.
+Install Eclipse C/C++ and GNU dev tools such as make.
 
 Download the NRF SDK.  Create a folder somewhere and extract it into the folder (unlike many archives, it is not one folder at the top.)
 
@@ -50,7 +53,7 @@ Get GNU ARM toolchain: sudo apt-get install  gcc-arm-none-eabi
 
 Get Eclipse plugin for GNU ARM development.  http://gnuarmeclipse.github.io/plugins/install/  (Its slow to resolve, provision.)
 
-Install a device pack for nRF52  (else in building: "core_cm4.h: No such file or directory" )
+Install a device pack for nRF52
 
 Per the tutorial, hack Makefile.posix in the NRF SDK (ugh) to point to your local GNU ARM installation.  For me this just meant:  GNU_INSTALL_ROOT := /usr/bin
 (In other words, Makefile.posix just tells the Makefile how to construct the path to the GNU ARM compiler executable.)

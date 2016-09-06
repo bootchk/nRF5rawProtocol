@@ -68,10 +68,17 @@ INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain)
 INC_PATHS += -I$(abspath ../../..)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/examples/bsp)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/device)
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
-#lkk capitalization was INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
+# lkk not using delay
+#INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
+#lkk v11 capitalization was INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/cmsis/include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/hal)
+
+#includes specific to this project
+# lkk using timer library
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/timer)
+# lkk timer lib depends on sdk_config.h
+
 
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
