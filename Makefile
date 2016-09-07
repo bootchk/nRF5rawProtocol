@@ -49,11 +49,20 @@ C_SOURCE_FILES += \
 $(abspath $(TEMPLATE_PATH)/../system_nrf52.c) \
 $(abspath ../../../main.c)
 
-# !!! other Nordic source files used by app are soft links CAN be created in virtual folders e.g. ./Device or ./nrfLibraries
+# !!! other Nordic source files used by app CAN be soft links created in virtual folders e.g. ./Device or ./nrfLibraries
 # (but also need to be declared as sources using the link name)
 # OR as here defined directly
+
+# libraries group
 C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/timer/app_timer.c
 C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/app_error.c
+C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/app_util_platform.c
+
+# drivers group
+C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
+C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
+
+
 
 # lkk hack
 # other source of my devising
@@ -132,10 +141,11 @@ CFLAGS += -DNRF52
 CFLAGS += -DBSP_DEFINES_ONLY
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs 
-# lkk not valid for g++: CFLAGS += --std=gnu11 # lkk gnu99
+# lkk not valid for g++: CFLAGS += --std=gnu11   original was gnu99
 # lkk excise -Werror
 # lkk add -fpermissive for compiling nrf C code that is non-strict
-CFLAGS += -Wall -O0 -g3 -fpermissive
+# lkk add -std=c++11 for support of nullptr
+CFLAGS += -Wall -O0 -g3 -fpermissive -std=c++11
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing

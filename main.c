@@ -11,11 +11,10 @@
  */
 
 
-//#include <stdbool.h>
-//#include <stdint.h>
-// #include "nrf_delay.h"
+// c++ includes
+#include <cassert>
 #include <inttypes.h>
-//#include "nrf_gpio.h"
+
 #include "boards.h"
 
 // For app_timer
@@ -23,6 +22,8 @@
 #include "nrf_drv_clock.h"
 
 #include "modules/transport.h"
+
+
 
 const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
 void toggleLEDs() {
@@ -55,20 +56,56 @@ void sleep() {
 
 
 // Stuff needed for app_timer
+// See Nordic "Application timer tutorial"
+// Timer is single shot, times out a sleep while receiver on.
+
+APP_TIMER_DEF(rcvTimeoutTimer);
 
 // 32/khz divide by 17 is about 1ms per tick
 const int TimerPrescaler = 16;
 // Only one timer, but +1 ???  See tutorial.
 const int TimerQueueSize = 2;
 
-void initTimerBasedOnLowFreqXtalClock() {
-	// Null scheduler function
-	//int unused =
-			APP_TIMER_INIT(TimerPrescaler, TimerQueueSize, NULL);	// C11 nullptr);
+const int Timeout = 1000;	// units mSec, i.e. 1 second
+
+void initLowFreqXtalClock() {
+	uint32_t err = nrf_drv_clock_init();
+	APP_ERROR_CHECK(err);
+	nrf_drv_clock_lfclk_request(NULL);
 }
 
-void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
+void initTimerBasedOnLowFreqXtalClock() {
+	initLowFreqXtalClock();
+	// Null scheduler function
+	APP_TIMER_INIT(TimerPrescaler, TimerQueueSize, nullptr);
+}
 
+static void rcvTimeoutTimerHandler(void * p_context)
+{
+	// set global flag indicating reason for waking
+	isMessageReceived = false;
+}
+
+static void createTimers()
+{
+    uint32_t err = app_timer_create(&rcvTimeoutTimer,
+            APP_TIMER_MODE_SINGLE_SHOT,
+			rcvTimeoutTimerHandler);
+    APP_ERROR_CHECK(err);
+}
+
+static void restartTimer() {
+	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(Timeout, TimerPrescaler), nullptr);
+	    APP_ERROR_CHECK(err);
+}
+
+
+
+void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
+	// gdb break will stop here
+	__disable_irq();
+	while(true);
+	// TODO log
 }
 
 
@@ -83,6 +120,7 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
 int main(void)
 {
 	initTimerBasedOnLowFreqXtalClock();
+	createTimers();
 
 	RawTransport transport;
 
@@ -109,16 +147,18 @@ int main(void)
 
     	transport.startReceiver();
 
-    	// TODO timer for timeout
-    	// wait for msg or timeout(timeout);
+    	restartTimer();	// timer must not trigger before we sleep
+    	// wait for msg or timeout
     	sleep();
 
+    	assert(!isMessageReceived);
     	if ( isMessageReceived ) {
     		toggleLEDs();
     		isMessageReceived = false;
     	}
     	else {
     		// timed out
+    		// No change to LEDs
     	}
 
     	transport.stopReceiver();
