@@ -17,7 +17,10 @@
 #include <inttypes.h>
 //#include "nrf_gpio.h"
 #include "boards.h"
+
+// For app_timer
 #include "app_timer.h"
+#include "nrf_drv_clock.h"
 
 #include "modules/transport.h"
 
@@ -51,6 +54,27 @@ void sleep() {
 }
 
 
+// Stuff needed for app_timer
+
+// 32/khz divide by 17 is about 1ms per tick
+const int TimerPrescaler = 16;
+// Only one timer, but +1 ???  See tutorial.
+const int TimerQueueSize = 2;
+
+void initTimerBasedOnLowFreqXtalClock() {
+	// Null scheduler function
+	//int unused =
+			APP_TIMER_INIT(TimerPrescaler, TimerQueueSize, NULL);	// C11 nullptr);
+}
+
+void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
+
+}
+
+
+
+
+
 /*
  * This is main without SD (SoftDevice i.e. Nordic-provided wireless stack)
  * Interrupt handlers defined in gcc_startup_nrf52.s
@@ -58,7 +82,7 @@ void sleep() {
  */
 int main(void)
 {
-	APP_TIMER_INIT(PRESCALER, OP_QUEUE_SIZE, scheduler_function);
+	initTimerBasedOnLowFreqXtalClock();
 
 	RawTransport transport;
 

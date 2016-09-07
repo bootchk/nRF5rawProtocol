@@ -49,8 +49,14 @@ C_SOURCE_FILES += \
 $(abspath $(TEMPLATE_PATH)/../system_nrf52.c) \
 $(abspath ../../../main.c)
 
+# !!! other Nordic source files used by app are soft links CAN be created in virtual folders e.g. ./Device or ./nrfLibraries
+# (but also need to be declared as sources using the link name)
+# OR as here defined directly
+C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/timer/app_timer.c
+C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/app_error.c
+
 # lkk hack
-# other source
+# other source of my devising
 # $(abspath ../../../../../../components/drivers_nrf/delay/nrf_delay.c) 
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/transport.c
@@ -65,6 +71,7 @@ ASM_SOURCE_FILES  = $(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc/gcc_start
 #lkk !!! Case sensitive, and since the SDK comes from Windows case insensitive, often SDK has vagaries of capitalization?
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain)
+#lkk I didn't touch this, but don't understand it
 INC_PATHS += -I$(abspath ../../..)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/examples/bsp)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/device)
@@ -75,9 +82,26 @@ INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/cmsis/include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/hal)
 
 #includes specific to this project
-# lkk using timer library
+
+# lkk using timer library: the following chain discovered by trial and error starting with #include "app_timer.h" in main
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/timer)
-# lkk timer lib depends on sdk_config.h
+# lkk timer lib depends on sdk_config.h, which I put in 
+INC_PATHS += -I$(abspath .)
+# lkk app_timer depends on app_error.h found here:
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/util)
+# lkk sdk_errors depends on nrf_error.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd)
+# lkk app_timer uses nrf_drv_clock.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/clock)
+# lkk nrf_drv_clock.h, depends on nrf_drv_common.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/common)
+# lkk app_error.c, depends on nrf_logon.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/log)
+# lkk nrf_log.h, depends on nrf_log_inhternal.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/log/src)
+# lkk app_timer.c, depends on nrf_delay.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
+
 
 
 OBJECT_DIRECTORY = _build
@@ -109,7 +133,9 @@ CFLAGS += -DBSP_DEFINES_ONLY
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs 
 # lkk not valid for g++: CFLAGS += --std=gnu11 # lkk gnu99
-CFLAGS += -Wall -Werror -O0 -g3
+# lkk excise -Werror
+# lkk add -fpermissive for compiling nrf C code that is non-strict
+CFLAGS += -Wall -O0 -g3 -fpermissive
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing

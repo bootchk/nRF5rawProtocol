@@ -8,6 +8,8 @@ About
 
 A primitive (raw) protocol stack for Nordic nRF52 family radio chips (SoC which includes ARM mcu)
 
+See also: Radiohead.  That does the same thing except is requires polling, doesn't use interrupts?
+
 Raw :
 - broadcast, all units transmit and receive same address
 - no channel hopping (use one channel not used by WiFi or BT connections)
@@ -41,7 +43,7 @@ You might also read Nordic proprietary (sic?) protocol ESB examples in NRF SDK (
  
  Developed using NRF SDK v11, and then v12.
  
-Hacking
+Hacking using Eclipse and GNU ARM toolchain
 -
 Follow the tutorial on the Nordic website.  https://devzone.nordicsemi.com/tutorials/7/  Follows a brief synopsis.
 

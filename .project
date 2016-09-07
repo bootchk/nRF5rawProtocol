@@ -45,6 +45,16 @@
 			<type>1</type>
 			<locationURI>copy_PARENT/components/toolchain/system_nrf52.c</locationURI>
 		</link>
+		<link>
+			<name>nrfLibraries/app_error.c</name>
+			<type>1</type>
+			<location>/home/bootch/Downloads/nRF/components/libraries/util/app_error.c</location>
+		</link>
+		<link>
+			<name>nrfLibraries/app_timer.c</name>
+			<type>1</type>
+			<location>/home/bootch/Downloads/nRF/components/libraries/timer/app_timer.c</location>
+		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
