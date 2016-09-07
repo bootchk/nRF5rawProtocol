@@ -69,6 +69,7 @@ C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.
 # $(abspath ../../../../../../components/drivers_nrf/delay/nrf_delay.c) 
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/transport.c
+C_SOURCE_FILES +=  modules/timer.c
 
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux

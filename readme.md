@@ -1,14 +1,14 @@
 
 Raw Wireless Protocol for nRF5
 
-Work in progress.  Untested on hw.
+Work in progress.  Untested on hw.  Usually compiles cleanly.
 
 About
 -
 
 A primitive (raw) protocol stack for Nordic nRF52 family radio chips (SoC which includes ARM mcu)
 
-See also: Radiohead.  That does the same thing except is requires polling, doesn't use interrupts?
+See also: Radiohead.  That does the same thing except it requires polling, doesn't use interrupts?
 
 Raw :
 - broadcast, all units transmit and receive same address
@@ -35,13 +35,16 @@ Here, I have hacked out the SoftDevice (BT stack) and the Trickle algorithm, lea
 
 You might also read Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)
  
- Compatibility
- -
+Compatibility
+-
  
- Uses nRF52 family chip.
- Might be compatible with earlier chips nRF51, but I noticed in passing that the state diagram for the radio has changed and I have not explored this thoroughly.
+Uses nRF52 family chip.
+Might be compatible with earlier chips nRF51, but I noticed in passing that the state diagram for the radio has changed and I have not explored this thoroughly.
  
- Developed using NRF SDK v11, and then v12.
+Developed using NRF SDK v11, and then v12.
+
+Uses C++11.
+
  
 Hacking using Eclipse and GNU ARM toolchain
 -
