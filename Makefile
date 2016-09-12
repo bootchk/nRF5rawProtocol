@@ -11,8 +11,8 @@ MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
 
 # lkk hack
-NRF_SDK_ROOT = /home/bootch/Downloads/nRF
-TEMPLATE_PATH = /home/bootch/Downloads/nRF/components/toolchain/gcc
+NRF_SDK_ROOT = /home/bootch/nrf5_sdk
+TEMPLATE_PATH = /home/bootch/nrf5_sdk/components/toolchain/gcc
 
 ifeq ($(OS),Windows_NT)
 include $(TEMPLATE_PATH)/Makefile.windows
@@ -266,7 +266,7 @@ cleanobj:
 	$(RM) $(BUILD_DIRECTORIES)/*.o
 flash: nrf52832_xxaa
 	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
-	nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
-	nrfjprog --reset -f nrf52
+	/home/bootch/Downloads/nrfjprog/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
+	/home/bootch/Downloads/nrfjprog/nrfjprog --reset -f nrf52
 
 ## Flash softdevice

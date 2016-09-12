@@ -38,28 +38,28 @@
 		<link>
 			<name>Device/gcc_startup_nrf52.s</name>
 			<type>1</type>
-			<locationURI>copy_PARENT/components/toolchain/gcc/gcc_startup_nrf52.S</locationURI>
+			<locationURI>NRF_SDK_ROOT/components/toolchain/gcc/gcc_startup_nrf52.s</locationURI>
 		</link>
 		<link>
 			<name>Device/system_nrf52.c</name>
 			<type>1</type>
-			<locationURI>copy_PARENT/components/toolchain/system_nrf52.c</locationURI>
+			<locationURI>NRF_SDK_ROOT/components/toolchain/system_nrf52.c</locationURI>
 		</link>
 		<link>
 			<name>nrfLibraries/app_error.c</name>
 			<type>1</type>
-			<location>/home/bootch/Downloads/nRF/components/libraries/util/app_error.c</location>
+			<locationURI>NRF_SDK_ROOT/components/libraries/util/app_error.c</locationURI>
 		</link>
 		<link>
 			<name>nrfLibraries/app_timer.c</name>
 			<type>1</type>
-			<location>/home/bootch/Downloads/nRF/components/libraries/timer/app_timer.c</location>
+			<locationURI>NRF_SDK_ROOT/components/libraries/timer/app_timer.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
-			<name>copy_PARENT</name>
-			<value>file:/home/bootch/Downloads/nRF</value>
+			<name>NRF_SDK_ROOT</name>
+			<value>file:/home/bootch/nrf5_sdk</value>
 		</variable>
 	</variableList>
 </projectDescription>
