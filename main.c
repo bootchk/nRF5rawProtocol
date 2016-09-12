@@ -31,6 +31,8 @@ void toggleLEDs() {
 		// nrf_delay_ms(500);
 	}
 }
+void toggleLEDOne() { LEDS_INVERT(1 << leds_list[0]); }
+void toggleLEDTwo() { LEDS_INVERT(1 << leds_list[1]); }
 
 bool isMessageReceived;	// flag set by callback
 
@@ -106,12 +108,12 @@ int main(void)
 
     	// Some interrupt woke us up and set a flag
     	if ( isMessageReceived ) {
-    		toggleLEDs();
+    		toggleLEDOne();
     		isMessageReceived = false;
     	}
     	else {
     		// timed out
-    		// No change to LEDs
+    		toggleLEDTwo();
     	}
 
     	transport.stopReceiver();
