@@ -1,5 +1,9 @@
 #pragma once
 
+#include "radio.h"
+
+
+
 /*
  * Transport layer for raw wireless protocol
  *
@@ -26,5 +30,8 @@ public:
 
 private:
 	static void dispatchPacketCallback();
+
+	// static, class data members
+	static Radio radio;
 
 };

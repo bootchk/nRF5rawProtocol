@@ -1,3 +1,7 @@
+#pragma once
+
+#include "hfClock.h"
+
 
 /*
  * Driver for radio peripheral
@@ -9,6 +13,8 @@
  * Singleton, all static class methods.
  */
 class Radio {
+private:
+	static HfClock hfClock;
 
 public:
 	static void powerOn();

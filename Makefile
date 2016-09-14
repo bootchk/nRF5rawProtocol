@@ -72,6 +72,7 @@ C_SOURCE_FILES +=  modules/transport.c
 C_SOURCE_FILES +=  modules/timer.c
 C_SOURCE_FILES +=  modules/irqHandlers.c
 C_SOURCE_FILES +=  modules/hardFaultHandler.c
+C_SOURCE_FILES +=  modules/hfClock.c
 
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux

@@ -5,6 +5,8 @@
 
 #include "radio.h"
 
+// Class (singleton) data member
+HfClock Radio::hfClock;
 
 
 // Powering
@@ -35,7 +37,7 @@ void Radio::powerOff() {
 	NRF_RADIO->POWER = 0;
 	// not ensure not ready; caller must spin if necessary
 
-	// TODO turn off HFCLK
+	// TODO turn off HFCLK?? Who else might be using it?
 
 	// assert radio and HFCLK are off, or will be soon
 }

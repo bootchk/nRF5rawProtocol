@@ -2,11 +2,11 @@
 #include <cassert>
 
 // independent of nrf.h
+
 #include "transport.h"
-#include "radio.h"
 
-
-static Radio radio;
+// Class (singleton) data members
+Radio RawTransport::radio;
 
 /*
  * IRQ Handler

@@ -25,10 +25,10 @@ Nordic documentation for radio peripheral.  See Nordic InfoCenter>nRF52 Series>n
 
 Radiohead.  That does the same thing except it requires polling, doesn't use interrupts?
 
-Derives from:  https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh . That implements a rawish protocol that cooperates with a BT protocol.  see nRF51/rbc_mesh/src/radio_control.c
+https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh . That implements a rawish protocol that cooperates with a BT protocol.  see nRF51/rbc_mesh/src/radio_control.c
 Here, I have hacked out the SoftDevice (BT stack) and the Trickle algorithm, leaving just a raw wireless protocol.
 
-You might also read Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)
+Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)
 
 Nordic example for receiving.  Source in SDK below /examples/peripheral/radio/receiver    http://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v11.0.0%2Fnrf_dev_radio_rx_example.html&cp=4_0_0_4_4_17
 
@@ -36,12 +36,14 @@ Nordic example for transmitting.  Near the receiving example.
 
 Nordic example for configuring radio compatible with ShockBurst.  In SDK at /components/drivers_nrf/radio_config
 
+My blog about setting up a dev environment (for this project) https://plashless.wordpress.com/2016/09/14/setting-up-linuxeclipse-for-nordic-embedded-wireless-development/
+
 Dev environment
 -
 
 Uses:
 - Eclipse project.
-- gcc ARM toolchain.
+- GNU ARM toolchain (gcc and gdb for ARM)
 - hand maintained Makefile (as do most Nordic examples?)
 - linked resources (to the NRF SDK, as do most Nordic examples?)
 I followed the tutorial for this combination on Nordic website, and hacked the Makefile.
@@ -56,7 +58,22 @@ Might be compatible with earlier chips nRF51, but I noticed in passing that the 
  
 Developed using NRF SDK v11, and then v12.
 
-Uses C++11.
+C++11
+-
+This code is C++.  Nordic doesn't fully support it.  It requires a few hacks to the SDK:
+
+In ??? declare the POWER_CLOCK_IRQ handler as extern "C" so its name is not mangled and it overrides the default handler.
+
+For the same reasons, in app_timer.c (because app_timer uses two interrupts, RTC1 and SWI0):
+
+#ifdef __cplusplus 
+extern "C" { 
+#endif
+void SWI0_IRQHandler(void);
+void RTC1_IRQHandler(void);
+#ifdef __cplusplus 
+} 
+#endif
 
  
 Hacking using Eclipse and GNU ARM toolchain
