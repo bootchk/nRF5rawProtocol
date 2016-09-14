@@ -66,16 +66,20 @@ C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.
 
 # lkk hack
 # other source of my devising
-# $(abspath ../../../../../../components/drivers_nrf/delay/nrf_delay.c) 
+# Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/transport.c
 C_SOURCE_FILES +=  modules/timer.c
+C_SOURCE_FILES +=  modules/irqHandlers.c
+C_SOURCE_FILES +=  modules/hardFaultHandler.c
 
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
 #lkk was lower case .s
 ASM_SOURCE_FILES  = $(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.s)
 # ASM_SOURCE_FILES  = gcc_startup_nrf52.s
+#lkk
+#ASM_SOURCE_FILES += modules/hardFaultHandler.s
 
 #includes common to all targets
 #lkk !!! Case sensitive, and since the SDK comes from Windows case insensitive, often SDK has vagaries of capitalization?
@@ -151,6 +155,10 @@ CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
+#lkk
+CFLAGS += -DDEBUG
+#CFLAGS += -fshort-wchar
+
 # keep every function in separate section. This will allow linker to dump unused functions
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)

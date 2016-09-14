@@ -18,9 +18,9 @@
 #include "boards.h"
 
 
-
-#include "modules/transport.h"
 #include "modules/timer.h"
+#include "modules/transport.h"
+
 
 
 const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
@@ -37,8 +37,13 @@ void toggleLEDTwo() { LEDS_INVERT(1 << leds_list[1]); }
 bool isMessageReceived;	// flag set by callback
 
 
-// Callbacks from interrupts
-static void rcvTimeoutTimerHandler(void * p_context)
+// Callbacks from interrupts.
+// extern C so names not mangled
+// TODO but I'm passing address, so names can be mangled
+extern "C" {
+
+
+void rcvTimeoutTimerHandler(void * p_context)
 {
 	// set global flag indicating reason for waking
 	isMessageReceived = false;
@@ -49,6 +54,7 @@ void msgReceivedCallback() {
 	isMessageReceived = true;
 }
 
+}
 
 
 void sleep() {
@@ -73,7 +79,7 @@ int main(void)
 	Timer timer;
 
 	timer.init();
-	timer.createTimers(&rcvTimeoutTimerHandler);
+	timer.createTimers(rcvTimeoutTimerHandler);
 
 	RawTransport transport;
 

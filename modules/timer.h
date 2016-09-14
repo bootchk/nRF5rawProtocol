@@ -1,4 +1,8 @@
 
+#pragma once
+
+#include <inttypes.h>
+
 
 /*
  * Thin wrapper around NRF SDK app_timer.
@@ -9,11 +13,11 @@
 class Timer {
 private:
 	// 32/khz divide by 17 is about 1ms per tick
-	static const int TimerPrescaler = 16;
+	static const uint32_t TimerPrescaler = 16;
 	// Only one timer, but +1 ???  See tutorial.
-	static const int TimerQueueSize = 2;
+	static const uint8_t TimerQueueSize = 2;
 
-	static const int Timeout = 1000;	// units mSec, i.e. 1 second
+	static const uint16_t Timeout = 1000;	// units mSec, i.e. 1 second
 
 	public:
 		static void init();
