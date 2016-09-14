@@ -82,6 +82,6 @@ void RawTransport::stopReceiver(){
 
 void RawTransport::powerOn() { radio.powerOn(); }
 void RawTransport::powerOff() { radio.powerOff(); }
-bool RawTransport::isReady() { return radio.isReady(); }
+bool RawTransport::isDisabled() { return radio.isDisabled(); }
 
 

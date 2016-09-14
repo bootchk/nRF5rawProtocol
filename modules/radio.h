@@ -14,9 +14,13 @@ public:
 	static void powerOn();
 	static void powerOff();
 
+	static void enable();
+	static void disable();
+	static bool isDisabled();
+	static void spinUntilDisabled();
+
 	static bool isReady();
 
-	static bool isDisabled();
 	static bool wasTransmitting();
 
 	static bool isPacketDone();

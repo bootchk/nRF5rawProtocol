@@ -21,7 +21,8 @@ public:
 
 	static void powerOn();
 	static void powerOff();
-	static bool isReady();
+
+	static bool isDisabled();
 
 private:
 	static void dispatchPacketCallback();

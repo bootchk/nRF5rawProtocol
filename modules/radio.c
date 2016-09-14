@@ -11,10 +11,22 @@
 
 void Radio::powerOn() {
 	// not require off; might be on already
-	NRF_RADIO->POWER = 1;
-	// spin until radio ramps up
-	while ( ! isReady() ) {};
+
+	// TODO HFCLK must be on also
+
+	NRF_RADIO->POWER = 1;	// per datasheet
+
+	// OBSOLETE?  Not really sure how to know you can start writing to registers
+	// while ( ! isReady() ) {};	// spin until radio ramps up
+
+	disable();
+	spinUntilDisabled();	// This is how RadioHead ensures radio is ready
 	// ensure ready
+
+	// assert if it was off, the radio and its registers are in initial state as specified by datasheet
+	// i.e. it needs to be reconfigured
+
+	// assert HFCLK is on since radio uses it
 }
 
 void Radio::powerOff() {
@@ -22,18 +34,46 @@ void Radio::powerOff() {
 	// not require disabled
 	NRF_RADIO->POWER = 0;
 	// not ensure not ready; caller must spin if necessary
+
+	// TODO turn off HFCLK
+
+	// assert radio and HFCLK are off, or will be soon
 }
 
-bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
 
+// Enabling
 
-
-// States
+void Radio::enable() {
+	// TODO
+}
+void Radio::disable() {
+	// From RadioHead
+	NRF_RADIO->EVENTS_DISABLED = 0;
+	NRF_RADIO->TASKS_DISABLE = 1;
+}
 
 bool Radio::isDisabled() {
 	// i.e. not busy with (in midst of) xmit or rcv
 	return NRF_RADIO->EVENTS_DISABLED; // == 1;
 }
+
+void Radio::spinUntilDisabled() {
+	while (!isDisabled()) ;
+}
+
+
+
+
+
+// OBSOLETE?  Where did this come from?
+bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
+
+
+
+// States
+// !!! Not use registers of the RADIO peripheral, but of
+
+
 
 bool Radio::isPacketDone() {
 	// packet was received.
@@ -76,13 +116,13 @@ void Radio::setupXmitOrRcv(void * data) {
  * Not keeping our own state (radio peripheral device has a state.)
  */
 void Radio::startXmit() {
-	assert(isDisabled);  // require, else behaviour undefined per datasheet
+	assert(isDisabled());  // require, else behaviour undefined per datasheet
 	NRF_RADIO->TASKS_TXEN = 1;
 	// assert radio state will soon be TXRU
 }
 
 void Radio::startRcv() {
-	assert(isDisabled);  // require, else behaviour undefined per datasheet
+	assert(isDisabled());  // require, else behaviour undefined per datasheet
     NRF_RADIO->TASKS_RXEN = 1;
 	// assert radio state will soon be RXRU
 }

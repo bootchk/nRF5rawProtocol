@@ -89,8 +89,9 @@ int main(void)
 	transport.configure();
 	// TODO pass callback to transport
 
-    // Configure LED-pins as outputs.
+    // Debug configure LED-pins as outputs, default to on?
     LEDS_CONFIGURE(LEDS_MASK);
+    toggleLEDs();	// off
 
     while (true)
     {
@@ -98,8 +99,7 @@ int main(void)
 
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
 
-    	// After power on, spin wait for ready
-    	while (!transport.isReady()) {}
+    	assert(transport.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
     	transport.transmit(&buf);
     	// assert xmit complete (synchronous)
@@ -109,8 +109,8 @@ int main(void)
     	transport.startReceiver();
 
     	timer.restart();	// timer must not trigger before we sleep
-    	// wait for msg or timeout
-    	sleep();
+
+    	sleep();	// wait for msg or timeout
 
     	// Some interrupt woke us up and set a flag
     	if ( isMessageReceived ) {
