@@ -53,6 +53,7 @@ void Radio::init() {
 
 
 // Powering
+// Power off saves more power than just disable.  A SoftDevice powers off to save power.
 
 void Radio::powerOn() {
 	// not require off; might be on already
@@ -111,6 +112,9 @@ bool Radio::isDisabled() {
 }
 
 void Radio::spinUntilDisabled() {
+	// Assert we set the task disable.
+	// Wait until the event that signifies disable is complete
+	// See data sheet.  For (1Mbit mode, TX) delay is ~6us, for RX, ~0us
 	while (!isDisabled()) ;
 }
 
@@ -214,7 +218,9 @@ void Radio::spinUntilXmitComplete() {
 // Configuration
 
 void Radio::configureAfterPowerOn() {
-	// This must be redone whenever radio is power toggled on?
+	// This should be redone whenever radio is power toggled on?
+	// None of it may be necessary if you are happy with reset defaults?
+
 	setFixedFrequency();
 	setFixedAddress();
 	setCRC();

@@ -17,7 +17,9 @@
 
 #include "boards.h"
 
+// lkk Can't get this to work
 //#define NRF_LOG_ENABLED 1
+//#define NRF_LOG_DEFAULT_LEVEL 0
 
 #include "nrf_log.h"	// writing to log
 #include "nrf_log_ctrl.h"	// initing log
@@ -39,12 +41,18 @@ void toggleLEDs() {
 }
 void toggleLEDOne() { LEDS_INVERT(1 << leds_list[0]); }
 void toggleLEDTwo() { LEDS_INVERT(1 << leds_list[1]); }
+void toggleLEDThree() { LEDS_INVERT(1 << leds_list[2]); }
 
+/*
+ /extern "C" {
+ret_code_t nrf_log_init(nrf_log_timestamp_func_t timestamp_func);
+}
+*/
 
 static void initLogging(void)
 {
     // Initialize logging library.
-	__attribute__((unused)) uint32_t err_code = NRF_LOG_INIT(NULL);
+	__attribute__((unused)) uint32_t err_code = NRF_LOG_INIT((nrf_log_timestamp_func_t) NULL);
     // APP_ERROR_CHECK(err_code);
 }
 
@@ -65,6 +73,7 @@ void rcvTimeoutTimerHandler(void * p_context)
 {
 	// set global flag indicating reason for waking
 	isMessageReceived = false;
+	toggleLEDThree();
 }
 
 void msgReceivedCallback() {
@@ -77,13 +86,17 @@ void msgReceivedCallback() {
 
 void sleep() {
 	// Enter System ON sleep mode
-	__WFE();
+
 	// Make sure any pending events are cleared
 	__SEV();
+	__WFE();
+	// This should actually sleep until the next event.
 	__WFE();
 
 	// For more information on the WFE - SEV - WFE sequence, please refer to the following Devzone article:
 	// https://devzone.nordicsemi.com/index.php/how-do-you-put-the-nrf51822-chip-to-sleep#reply-1589
+
+	// There is conflicting advice about the proper order.  This order seems to work.
 }
 
 
@@ -105,10 +118,6 @@ int main(void)
 
 	transport.init();
 
-	// ??? Can we configure before power on?
-	// Assume power means: just the transceiver itself, and not the radio's interface
-	transport.powerOn();
-	transport.configure();
 	// TODO pass callback to transport
 
     // Debug configure LED-pins as outputs, default to on?
@@ -119,9 +128,13 @@ int main(void)
     {
     	int buf;
 
-    	NRF_LOG_DEBUG("Here\n");
+    	NRF_LOG_INFO("Here\n");
 
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
+
+    	// assert configuration is lost after power is cycled
+    	transport.powerOn();
+    	transport.configure();
 
     	assert(transport.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
@@ -136,8 +149,7 @@ int main(void)
     	transport.startReceiver();
 
     	timer.restart();	// timer must not trigger before we sleep
-
-    	sleep();	// wait for msg or timeout
+    	sleep();	// wait for received msg or timeout
 
     	// Some interrupt woke us up and set a flag
     	if ( isMessageReceived ) {
@@ -151,15 +163,10 @@ int main(void)
     	}
 
     	transport.stopReceiver();
-    	// If timeout is small, led will toggle almost continuously except when there are collisions?
+    	transport.powerOff();
+
     	// TODO analyze whether two units get in lockstep, missing each other's xmits
-
-    	// TODO larger delay here
-
-
-    	// TODO test with radio power off in each cycle
-    	// toggle LED's off
-    	// transport.powerOff();
+    	// TODO random delay here
     	// timer.restart();
     	// sleep();
     }

@@ -17,7 +17,7 @@ private:
 	// Only one timer, but +1 ???  See tutorial.
 	static const uint8_t TimerQueueSize = 2;
 
-	static const uint16_t Timeout = 1000;	// units mSec, i.e. 1 second
+	static const uint16_t Timeout = 5000;	// units mSec, i.e. 1 second
 
 	public:
 		static void init();

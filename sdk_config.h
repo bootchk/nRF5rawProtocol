@@ -15,4 +15,12 @@
 
 // Because using NRF_LOG
 // older SDK #define UART0_ENABLED 1
-#define USE_UART 1
+//#define USE_UART 1
+//#define NRF_LOG_ENABLED 1
+//#define NRF_LOG_USES_TIMESTAMP 0
+//#define NRF_LOG_DEFERRED 0
+//#define NRF_LOG_BACKEND_MAX_STRING_LENGTH 64
+//#define NRF_LOG_TIMESTAMP_DIGITS 12
+
+
+
