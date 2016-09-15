@@ -17,6 +17,7 @@ private:
 	static HfClock hfClock;
 
 public:
+	static void init();
 	static void powerOn();
 	static void powerOff();
 
@@ -40,8 +41,12 @@ public:
 	static void startRcv();
 	static void stopXmit();
 	static void stopRcv();
+	static void spinUntilXmitComplete();
 
 	// Configuration
+	static void configureAfterPowerOn();
+private:
 	static void setFixedFrequency();
 	static void setFixedAddress();
+	static void setCRC();
 };

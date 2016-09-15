@@ -17,8 +17,10 @@ public:
 	// use in ISR vector table, not call directly
 	static void eventHandler();
 
+	static void init();
 	static void configure();
 	static void transmit(void * data);
+	static void spinUntilXmitComplete();
 
 	static void startReceiver();
 	static void stopReceiver();

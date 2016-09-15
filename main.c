@@ -17,6 +17,8 @@
 
 #include "boards.h"
 
+//#define NRF_LOG_ENABLED 1
+
 #include "nrf_log.h"	// writing to log
 #include "nrf_log_ctrl.h"	// initing log
 
@@ -39,10 +41,10 @@ void toggleLEDOne() { LEDS_INVERT(1 << leds_list[0]); }
 void toggleLEDTwo() { LEDS_INVERT(1 << leds_list[1]); }
 
 
-static void nrf_log_init(void)
+static void initLogging(void)
 {
     // Initialize logging library.
-    uint32_t err_code = NRF_LOG_INIT();
+	__attribute__((unused)) uint32_t err_code = NRF_LOG_INIT(NULL);
     // APP_ERROR_CHECK(err_code);
 }
 
@@ -94,12 +96,14 @@ int main(void)
 {
 	Timer timer;
 
-	nrf_log_init();	// debug
+	initLogging();	// debug
 
 	timer.init();
 	timer.createTimers(rcvTimeoutTimerHandler);
 
 	RawTransport transport;
+
+	transport.init();
 
 	// ??? Can we configure before power on?
 	// Assume power means: just the transceiver itself, and not the radio's interface
@@ -115,15 +119,18 @@ int main(void)
     {
     	int buf;
 
-    	NRF_LOG_INFO("Here\n");
+    	NRF_LOG_DEBUG("Here\n");
 
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
 
     	assert(transport.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
     	transport.transmit(&buf);
-    	// assert xmit complete (synchronous)
-    	// assert radio disabled when xmit complete but still powered on
+    	// assert xmit is NOT complete (radio is asynchronous to mcu)
+    	transport.spinUntilXmitComplete();
+    	// assert xmit is complete
+
+    	assert(transport.isDisabled());	// radio disabled when xmit complete but still powered on
 
     	assert(! isMessageReceived);	// We cleared the flag earlier.
     	transport.startReceiver();

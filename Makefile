@@ -62,6 +62,8 @@ C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/app_util_platform.c
 C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
 C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
 
+# logging
+C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c
 
 
 # lkk hack

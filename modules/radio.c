@@ -8,14 +8,17 @@
 
 /*
  * Implementation notes:
- * EVENTS_DIS
+ *
  * Interrupts are used.  Alternative is to poll (see RadioHead.)
+ * Now, interrupt on receive.  FUTURE: interrupt on xmit.
  *
  * Uses "configuration registers" of the RADIO peripheral(section of the datasheet).
  * AND ALSO "task registers" of the "Peripheral Interface"(section of the datasheet)
  * to the RADIO (for tasks, events, and interrupts.)
  * See device/nrf52.h for definitions of register addresses.
  * Each task and event has its own register.
+ *
+ * Not keeping our own state (radio peripheral device has a state.)
  */
 
 
@@ -39,6 +42,16 @@ static void setTXTask() {
 
 
 
+// Init: good even when radio is powered off.
+void Radio::init() {
+	// Not really the radio, another peripheral.
+	// Per Radiohead
+	// Enabling DCDC converter lets the radio control it automatically.  Enabling does not turn it on.
+	// DCDC converter requires Vcc >= 2.1V and should be disabled below that.
+	NRF_POWER->DCDCEN = 0x00000001;
+}
+
+
 // Powering
 
 void Radio::powerOn() {
@@ -46,10 +59,6 @@ void Radio::powerOn() {
 	// require Vcc > 2.1V (see note below about DCDC)
 
 	hfClock.start();	// radio requires XTAL!!! hf clock, not the RC hf clock
-
-	// TODO DCDC converter per Radiohead
-	// Enabling DCDC converter lets the radio control it automatically.  Enabling does not turn it on.
-	// DCDC converter requires Vcc >= 2.1V and should be disabled below that.
 
 	NRF_RADIO->POWER = 1;	// per datasheet
 
@@ -90,8 +99,6 @@ void Radio::enableTX() {
 	setTXTask();
 }
 
-
-
 void Radio::disable() {
 	// From RadioHead
 	NRF_RADIO->EVENTS_DISABLED = 0;
@@ -112,7 +119,7 @@ void Radio::spinUntilDisabled() {
 
 
 // OBSOLETE?  Where did this come from?
-bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
+// bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
 
 
 
@@ -159,7 +166,7 @@ void Radio::setupXmitOrRcv(void * data) {
 /*
  * In task/event architecture, these trigger or enable radio's tasks.
  *
- * Not keeping our own state (radio peripheral device has a state.)
+ *
  */
 void Radio::startXmit() {
 	assert(isDisabled());  // require, else behaviour undefined per datasheet
@@ -187,8 +194,38 @@ void Radio::stopXmit() {
 	// TODO
 }
 
+void Radio::spinUntilXmitComplete() {
+	// Spin mcu until xmit complete.
+	// Alternatively, sleep, but radio current dominates mcu current anyway?
+	// Xmit takes a few msec?
+
+	//assert isTransmitting
+
+	// Nothing can prevent xmit?  Even bad configuration or HFCLK not on?
+
+	// Radio state flows (via TXDISABLE) to DISABLED.  Wait for DISABLED event flagged.
+	// There is no interrupt enabled on DISABLED event.
+	while (NRF_RADIO->EVENTS_DISABLED == 0U) {}
+}
+
+
+
 
 // Configuration
+
+void Radio::configureAfterPowerOn() {
+	// This must be redone whenever radio is power toggled on?
+	setFixedFrequency();
+	setFixedAddress();
+	setCRC();
+
+	//NRF_RADIO->PREFIX1	= ((m_alt_aa >> 24) & 0x000000FF);
+	//NRF_RADIO->BASE1    = ((m_alt_aa <<  8) & 0xFFFFFF00);
+
+	// FUTURE: parameter
+	// Default tx power
+};
+
 
 void Radio::setFixedFrequency(){
 	// FUTURE: parameter
@@ -200,15 +237,25 @@ void Radio::setFixedFrequency(){
 	NRF_RADIO->DATAWHITEIV = 37 & RADIO_DATAWHITEIV_DATAWHITEIV_Msk;	// or 38, 39
 }
 
+/*
+ * Receive same address we transmit. (But we don't receive our own transmissions.)
+ */
 void Radio::setFixedAddress(){
 	// FUTURE: parameter
 
-	// Receive same address we transmit. (But we don't receive our own transmissions.)
-	// Receive only logical address 0 (or 1?) i.e. address configured by
-	NRF_RADIO->RXADDRESSES = 0x01;
+	// Physical on-air address is set in PREFIX0 + BASE0 by setNetworkAddress
+	// Not require it to be set, the default should work?
 
-	// TODO Choose fixed logical address
-	// TODO setLogicalAddresses
+	NRF_RADIO->TXADDRESS   = 0x00;	// Transmit to logical address 0 (PREFIX0 + BASE0)
+	NRF_RADIO->RXADDRESSES = 0x01; // Receive logical address 0 (PREFIX0 + BASE0)
+	// There are many RX addresses.  We only chose one.
+	// FUTURE setLogicalAddresses()
 }
 
+
+void Radio::setCRC() {
+	NRF_RADIO->CRCCNF = (RADIO_CRCCNF_LEN_Two << RADIO_CRCCNF_LEN_Pos); // Number of checksum bits
+	NRF_RADIO->CRCINIT = 0xFFFFUL;      // Initial value
+	NRF_RADIO->CRCPOLY = 0x11021UL; // CRC poly: x^16+x^12^x^5+1
+}
 

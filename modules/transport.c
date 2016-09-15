@@ -8,6 +8,9 @@
 // Class (singleton) data members
 Radio RawTransport::radio;
 
+
+
+
 /*
  * IRQ Handler
  */
@@ -47,23 +50,16 @@ void RawTransport::dispatchPacketCallback() {
 	}
 }
 
-void RawTransport::configure() {
 
-	radio.setFixedFrequency();
-	radio.setFixedAddress();
 
-	//NRF_RADIO->PREFIX1	= ((m_alt_aa >> 24) & 0x000000FF);
-	//NRF_RADIO->BASE1    = ((m_alt_aa <<  8) & 0xFFFFFF00);
 
-	// FUTURE: parameter
-	// Default tx power
-};
-
+// Xmit
 
 void RawTransport::transmit(void * data){
 	radio.setupXmitOrRcv(data);
 	radio.startXmit();
 };
+
 
 
 void RawTransport::startReceiver() {
@@ -77,9 +73,13 @@ void RawTransport::startReceiver() {
 
 // Pass through
 
+void RawTransport::init() { radio.init(); }
+void RawTransport::configure() { radio.configureAfterPowerOn(); }
 void RawTransport::powerOn() { radio.powerOn(); }
 void RawTransport::powerOff() { radio.powerOff(); }
 bool RawTransport::isDisabled() { return radio.isDisabled(); }
 void RawTransport::stopReceiver(){ radio.stopRcv(); }
+void RawTransport::spinUntilXmitComplete() { radio.spinUntilXmitComplete(); }
+
 
 

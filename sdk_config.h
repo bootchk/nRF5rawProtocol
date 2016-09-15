@@ -12,3 +12,7 @@
 // My app uses app_timer.
 // Project component app_timer.c includes this file and compiles conditionally on this definition
 #define APP_TIMER_ENABLED 1
+
+// Because using NRF_LOG
+// older SDK #define UART0_ENABLED 1
+#define USE_UART 1
