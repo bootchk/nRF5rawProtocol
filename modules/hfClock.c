@@ -14,5 +14,5 @@ void HfClock::start(){
 
 
 void HfClock::stop(){
-	// TODO
+	NRF_CLOCK->TASKS_HFCLKSTOP = 1;
 }

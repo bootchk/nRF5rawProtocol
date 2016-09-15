@@ -20,7 +20,8 @@ public:
 	static void powerOn();
 	static void powerOff();
 
-	static void enable();
+	static void enableRX();
+	static void enableTX();
 	static void disable();
 	static bool isDisabled();
 	static void spinUntilDisabled();
@@ -37,6 +38,8 @@ public:
 	static void setupXmitOrRcv(void * data);
 	static void startXmit();
 	static void startRcv();
+	static void stopXmit();
+	static void stopRcv();
 
 	// Configuration
 	static void setFixedFrequency();

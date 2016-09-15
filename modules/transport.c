@@ -73,9 +73,6 @@ void RawTransport::startReceiver() {
 	radio.startRcv();
 }
 
-void RawTransport::stopReceiver(){
-//TODO
-}
 
 
 // Pass through
@@ -83,5 +80,6 @@ void RawTransport::stopReceiver(){
 void RawTransport::powerOn() { radio.powerOn(); }
 void RawTransport::powerOff() { radio.powerOff(); }
 bool RawTransport::isDisabled() { return radio.isDisabled(); }
+void RawTransport::stopReceiver(){ radio.stopRcv(); }
 
 

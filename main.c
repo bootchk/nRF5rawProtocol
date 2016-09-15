@@ -17,11 +17,15 @@
 
 #include "boards.h"
 
+#include "nrf_log.h"	// writing to log
+#include "nrf_log_ctrl.h"	// initing log
+
 
 #include "modules/timer.h"
 #include "modules/transport.h"
 
 
+// Debugging code optional for production
 
 const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
 void toggleLEDs() {
@@ -33,6 +37,18 @@ void toggleLEDs() {
 }
 void toggleLEDOne() { LEDS_INVERT(1 << leds_list[0]); }
 void toggleLEDTwo() { LEDS_INVERT(1 << leds_list[1]); }
+
+
+static void nrf_log_init(void)
+{
+    // Initialize logging library.
+    uint32_t err_code = NRF_LOG_INIT();
+    // APP_ERROR_CHECK(err_code);
+}
+
+
+
+
 
 bool isMessageReceived;	// flag set by callback
 
@@ -78,6 +94,8 @@ int main(void)
 {
 	Timer timer;
 
+	nrf_log_init();	// debug
+
 	timer.init();
 	timer.createTimers(rcvTimeoutTimerHandler);
 
@@ -96,6 +114,8 @@ int main(void)
     while (true)
     {
     	int buf;
+
+    	NRF_LOG_INFO("Here\n");
 
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
 
@@ -120,6 +140,7 @@ int main(void)
     	else {
     		// timed out
     		toggleLEDTwo();
+    		// assert receiver still enabled
     	}
 
     	transport.stopReceiver();
@@ -130,6 +151,10 @@ int main(void)
 
 
     	// TODO test with radio power off in each cycle
+    	// toggle LED's off
+    	// transport.powerOff();
+    	// timer.restart();
+    	// sleep();
     }
 }
 

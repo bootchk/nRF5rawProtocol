@@ -40,7 +40,7 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
   printf ("LR [R14] = %x  subroutine call return address\n", stacked_lr);
   printf ("PC [R15] = %x  program counter\n", stacked_pc);
   printf ("PSR = %x\n", stacked_psr);
-  /*
+
   printf ("BFAR = %x\n", (*((volatile unsigned long *)(0xE000ED38))));
   printf ("CFSR = %x\n", (*((volatile unsigned long *)(0xE000ED28))));
   printf ("HFSR = %x\n", (*((volatile unsigned long *)(0xE000ED2C))));
@@ -57,7 +57,8 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
 static void HardFault_Handler( void ) __attribute__( ( naked ) );
 
 /* The fault handler implementation calls a function called prvGetRegistersFromStack(). */
-static void HardFault_Handler(void)
+// Unused means not referenced, is an ISR
+__attribute__((unused)) static void HardFault_Handler(void)
 {
     __asm volatile
     (
@@ -79,14 +80,14 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
 away as the variables never actually get used.  If the debugger won't show the
 values of the variables, make them global my moving their declaration outside
 of this function. */
-volatile uint32_t r0;
-volatile uint32_t r1;
-volatile uint32_t r2;
-volatile uint32_t r3;
-volatile uint32_t r12;
-volatile uint32_t lr; /* Link register. */
-volatile uint32_t pc; /* Program counter. */
-volatile uint32_t psr;/* Program status register. */
+	__attribute__((unused)) volatile uint32_t r0;
+	__attribute__((unused))volatile uint32_t r1;
+	__attribute__((unused))volatile uint32_t r2;
+	__attribute__((unused))volatile uint32_t r3;
+	__attribute__((unused))volatile uint32_t r12;
+	__attribute__((unused))volatile uint32_t lr; /* Link register. */
+	__attribute__((unused))volatile uint32_t pc; /* Program counter. */
+	__attribute__((unused))volatile uint32_t psr;/* Program status register. */
 
     r0 = pulFaultStackAddress[ 0 ];
     r1 = pulFaultStackAddress[ 1 ];

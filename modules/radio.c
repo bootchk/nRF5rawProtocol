@@ -5,16 +5,51 @@
 
 #include "radio.h"
 
+
+/*
+ * Implementation notes:
+ * EVENTS_DIS
+ * Interrupts are used.  Alternative is to poll (see RadioHead.)
+ *
+ * Uses "configuration registers" of the RADIO peripheral(section of the datasheet).
+ * AND ALSO "task registers" of the "Peripheral Interface"(section of the datasheet)
+ * to the RADIO (for tasks, events, and interrupts.)
+ * See device/nrf52.h for definitions of register addresses.
+ * Each task and event has its own register.
+ */
+
+
 // Class (singleton) data member
 HfClock Radio::hfClock;
+
+
+// Private
+static void clearEOTEvent() {
+	// end of transceive (transmission or reception) will set this event
+	// The radio state becoming "disabled" signifies EOT
+	NRF_RADIO->EVENTS_DISABLED = 0U;	// Clear event register
+}
+
+static void setRXTask() {
+	NRF_RADIO->TASKS_RXEN = 1;	// write TASK register
+}
+static void setTXTask() {
+	NRF_RADIO->TASKS_TXEN = 1;	// write TASK register
+}
+
 
 
 // Powering
 
 void Radio::powerOn() {
 	// not require off; might be on already
+	// require Vcc > 2.1V (see note below about DCDC)
 
-	// TODO HFCLK must be on also
+	hfClock.start();	// radio requires XTAL!!! hf clock, not the RC hf clock
+
+	// TODO DCDC converter per Radiohead
+	// Enabling DCDC converter lets the radio control it automatically.  Enabling does not turn it on.
+	// DCDC converter requires Vcc >= 2.1V and should be disabled below that.
 
 	NRF_RADIO->POWER = 1;	// per datasheet
 
@@ -37,7 +72,8 @@ void Radio::powerOff() {
 	NRF_RADIO->POWER = 0;
 	// not ensure not ready; caller must spin if necessary
 
-	// TODO turn off HFCLK?? Who else might be using it?
+	hfClock.stop();
+	// assert hf RC clock resumes for other peripherals
 
 	// assert radio and HFCLK are off, or will be soon
 }
@@ -45,9 +81,17 @@ void Radio::powerOff() {
 
 // Enabling
 
-void Radio::enable() {
-	// TODO
+void Radio::enableRX() {
+	clearEOTEvent();
+	setRXTask();
 }
+void Radio::enableTX() {
+	clearEOTEvent();
+	setTXTask();
+}
+
+
+
 void Radio::disable() {
 	// From RadioHead
 	NRF_RADIO->EVENTS_DISABLED = 0;
@@ -73,7 +117,7 @@ bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
 
 
 // States
-// !!! Not use registers of the RADIO peripheral, but of
+
 
 
 
@@ -119,17 +163,29 @@ void Radio::setupXmitOrRcv(void * data) {
  */
 void Radio::startXmit() {
 	assert(isDisabled());  // require, else behaviour undefined per datasheet
-	NRF_RADIO->TASKS_TXEN = 1;
+	enableTX();
 	// assert radio state will soon be TXRU
 }
 
 void Radio::startRcv() {
 	assert(isDisabled());  // require, else behaviour undefined per datasheet
-    NRF_RADIO->TASKS_RXEN = 1;
+    enableRX();
 	// assert radio state will soon be RXRU
 }
 
+void Radio::stopRcv() {
+	// assert radio state is:
+	// RXRU : aborting before ramp-up complete
+	// or RXIDLE: on but never received start preamble signal
+	// or RX: in middle of receiving a packet
+	NRF_RADIO->TASKS_DISABLE = 1;
+	// assert radio state soon RXDISABLE and then immediately transitions to DISABLED
+}
 
+void Radio::stopXmit() {
+	// Rarely used: to abort a transmission, generally radio completes a xmit
+	// TODO
+}
 
 
 // Configuration

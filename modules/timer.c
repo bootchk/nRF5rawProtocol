@@ -57,6 +57,7 @@ void Timer::createTimers(void (*timerTimeoutHandler)(void*))
 }
 
 void Timer::restart() {
+	// APP_TIMER_TICKS converts first arg in msec to timer ticks
 	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(Timeout, TimerPrescaler), nullptr);
 	    APP_ERROR_CHECK(err);
 }

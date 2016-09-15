@@ -66,19 +66,24 @@ In ??? declare the POWER_CLOCK_IRQ handler as extern "C" so its name is not mang
 
 For the same reasons, in app_timer.c (because app_timer uses two interrupts, RTC1 and SWI0):
 
-#ifdef __cplusplus 
-extern "C" { 
-#endif
-void SWI0_IRQHandler(void);
-void RTC1_IRQHandler(void);
-#ifdef __cplusplus 
-} 
-#endif
+ #ifdef __cplusplus 
+ extern "C" { 
+ #endif
+ void SWI0_IRQHandler(void);
+ void RTC1_IRQHandler(void);
+ #ifdef __cplusplus 
+ } 
+ #endif
 
  
 Hacking using Eclipse and GNU ARM toolchain
 -
-Follow the tutorial on the Nordic website.  https://devzone.nordicsemi.com/tutorials/7/  Follows a brief synopsis.
+Follow the tutorial on the Nordic website.  https://devzone.nordicsemi.com/tutorials/7/  
+
+See my blog about my experience setting up the toolchain (link above under See Also.)
+
+
+Follows a brief synopsis.
 
 Install Eclipse C/C++ and GNU dev tools such as make.
 
