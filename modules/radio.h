@@ -27,9 +27,7 @@ public:
 	static bool isDisabled();
 	static void spinUntilDisabled();
 
-	static bool isReady();
-
-	static bool wasTransmitting();
+	//static bool isReady();
 
 	static bool isPacketDone();
 	static void clearPacketDoneFlag();

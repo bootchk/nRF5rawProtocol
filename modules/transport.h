@@ -14,10 +14,9 @@
 class RawTransport {
 
 public:
-	// use in ISR vector table, not call directly
 	static void eventHandler();
 
-	static void init();
+	static void init(void (*onRcvMsgCallback)());
 	static void configure();
 	static void transmit(void * data);
 	static void spinUntilXmitComplete();
@@ -35,5 +34,8 @@ private:
 
 	// static, class data members
 	static Radio radio;
+	static void (*aRcvMsgCallback)();
+	static bool wasTransmitting;  // false: wasReceiving
+
 
 };

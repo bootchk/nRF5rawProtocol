@@ -116,7 +116,7 @@ int main(void)
 
 	RawTransport transport;
 
-	transport.init();
+	transport.init(msgReceivedCallback);
 
 	// TODO pass callback to transport
 

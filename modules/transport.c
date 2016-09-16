@@ -7,13 +7,25 @@
 
 // Class (singleton) data members
 Radio RawTransport::radio;
-
+void (*RawTransport::aRcvMsgCallback)();
+bool RawTransport::wasTransmitting;	// state
 
 
 
 /*
- * IRQ Handler
+ * IRQ Handler for radio
+ *
+ * Hack: really belongs to radio
  */
+extern "C" {
+void RADIO_IRQHandler() {
+	RawTransport::eventHandler();	// relay
+}
+}
+
+
+
+
 void RawTransport::eventHandler(void)
 {
     if (radio.isPacketDone())
@@ -39,15 +51,9 @@ void RawTransport::eventHandler(void)
 
 
 void RawTransport::dispatchPacketCallback() {
-	// Dispatch to Radio owner callbacks
-	if ( radio.wasTransmitting() )
-	{
-		// TODO receiveCallback()
-	}
-	else
-	{
-		// TODO transmitCallback()
-	}
+	// Dispatch to owner callbacks
+	if ( wasTransmitting ) { aRcvMsgCallback(); }
+	// No callback for xmit
 }
 
 
@@ -56,24 +62,29 @@ void RawTransport::dispatchPacketCallback() {
 // Xmit
 
 void RawTransport::transmit(void * data){
+	wasTransmitting = true;
 	radio.setupXmitOrRcv(data);
 	radio.startXmit();
 };
 
 
+// Rcv
 
 void RawTransport::startReceiver() {
 	int data;	// TODO allocate buffers
 
+	wasTransmitting = false;
 	radio.setupXmitOrRcv(&data);
 	radio.startRcv();
 }
 
-
+void RawTransport::init(void (*onRcvMsgCallback)()) {
+	radio.init();
+	aRcvMsgCallback = onRcvMsgCallback;
+}
 
 // Pass through
 
-void RawTransport::init() { radio.init(); }
 void RawTransport::configure() { radio.configureAfterPowerOn(); }
 void RawTransport::powerOn() { radio.powerOn(); }
 void RawTransport::powerOff() { radio.powerOff(); }
