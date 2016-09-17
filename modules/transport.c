@@ -35,7 +35,7 @@ void RawTransport::eventHandler(void)
     	// We don't use RXMATCH to check which logical address was received (assumed environment with few foreign 2.4Mhz radios.)
     	// We do check CRC (messages destroyed by noise.)
 
-        radio.clearPacketDoneFlag();
+        radio.clearPacketDoneEvent();
 
         if (radio.isCRCValid()) dispatchPacketCallback();
         // else garbled message received, ignore it

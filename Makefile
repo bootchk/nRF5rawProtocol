@@ -1,9 +1,7 @@
 # lkk notes
 # see my hacks at 'lkk', everthing else is from example blinky Makefile
 # c++ but use .c for file suffixes, Makefile does not support .cpp suffix
-
-
-PROJECT_NAME := blinky_blank_pca10040
+# derived from project blinky_blank_pca10040
 
 export OUTPUT_FILENAME
 #MAKEFILE_NAME := $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
@@ -12,7 +10,9 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) )
 
 # lkk hack
 NRF_SDK_ROOT = /home/bootch/nrf5_sdk
-TEMPLATE_PATH = /home/bootch/nrf5_sdk/components/toolchain/gcc
+NRF_SDK_LIBS = /home/bootch/nrf5_sdk/components/libraries
+NRF_SDK_DRVS = /home/bootch/nrf5_sdk/components/drivers_nrf
+TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
 
 ifeq ($(OS),Windows_NT)
 include $(TEMPLATE_PATH)/Makefile.windows
@@ -44,23 +44,21 @@ SIZE            := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-size'
 #function for removing duplicates in a list
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
-#source common to all targets
-C_SOURCE_FILES += \
-$(abspath $(TEMPLATE_PATH)/../system_nrf52.c) \
-$(abspath ../../../main.c)
+# Source from the SDK, needed by every nrf project
+C_SOURCE_FILES += $(abspath $(TEMPLATE_PATH)/../system_nrf52.c)
 
 # !!! other Nordic source files used by app CAN be soft links created in virtual folders e.g. ./Device or ./nrfLibraries
 # (but also need to be declared as sources using the link name)
 # OR as here defined directly
 
 # libraries group
-C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/timer/app_timer.c
-C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/app_error.c
-C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/app_util_platform.c
+C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/timer/app_timer.c
+C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/util/app_error.c
+C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/util/app_util_platform.c
 
 # drivers group
-C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c
-C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c
+C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/clock/nrf_drv_clock.c
+C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 
 # logging
 #C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c
@@ -68,9 +66,12 @@ C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.
 
 
 # lkk hack
-# other source of my devising
+# other source of my devising, some in a hard folder: modules
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
+C_SOURCE_FILES +=  main.c
 C_SOURCE_FILES +=  modules/radio.c
+C_SOURCE_FILES +=  modules/radioLowLevel.c
+C_SOURCE_FILES +=  modules/radioConfigure.c
 C_SOURCE_FILES +=  modules/transport.c
 C_SOURCE_FILES +=  modules/timer.c
 C_SOURCE_FILES +=  modules/irqHandlers.c
@@ -80,7 +81,7 @@ C_SOURCE_FILES +=  modules/hfClock.c
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
 #lkk was lower case .s
-ASM_SOURCE_FILES  = $(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.s)
+ASM_SOURCE_FILES  = $(abspath $(TEMPLATE_PATH)/gcc_startup_nrf52.s)
 # ASM_SOURCE_FILES  = gcc_startup_nrf52.s
 #lkk
 #ASM_SOURCE_FILES += modules/hardFaultHandler.s
@@ -89,36 +90,36 @@ ASM_SOURCE_FILES  = $(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc/gcc_start
 #lkk !!! Case sensitive, and since the SDK comes from Windows case insensitive, often SDK has vagaries of capitalization?
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/gcc)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain)
-#lkk I didn't touch this, but don't understand it
-INC_PATHS += -I$(abspath ../../..)
+#lkk I don't understand why this was here
+#INC_PATHS += -I$(abspath ../../..)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/examples/bsp)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/device)
 # lkk not using delay
 #INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
 #lkk v11 capitalization was INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/cmsis/include)
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/hal)
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/hal)
 
 #includes specific to this project
 
 # lkk using timer library: the following chain discovered by trial and error starting with #include "app_timer.h" in main
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/timer)
+INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/timer)
 # lkk timer lib depends on sdk_config.h, which I put in 
 INC_PATHS += -I$(abspath .)
 # lkk app_timer depends on app_error.h found here:
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/util)
+INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/util)
 # lkk sdk_errors depends on nrf_error.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd)
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/nrf_soc_nosd)
 # lkk app_timer uses nrf_drv_clock.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/clock)
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/clock)
 # lkk nrf_drv_clock.h, depends on nrf_drv_common.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/common)
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/common)
 # lkk app_error.c, depends on nrf_logon.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/log)
+INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log)
 # lkk nrf_log.h, depends on nrf_log_inhternal.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/libraries/log/src)
+INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log/src)
 # lkk app_timer.c, depends on nrf_delay.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/delay)
 
 
 
@@ -221,7 +222,8 @@ vpath %.s $(ASM_PATHS)
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
 nrf52832_xxaa: OUTPUT_FILENAME := nrf52832_xxaa
-nrf52832_xxaa: LINKER_SCRIPT=blinky_gcc_nrf52.ld
+nrf52832_xxaa: LINKER_SCRIPT=nRF5rawProtocol_gcc_nrf52.ld
+# ble nano   use nrf51_xxaa.ld (no softdevice, 256k flash, 16k RAM)
 
 nrf52832_xxaa: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
@@ -280,5 +282,3 @@ flash: nrf52832_xxaa
 	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
 	/home/bootch/Downloads/nrfjprog/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
 	/home/bootch/Downloads/nrfjprog/nrfjprog --reset -f nrf52
-
-## Flash softdevice

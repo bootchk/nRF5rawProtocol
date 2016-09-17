@@ -30,7 +30,6 @@ public:
 	//static bool isReady();
 
 	static bool isPacketDone();
-	static void clearPacketDoneFlag();
 
 	static bool isCRCValid();
 
@@ -43,8 +42,27 @@ public:
 
 	// Configuration
 	static void configureAfterPowerOn();
+
 private:
-	static void setFixedFrequency();
-	static void setFixedAddress();
-	static void setCRC();
+	static void enableDCDCPower();
+	static void passPacketAddress(void * data);
+
+	static void configureFixedFrequency();
+	static void configureFixedAddress();
+	static void configureCRC();
+
+	// Tasks and events
+	static void clearEOTEvent();
+	static void startRXTask();
+	static void startTXTask();
+	static void startDisablingTask();
+	static void clearDisabledEvent();
+	static void enableInterruptForPacketDoneEvent();
+	static void setShortcutsAvoidSomeEvents();
+	static void setRadioPowered(bool);
+
+public:
+	static void clearPacketDoneEvent();
+
+
 };
