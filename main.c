@@ -68,7 +68,6 @@ void rcvTimeoutTimerCallback(void * p_context)
 {
 	// set global flag indicating reason for waking
 	isMessageReceived = false;
-	toggleLEDThree();
 }
 
 void msgReceivedCallback() {
@@ -137,6 +136,13 @@ int main(void)
 
     	NRF_LOG_INFO("Here\n");
 
+    	/*
+    	 * Every iteration.
+    	 * On custom board (BLE Nano) with only one LED, this is the only indication
+    	 * the program is working.
+    	 */
+    	toggleLEDOne();	//
+
     	// Basic test loop:  xmit, listen, toggleLeds when hear message
 
     	// assert configuration is lost after power is cycled
@@ -160,13 +166,17 @@ int main(void)
 
     	// Some interrupt woke us up and set a flag
     	if ( isMessageReceived ) {
-    		toggleLEDOne();
+#ifndef BOARD_CUSTOM
+    		toggleLEDThree();
+#endif
     		isMessageReceived = false;
     	}
     	else {
     		// timed out
+#ifndef BOARD_CUSTOM
     		toggleLEDTwo();
     		// assert receiver still enabled
+#endif
     	}
 
     	transport.stopReceiver();
