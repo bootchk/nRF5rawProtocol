@@ -100,26 +100,12 @@ void Radio::spinUntilDisabled() {
 
 
 
-
-// OBSOLETE?  Where did this come from?
-// bool Radio::isReady() { return NRF_RADIO->EVENTS_READY; }
-
-
-
-
 void Radio::setupXmitOrRcv(void * data) {
 	// Setup common to xmit or rcv
-
 	setShortcutsAvoidSomeEvents();
-
 	passPacketAddress(data);
-
-
 	enableInterruptForPacketDoneEvent();
 	clearPacketDoneEvent();
-
-	//NRF_RADIO->PREFIX1	= ((m_alt_aa >> 24) & 0x000000FF);
-	//NRF_RADIO->BASE1    = ((m_alt_aa <<  8) & 0xFFFFFF00);
 }
 
 /*
@@ -168,29 +154,4 @@ void Radio::spinUntilXmitComplete() {
 	// TODO use interrupt on xmit.
 	while (! isDisabled() ) {}
 }
-
-
-
-
-// Configuration
-
-void Radio::configureAfterPowerOn() {
-	// This should be redone whenever radio is power toggled on?
-	// None of it may be necessary if you are happy with reset defaults?
-
-	configureFixedFrequency();
-	configureFixedAddress();
-	configureCRC();
-
-	//NRF_RADIO->PREFIX1	= ((m_alt_aa >> 24) & 0x000000FF);
-	//NRF_RADIO->BASE1    = ((m_alt_aa <<  8) & 0xFFFFFF00);
-
-	// FUTURE: parameter
-	// Default tx power
-};
-
-
-
-
-
 

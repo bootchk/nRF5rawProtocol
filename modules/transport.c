@@ -24,8 +24,6 @@ void RADIO_IRQHandler() {
 }
 
 
-
-
 void RawTransport::eventHandler(void)
 {
     if (radio.isPacketDone())
@@ -61,7 +59,7 @@ void RawTransport::dispatchPacketCallback() {
 
 // Xmit
 
-void RawTransport::transmit(void * data){
+void RawTransport::transmit(uint8_t * data){
 	wasTransmitting = true;
 	radio.setupXmitOrRcv(data);
 	radio.startXmit();
@@ -70,11 +68,9 @@ void RawTransport::transmit(void * data){
 
 // Rcv
 
-void RawTransport::startReceiver() {
-	int data;	// TODO allocate buffers
-
+void RawTransport::startReceiver(uint8_t * data) {
 	wasTransmitting = false;
-	radio.setupXmitOrRcv(&data);
+	radio.setupXmitOrRcv(data);
 	radio.startRcv();
 }
 
@@ -83,9 +79,30 @@ void RawTransport::init(void (*onRcvMsgCallback)()) {
 	aRcvMsgCallback = onRcvMsgCallback;
 }
 
+
+// Configuration
+
+void RawTransport::configure() {
+	// Should be redone whenever radio is power toggled on?
+	// None of it may be necessary if you are happy with reset defaults?
+
+	// Specific to the protocol, here rawish
+	radio.configureFixedFrequency();
+	radio.configureFixedLogicalAddress();
+	radio.configureNetworkAddressPool();
+	radio.configureCRC();
+	radio.configurePacketFormat();
+
+	// FUTURE: parameters
+	// Default tx power
+	// Default mode i.e. bits per second
+};
+
+
+
+
 // Pass through
 
-void RawTransport::configure() { radio.configureAfterPowerOn(); }
 void RawTransport::powerOn() { radio.powerOn(); }
 void RawTransport::powerOff() { radio.powerOff(); }
 bool RawTransport::isDisabled() { return radio.isDisabled(); }

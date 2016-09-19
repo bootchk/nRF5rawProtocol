@@ -26,7 +26,7 @@ void Radio::enableDCDCPower(){
 }
 
 void Radio::passPacketAddress(void * data){
-	// point to packet in memory, must fit in 4 byte register
+	// point to packet in memory, pointer must fit in 4 byte register
 	// Is portable until address space exceeds 32-bit
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
 }
@@ -61,10 +61,31 @@ void Radio::enableInterruptForPacketDoneEvent() {
 	NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk;
 }
 
+/*
+ * The radio emits events for many state transitions we are not interested in.
+ * And the radio requires certain tasks to make transitions.
+ * A shortcut hooks an event to a transition so that we do not need to explicitly start a task.
+ * A shortcut makes for much shorter on-air times.
+ *
+ * !!! The state diagram also has a transition without a condition:  /Disabled from TXDISABLE to DISABLED.
+ *
+ * These shortcuts are:
+ * - from state TXRU directly to state TX (without explicit start READY task, bypassing state TXIDLE)
+ * - from state TX   directly to tstat DISABLED (without explicit DISABLE task, bypassing states TXIDLE and TXDISABLE)
+ */
 void Radio::setShortcutsAvoidSomeEvents() {
-	// The radio CAN emit events for may state transitions we are not interested in.
-	// TODO Avoid READY,  event,
-	NRF_RADIO->SHORTS = RADIO_SHORTS_READY_START_Msk | RADIO_SHORTS_END_DISABLE_Msk | RADIO_SHORTS_ADDRESS_RSSISTART_Msk;
+	//
+	// In other words, make automatic transitions in state diagram.
+	NRF_RADIO->SHORTS = RADIO_SHORTS_READY_START_Msk // shortcut READY event to START task
+			| RADIO_SHORTS_END_DISABLE_Msk;		 // shortcut END event to DISABLE task
+			// | RADIO_SHORTS_ADDRESS_RSSISTART_Msk;	 //
+
+	// RadioHead nrf51
+	// These shorts will make the radio transition from Ready to Start to Disable automatically
+	// for both TX and RX, which makes for much shorter on-air times
+	// NRF_RADIO->SHORTS = (RADIO_SHORTS_READY_START_Enabled << RADIO_SHORTS_READY_START_Pos)
+	//	              | (RADIO_SHORTS_END_DISABLE_Enabled << RADIO_SHORTS_END_DISABLE_Pos);
+
 }
 
 void Radio::setRadioPowered(bool value){

@@ -18,10 +18,10 @@ public:
 
 	static void init(void (*onRcvMsgCallback)());
 	static void configure();
-	static void transmit(void * data);
+	static void transmit(uint8_t * data);
 	static void spinUntilXmitComplete();
 
-	static void startReceiver();
+	static void startReceiver(uint8_t * data);
 	static void stopReceiver();
 
 	static void powerOn();

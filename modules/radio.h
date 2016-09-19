@@ -1,5 +1,6 @@
 #pragma once
 
+#include <inttypes.h>
 #include "hfClock.h"
 
 
@@ -21,13 +22,9 @@ public:
 	static void powerOn();
 	static void powerOff();
 
-	static void enableRX();
-	static void enableTX();
-	static void disable();
+
 	static bool isDisabled();
 	static void spinUntilDisabled();
-
-	//static bool isReady();
 
 	static bool isPacketDone();
 
@@ -40,16 +37,26 @@ public:
 	static void stopRcv();
 	static void spinUntilXmitComplete();
 
-	// Configuration
-	static void configureAfterPowerOn();
+	// Configuration: see notes in radioConfigure.c
+
+	static void configureFixedFrequency();
+	static void configureFixedLogicalAddress();
+	static void configureNetworkAddressPool();
+	static void configureCRC();
+	static void configurePacketFormat();
+	static void configureOnAirPacketFormat();
+	static void configurePayloadFormat();
 
 private:
+	static void configureWhiteningSeed(int);
+	static void enableRX();
+	static void enableTX();
+	static void disable();
+
 	static void enableDCDCPower();
 	static void passPacketAddress(void * data);
 
-	static void configureFixedFrequency();
-	static void configureFixedAddress();
-	static void configureCRC();
+	static void setNetworkAddress(uint8_t* address, uint8_t len);
 
 	// Tasks and events
 	static void clearEOTEvent();

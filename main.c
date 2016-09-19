@@ -83,7 +83,13 @@ void msgReceivedCallback() {
 
 }
 
-
+/*
+ * nrf52:
+ * - will not wake from "system off" by a timer (only reset or GPIO pin change.)
+ * - in "system on", current is ~3uA == Ion + Irtc + Ix32k
+ * No worry about RAM retention in "system on"
+ * Here "system" means mcu.
+ */
 void sleep() {
 	// Enter System ON sleep mode
 
@@ -100,6 +106,14 @@ void sleep() {
 }
 
 
+void sleepWithRadioOff(){
+	// assert LFCLK (RTC w xtal) is on
+	// current ~10uA
+	// sleep with RAM retention: state describes clique
+	// TODO random delay here
+	// timer.restart();
+	// sleep();
+}
 
 /*
  * This is main without SD (SoftDevice i.e. Nordic-provided wireless stack)
@@ -126,7 +140,7 @@ int main(void)
 
     while (true)
     {
-    	int buf;
+    	uint8_t rxAndTxBuffer[5];	// This must be larger than configured payload length.
 
     	NRF_LOG_INFO("Here\n");
 
@@ -138,7 +152,7 @@ int main(void)
 
     	assert(transport.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
-    	transport.transmit(&buf);
+    	transport.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
     	transport.spinUntilXmitComplete();
     	// assert xmit is complete
@@ -146,7 +160,7 @@ int main(void)
     	assert(transport.isDisabled());	// radio disabled when xmit complete but still powered on
 
     	assert(! isMessageReceived);	// We cleared the flag earlier.
-    	transport.startReceiver();
+    	transport.startReceiver(rxAndTxBuffer);
 
     	timer.restart();	// timer must not trigger before we sleep
     	sleep();	// wait for received msg or timeout
@@ -165,10 +179,9 @@ int main(void)
     	transport.stopReceiver();
     	transport.powerOff();
 
+    	sleepWithRadioOff();
     	// TODO analyze whether two units get in lockstep, missing each other's xmits
-    	// TODO random delay here
-    	// timer.restart();
-    	// sleep();
+
     }
 }
 
