@@ -106,3 +106,15 @@ Hack the Makefile to fix filename capitalization issues in the NRF SDK v12 (see 
 
 Fix any other problems in the project, such as Properties>Resources>Linked Resources?
  
+
+Chip families and board/modules
+-
+
+There are two Makefiles, .nrf51 and .nrf52, for older and newer chip families.  If you add source files or make other changes, make in both Makefiles.
+
+Also two .ld files (to configure different flash/RAM amounts.)
+
+Also, some #ifdef's in the code to account for different boards/modules, nrf52KD dev board and RedBear BLE Nano module.  Specifically, for LED differences.
+
+To change: copy one of the Makefiles.nrf5x over the Makefile and rebuild.  (I haven't figured out how to configure Eclipse for two different Makefiles.)
+ 

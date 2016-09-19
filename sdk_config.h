@@ -7,7 +7,8 @@
 // Because app_timer uses clock
 #define CLOCK_ENABLED 1
 #define CLOCK_CONFIG_LF_SRC 1	// xtal
-#define CLOCK_CONFIG_IRQ_PRIORITY 6
+#define CLOCK_CONFIG_IRQ_PRIORITY 3
+// TODO priority 6 for nrf52?
 
 // My app uses app_timer.
 // Project component app_timer.c includes this file and compiles conditionally on this definition
