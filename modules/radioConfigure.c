@@ -71,14 +71,14 @@ void Radio::configurePayloadFormat() {
 			| ((1 << RADIO_PCNF1_WHITEEN_Pos) & RADIO_PCNF1_WHITEEN_Msk); 	// enable whiten
 			//len-1
 
-	// TODO this is really configuring the address field too i.e. BALEN
 
 	// Note address must be >= 3 bytes see "Disable standard addressing" on DevZone
 	// See also recommendations for longer address and CRC:  4 bytes give random noise match every 70 minutes
 
+	// Configuring the address field too i.e. BALEN
 	// Note endianess and whitening is also controlled by this register!!!
 	// So this code destroys any setting of those bit-fields.
-	// TODO use BIC and BIS
+	// FUTURE use BIC and BIS to separate these concerns
 }
 
 

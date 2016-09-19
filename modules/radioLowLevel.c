@@ -15,7 +15,7 @@
  */
 
 
-// TODO inline
+// FUTURE inline
 
 void Radio::enableDCDCPower(){
 	// Not really the radio, another peripheral.
@@ -117,7 +117,7 @@ bool Radio::isCRCValid() {
 }
 
 
-// TODO reduce coupling, transport shouldn't know this
+// FUTURE reduce coupling, transport shouldn't know this
 void Radio::clearPacketDoneEvent() {
 	NRF_RADIO->EVENTS_END = 0;
 }

@@ -17,9 +17,8 @@ void Radio::configureFixedLogicalAddress(){
 
 	NRF_RADIO->TXADDRESS   = 0x00;	// Transmit to logical address 0 (defined by PREFIX0.A + BASE0)
 
-	// TODO why is this 1 instead of 0?
-	NRF_RADIO->RXADDRESSES = 0x01; // Receive logical address 0 (PREFIX0.A + BASE0)
-	// There are many RX addresses.  We only chose one.
+	// There are eight RX addresses.  We only enable one (setting one bit out of eight).
+	NRF_RADIO->RXADDRESSES = 0x01; // Enable receive logical address 0 (PREFIX0.A + BASE0)
 }
 
 
@@ -51,7 +50,7 @@ void Radio::setNetworkAddress(uint8_t* address, uint8_t len)
 	// !!! Prefix is last byte transmitted ("prefix" is misnomer.)
 
 	assert(len >= 3 && len <= 5);
-	// TODO assert LSB of base is not outlawed x00, xFF, x55, xAA
+	// FUTURE assert LSB of base is not outlawed value: x00, xFF, x55, xAA
 
 	// This implementation is flawed, but adequate for my purposes.
 

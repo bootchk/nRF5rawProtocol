@@ -57,19 +57,14 @@ static void initLogging(void)
 }
 
 
-
-
-
 bool isMessageReceived;	// flag set by callback
 
 
-// Callbacks from interrupts.
-// extern C so names not mangled
-// TODO but I'm passing address, so names can be mangled
-extern "C" {
-
-
-void rcvTimeoutTimerHandler(void * p_context)
+/*
+ * Callbacks from ISR, so keep short or schedule a task, queue work, etc.
+ * Passing address, so names can be C++ mangled
+ */
+void rcvTimeoutTimerCallback(void * p_context)
 {
 	// set global flag indicating reason for waking
 	isMessageReceived = false;
@@ -81,7 +76,7 @@ void msgReceivedCallback() {
 	isMessageReceived = true;
 }
 
-}
+
 
 /*
  * nrf52:
@@ -107,10 +102,11 @@ void sleep() {
 
 
 void sleepWithRadioOff(){
+	// FUTURE
 	// assert LFCLK (RTC w xtal) is on
 	// current ~10uA
 	// sleep with RAM retention: state describes clique
-	// TODO random delay here
+	// random delay here
 	// timer.restart();
 	// sleep();
 }
@@ -122,17 +118,14 @@ void sleepWithRadioOff(){
 int main(void)
 {
 	Timer timer;
+	RawTransport transport;
 
 	initLogging();	// debug
 
 	timer.init();
-	timer.createTimers(rcvTimeoutTimerHandler);
-
-	RawTransport transport;
+	timer.createTimers(rcvTimeoutTimerCallback);
 
 	transport.init(msgReceivedCallback);
-
-	// TODO pass callback to transport
 
     // Debug configure LED-pins as outputs, default to on?
     LEDS_CONFIGURE(LEDS_MASK);
@@ -140,7 +133,7 @@ int main(void)
 
     while (true)
     {
-    	uint8_t rxAndTxBuffer[5];	// This must be larger than configured payload length.
+    	uint8_t rxAndTxBuffer[5];	// Must be larger than configured payload length.
 
     	NRF_LOG_INFO("Here\n");
 
@@ -180,7 +173,7 @@ int main(void)
     	transport.powerOff();
 
     	sleepWithRadioOff();
-    	// TODO analyze whether two units get in lockstep, missing each other's xmits
+    	// FUTURE sleep sync, analyze whether two units get in lockstep, missing each other's xmits
 
     }
 }

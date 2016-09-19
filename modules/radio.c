@@ -136,7 +136,7 @@ void Radio::stopRcv() {
 
 void Radio::stopXmit() {
 	// Rarely used: to abort a transmission, generally radio completes a xmit
-	// TODO
+	// FUTURE
 }
 
 void Radio::spinUntilXmitComplete() {
@@ -151,7 +151,7 @@ void Radio::spinUntilXmitComplete() {
 	// Radio state flows (via TXDISABLE) to DISABLED.  Wait for DISABLED event.
 	// Here, for xmit, we do not enable interrupt on DISABLED event.
 	// Since it we expect it to be quick.
-	// TODO use interrupt on xmit.
+	// FUTURE use interrupt on xmit.
 	while (! isDisabled() ) {}
 }
 

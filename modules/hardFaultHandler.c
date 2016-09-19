@@ -6,7 +6,7 @@
 // From Joseph Yiu, minor edits by FVH
 // hard fault handler in C,
 // with stack frame location as input parameter
-// called from HardFault_Handler in file xxx.s
+// called from HardFault_Handler in file foo.s
 
 
 /*
@@ -53,10 +53,13 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
 }
 */
 
+
+
+// Avoid C++ name mangling
+extern "C" {
+
 /* The prototype shows it is a naked function - in effect this is just an assembly function. */
 static void HardFault_Handler( void ) __attribute__( ( naked ) );
-
-// TODO C++ linkage?  So not override?
 
 /* The fault handler implementation calls a function called prvGetRegistersFromStack(). */
 // Unused means not referenced, is an ISR
@@ -74,7 +77,7 @@ __attribute__((unused)) static void HardFault_Handler(void)
         " handler2_address_const: .word prvGetRegistersFromStack    \n"
     );
 }
-
+}	// extern "C"
 
 void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
 {

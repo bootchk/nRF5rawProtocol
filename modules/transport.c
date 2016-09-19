@@ -40,9 +40,9 @@ void RawTransport::eventHandler(void)
     }
     else
     {
-        // Unexpected, interrupts other than 'packet done'
-    	// TODO log
-    	// TODO clear flags
+        // Programming error, interrupts other than the only enabled interrupt 'packet done'
+    	// FUTURE handle more gracefully by just clearing
+    	assert(false);
     }
     // We don't have a queue and we don't have a callback for idle
 }

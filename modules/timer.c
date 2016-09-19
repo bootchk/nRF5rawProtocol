@@ -30,7 +30,7 @@ void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 	// gdb break will stop here
 	__disable_irq();
 	while(true);
-	// TODO log
+	// FUTURE attempt recovery and log
 }
 
 void Timer::init() {	//TimerBasedOnLowFreqXtalClock() {
