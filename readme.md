@@ -114,7 +114,18 @@ There are two Makefiles, .nrf51 and .nrf52, for older and newer chip families.  
 
 Also two .ld files (to configure different flash/RAM amounts.)
 
+(I haven't figured out whether I need to change the Eclipse projects linked resources.  Apparently the Makefile doesn't use them?)
+
 Also, some #ifdef's in the code to account for different boards/modules, nrf52KD dev board and RedBear BLE Nano module.  Specifically, for LED differences.
 
 To change: copy one of the Makefiles.nrf5x over the Makefile and rebuild.  (I haven't figured out how to configure Eclipse for two different Makefiles.)
- 
+
+Other hacks:
+
+Remember I hacked the SDK, and if you switch nrf52 to nrf51, you need to do it in two places:
+
+(The hacks to allow C++ IRQHandler are portable nrf52 to nrf51.)
+
+Capitalization issues gcc_startup_nrf51.S => .s
+
+To allow a large program to load in limited RAM:  In gcc_startup_nrf51.s     =>   .equ    Heap_Size, 0

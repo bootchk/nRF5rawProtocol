@@ -9,9 +9,11 @@ MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
 
 # lkk hack
-NRF_SDK_ROOT = /home/bootch/nrf5_sdk
-NRF_SDK_LIBS = /home/bootch/nrf5_sdk/components/libraries
-NRF_SDK_DRVS = /home/bootch/nrf5_sdk/components/drivers_nrf
+HOME = /home/bootch
+NRF_SDK_ROOT = $(HOME)/nrf5_sdk
+NRF_SDK_LIBS = $(HOME)/nrf5_sdk/components/libraries
+NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
+OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
 TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
 
 ifeq ($(OS),Windows_NT)
@@ -284,5 +286,5 @@ cleanobj:
 	$(RM) $(BUILD_DIRECTORIES)/*.o
 flash: nrf52832_xxaa
 	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
-	/home/bootch/Downloads/nrfjprog/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
-	/home/bootch/Downloads/nrfjprog/nrfjprog --reset -f nrf52
+	$(OTHER_TOOLS)/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
+	$(OTHER_TOOLS)/nrfjprog --reset -f nrf52
