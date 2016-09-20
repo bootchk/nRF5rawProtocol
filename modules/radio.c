@@ -38,7 +38,6 @@ void RADIO_IRQHandler() {
 }
 }
 
-
 void Radio::eventHandler(void)
 {
     if (device.isPacketDone())
@@ -65,12 +64,13 @@ void Radio::eventHandler(void)
     	assert(false);
     }
     // We don't have a queue and we don't have a callback for idle
+    assert(!device.isPacketDone());	// Ensure event is clear else get another unexpected interrupt
 }
 
 
 void Radio::dispatchPacketCallback() {
 	// Dispatch to owner callbacks
-	if ( wasTransmitting ) { aRcvMsgCallback(); }
+	if ( ! wasTransmitting ) { aRcvMsgCallback(); }
 	// No callback for xmit
 }
 
@@ -238,7 +238,8 @@ void Radio::spinUntilXmitComplete() {
 
 	// Nothing can prevent xmit?  Even bad configuration or HFCLK not on?
 
-	// Radio state flows (via TXDISABLE) to DISABLED.  Wait for DISABLED event.
+	// Radio state flows (via TXDISABLE) to DISABLED.
+	// Wait for DISABLED state (not the event.)
 	// Here, for xmit, we do not enable interrupt on DISABLED event.
 	// Since it we expect it to be quick.
 	// FUTURE use interrupt on xmit.

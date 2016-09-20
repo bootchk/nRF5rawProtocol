@@ -74,13 +74,9 @@ static void initLogging(void)
  *
  * Passing address, so names can be C++ mangled
  */
-void rcvTimeoutTimerCallback(void * p_context) {
-	reasonForWake = Timeout;
-}
+void rcvTimeoutTimerCallback(void * p_context) { reasonForWake = Timeout; }
 
-void msgReceivedCallback() {
-	reasonForWake = MsgReceived;
-}
+void msgReceivedCallback() { reasonForWake = MsgReceived; }
 
 
 
@@ -96,9 +92,8 @@ void sleep() {
 
 	// Make sure any pending events are cleared
 	__SEV();
-	__WFE();
-	// This should actually sleep until the next event.
-	__WFE();
+	__WFE();	// Since internal event flag is set, this clears it without sleeping
+	__WFE();	// This should actually sleep until the next event.
 
 	// For more information on the WFE - SEV - WFE sequence, please refer to the following Devzone article:
 	// https://devzone.nordicsemi.com/index.php/how-do-you-put-the-nrf51822-chip-to-sleep#reply-1589
@@ -168,19 +163,25 @@ int main(void)
     	timer.restart();	// oneshot timer must not trigger before we sleep, else sleep forever
     	sleep();	// wait for received msg or timeout
 
-    	// Some interrupt woke us up and set a flag
-    	if ( reasonForWake == MsgReceived ) {
+    	// If using nrf52DK with many LED's show result
 #ifndef BOARD_CUSTOM
+    	// Some interrupt ??? event woke us up and set reasonForWake
+    	switch ( reasonForWake ) {
+    	case MsgReceived:
     		toggleLEDThree();
-#endif
-    	}
-    	else {
-    		assert(reasonForWake == Timeout);
-#ifndef BOARD_CUSTOM
+    		break;
+
+    	case Timeout:
     		toggleLEDTwo();
-#endif
-    		// assert receiver still enabled
+    		break;
+    	default:
+    		;
+    		// assert(false); // Unexpected
+    		// TODO we are getting here, figure it out
     	}
+#endif
+
+    	// assert receiver still enabled
 
     	radio.stopReceive();
     	radio.powerOff();

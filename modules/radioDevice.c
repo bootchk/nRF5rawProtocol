@@ -1,17 +1,24 @@
+#include <cassert>
 
 #include "nrf.h"
 
 #include "radioDevice.h"
 
-// Low-level, mostly private
-// These are here so that most knowledge of a kind of register manipulation is in one place.
-// We don't use comments at a higher level to explain register manipulation, the name suffices.
+/*
+ * More implementation of RadioDevice is in radioConfigure.c and radioAddress.c
+ *
+ * These are here so that most knowledge of a kind of register manipulation is in one place.
+ * I don't use comments at a higher level (Radio) to explain register manipulation, the name suffices.
+ *
+ */
 
 /*
  * Clear means: clear the flag that indicates an event.
  * You start a task, which runs in the radio device.
  * The task eventually sets an event.
  * The event can trigger an interrupt.
+ *
+ * Per Nordic document "Migrating nrf51 to nrf52", you must read event register after clearing to flush ARM write buffer.
  */
 
 
@@ -65,10 +72,47 @@ void RadioDevice::clearDisabledEvent(){
 	(void)NRF_RADIO->EVENTS_DISABLED;	// flush ARM write buffer
 }
 
+bool RadioDevice::isDisabled() {
+	/*
+	 * i.e. not busy with (in midst of) xmit or rcv
+	 *
+	 * Not the same as EVENTS_DISABLED:  device can be disabled without the event being set.
+	 * E.G. it starts disabled.
+	 */
+	return NRF_RADIO->STATE == RADIO_STATE_STATE_Disabled;
+}
+
+bool RadioDevice::isDisabledEventSet() {
+	// Used to spin until clear
+	return NRF_RADIO->EVENTS_DISABLED; // == 1
+}
+
+
+/*
+ * Event "END" means "end of packet" (RX or TX)
+ *
+ * Since we use shortcuts, state has already passed through RXIDLE or TXIDLE to DISABLED
+ * But the event is still set, is trigger for interrupt, and must be cleared.
+ */
+bool RadioDevice::isPacketDone() {
+	return NRF_RADIO->EVENTS_END;  // == 1;
+}
+
+void RadioDevice::clearPacketDoneEvent() {
+	NRF_RADIO->EVENTS_END = 0;
+	(void)NRF_RADIO->EVENTS_END;	// flush ARM write buffer
+	assert(!isPacketDone());	// ensure
+}
+
+
+
+// Interrupts and shortcuts
 
 void RadioDevice::enableInterruptForPacketDoneEvent() {
 	NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk;
 }
+
+// TODO we never disable the interrupt
 
 /*
  * The radio emits events for many state transitions we are not interested in.
@@ -97,36 +141,27 @@ void RadioDevice::setShortcutsAvoidSomeEvents() {
 
 }
 
+
+
+
+// Power
+
 void RadioDevice::setRadioPowered(bool value){
 	NRF_RADIO->POWER = value;	// 1 or 0 per C++ standard and datasheet
 }
 
 
-// public
-
-// states
-
-bool RadioDevice::isPacketDone() {
-	// packet was received.
-	// radio state usually RXIDLE or TXIDLE and ???
-	// Event "END" means "end of packet"
-	return NRF_RADIO->EVENTS_END;  // == 1;
-}
-
-bool RadioDevice::isDisabled() {
-	// i.e. not busy with (in midst of) xmit or rcv
-	return NRF_RADIO->EVENTS_DISABLED; // == 1;
-}
 
 
 
+
+
+
+// CRC
 
 bool RadioDevice::isCRCValid() {
 	return NRF_RADIO->CRCSTATUS == 1;	// CRCOk;
 }
 
 
-void RadioDevice::clearPacketDoneEvent() {
-	NRF_RADIO->EVENTS_END = 0;
-	(void)NRF_RADIO->EVENTS_END;	// flush ARM write buffer
-}
+

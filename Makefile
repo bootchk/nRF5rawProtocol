@@ -72,7 +72,7 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
 C_SOURCE_FILES +=  modules/radio.c
-C_SOURCE_FILES +=  modules/radioLowLevel.c
+C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
 C_SOURCE_FILES +=  modules/radioAddress.c
 C_SOURCE_FILES +=  modules/timer.c

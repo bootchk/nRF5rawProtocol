@@ -43,8 +43,9 @@ public:
 	static void clearEOTEvent();
 
 	static void startDisablingTask();
-	static bool isDisabled();
+	static bool isDisabledEventSet();
 	static void clearDisabledEvent();
+	static bool isDisabled();
 
 	static void enableInterruptForPacketDoneEvent();
 	static void setShortcutsAvoidSomeEvents();
