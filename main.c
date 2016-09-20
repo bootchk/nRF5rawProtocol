@@ -29,6 +29,14 @@
 #include "modules/transport.h"
 
 
+typedef enum {
+	MsgReceived,
+	Timeout,
+	Cleared
+} ReasonForWake;
+
+ReasonForWake reasonForWake;
+
 // Debugging code optional for production
 
 const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
@@ -57,22 +65,21 @@ static void initLogging(void)
 }
 
 
-bool isMessageReceived;	// flag set by callback
+
 
 
 /*
  * Callbacks from ISR, so keep short or schedule a task, queue work, etc.
+ * Here we set flag that main event loop reads.
+ *
  * Passing address, so names can be C++ mangled
  */
-void rcvTimeoutTimerCallback(void * p_context)
-{
-	// set global flag indicating reason for waking
-	isMessageReceived = false;
+void rcvTimeoutTimerCallback(void * p_context) {
+	reasonForWake = Timeout;
 }
 
 void msgReceivedCallback() {
-	// just indicate state in app's basic state machine: [xmittedThenListening, woken for message, woken for timeout]
-	isMessageReceived = true;
+	reasonForWake = MsgReceived;
 }
 
 
@@ -113,6 +120,8 @@ void sleepWithRadioOff(){
 /*
  * This is main without SD (SoftDevice i.e. Nordic-provided wireless stack)
  * Interrupt handlers defined in gcc_startup_nrf52.s
+ *
+ * main event loop basic state machine: [xmittedThenListening, woken for message, woken for timeout]
  */
 int main(void)
 {
@@ -158,18 +167,18 @@ int main(void)
 
     	assert(transport.isDisabled());	// radio disabled when xmit complete but still powered on
 
-    	assert(! isMessageReceived);	// We cleared the flag earlier.
+    	assert(reasonForWake == Cleared);
     	transport.startReceiver(rxAndTxBuffer);
 
     	timer.restart();	// timer must not trigger before we sleep
     	sleep();	// wait for received msg or timeout
 
     	// Some interrupt woke us up and set a flag
-    	if ( isMessageReceived ) {
+    	if ( reasonForWake == MsgReceived ) {
 #ifndef BOARD_CUSTOM
     		toggleLEDThree();
 #endif
-    		isMessageReceived = false;
+    		reasonForWake = Cleared;
     	}
     	else {
     		// timed out

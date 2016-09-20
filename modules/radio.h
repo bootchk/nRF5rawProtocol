@@ -70,6 +70,4 @@ private:
 
 public:
 	static void clearPacketDoneEvent();
-
-
 };

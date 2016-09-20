@@ -8,7 +8,14 @@
 // Class (singleton) data members
 Radio RawTransport::radio;
 void (*RawTransport::aRcvMsgCallback)();
-bool RawTransport::wasTransmitting;	// state
+
+
+/*
+ * State.
+ * Can't tell from radio device whether xmit or rcv task was started,
+ * (when using shortcuts.)
+ */
+bool RawTransport::wasTransmitting;
 
 
 
