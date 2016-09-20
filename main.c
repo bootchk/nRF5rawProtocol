@@ -26,7 +26,7 @@
 
 
 #include "modules/timer.h"
-#include "modules/transport.h"
+#include "modules/radio.h"
 
 
 typedef enum {
@@ -126,51 +126,46 @@ void sleepWithRadioOff(){
 int main(void)
 {
 	Timer timer;
-	RawTransport transport;
+	Radio radio;
 
 	initLogging();	// debug
 
 	timer.init();
 	timer.createTimers(rcvTimeoutTimerCallback);
 
-	transport.init(msgReceivedCallback);
+	radio.init(msgReceivedCallback);
 
     // Debug configure LED-pins as outputs, default to on?
     LEDS_CONFIGURE(LEDS_MASK);
     toggleLEDs();	// off
 
+    // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
-    	uint8_t rxAndTxBuffer[5];	// Must be larger than configured payload length.
+    	uint8_t rxAndTxBuffer[5];	// Must as large as configured payload length.
 
     	NRF_LOG_INFO("Here\n");
 
-    	/*
-    	 * Every iteration.
-    	 * On custom board (BLE Nano) with only one LED, this is the only indication
-    	 * the program is working.
-    	 */
+    	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
     	toggleLEDOne();	//
 
-    	// Basic test loop:  xmit, listen, toggleLeds when hear message
-
     	// assert configuration is lost after power is cycled
-    	transport.powerOn();
-    	transport.configure();
+    	radio.powerOn();
+    	radio.configure();
 
-    	assert(transport.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
+    	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
-    	transport.transmit(rxAndTxBuffer);
+    	radio.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
-    	transport.spinUntilXmitComplete();
+    	radio.spinUntilXmitComplete();
     	// assert xmit is complete
 
-    	assert(transport.isDisabled());	// radio disabled when xmit complete but still powered on
+    	assert(radio.isDisabled());	// radio disabled when xmit complete but still powered on
 
-    	assert(reasonForWake == Cleared);
-    	transport.startReceiver(rxAndTxBuffer);
+    	reasonForWake = Cleared;
+    	radio.receive(rxAndTxBuffer);
 
-    	timer.restart();	// timer must not trigger before we sleep
+    	timer.restart();	// oneshot timer must not trigger before we sleep, else sleep forever
     	sleep();	// wait for received msg or timeout
 
     	// Some interrupt woke us up and set a flag
@@ -178,22 +173,20 @@ int main(void)
 #ifndef BOARD_CUSTOM
     		toggleLEDThree();
 #endif
-    		reasonForWake = Cleared;
     	}
     	else {
-    		// timed out
+    		assert(reasonForWake == Timeout);
 #ifndef BOARD_CUSTOM
     		toggleLEDTwo();
-    		// assert receiver still enabled
 #endif
+    		// assert receiver still enabled
     	}
 
-    	transport.stopReceiver();
-    	transport.powerOff();
+    	radio.stopReceive();
+    	radio.powerOff();
 
     	sleepWithRadioOff();
     	// FUTURE sleep sync, analyze whether two units get in lockstep, missing each other's xmits
-
     }
 }
 

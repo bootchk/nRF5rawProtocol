@@ -1,7 +1,7 @@
 
 #include "nrf.h"
 
-#include "radio.h"
+#include "radioDevice.h"
 
 // Low-level, mostly private
 // These are here so that most knowledge of a kind of register manipulation is in one place.
@@ -17,7 +17,7 @@
 
 // FUTURE inline
 
-void Radio::enableDCDCPower(){
+void RadioDevice::enableDCDCPower(){
 	// Not really the radio, another peripheral.
 	// Per Radiohead
 	// Enabling DCDC converter lets the radio control it automatically.  Enabling does not turn it on.
@@ -25,7 +25,7 @@ void Radio::enableDCDCPower(){
 	NRF_POWER->DCDCEN = 0x00000001;
 }
 
-void Radio::passPacketAddress(void * data){
+void RadioDevice::passPacketAddress(void * data){
 	// point to packet in memory, pointer must fit in 4 byte register
 	// Is portable until address space exceeds 32-bit
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
@@ -35,29 +35,38 @@ void Radio::passPacketAddress(void * data){
 // Events and tasks
 
 
-void Radio::clearEOTEvent() {
-	// end of transceive (transmission or reception) will set this event
-	// The radio state becoming "disabled" signifies EOT
-	NRF_RADIO->EVENTS_DISABLED = 0U;	// Clear event register
+/*
+ * End Of Transceive (transmission or reception) will set this event.
+ *
+ * Since we use a shortcut, on packet done, radio state becoming "disabled" signifies EOT.
+ * Note we enable interrupt on RX Packet Done (END), but not on TX.
+ * The RX ISR must clear  Packet Done (END) event, or another interrupt immediately occurs.
+ *
+ * The app can also disable() RX, taking state to DISABLED.
+ * So state==DISABLED is not always EOT.
+ */
+void RadioDevice::clearEOTEvent() {
+	clearDisabledEvent();
 }
 
-void Radio::startRXTask() {
+void RadioDevice::startRXTask() {
 	NRF_RADIO->TASKS_RXEN = 1;	// write TASK register
 }
-void Radio::startTXTask() {
+void RadioDevice::startTXTask() {
 	NRF_RADIO->TASKS_TXEN = 1;	// write TASK register
 }
 
-void Radio::startDisablingTask(){
+void RadioDevice::startDisablingTask(){
 	NRF_RADIO->TASKS_DISABLE = 1;
 }
 
-void Radio::clearDisabledEvent(){
+void RadioDevice::clearDisabledEvent(){
 	NRF_RADIO->EVENTS_DISABLED = 0;
+	(void)NRF_RADIO->EVENTS_DISABLED;	// flush ARM write buffer
 }
 
 
-void Radio::enableInterruptForPacketDoneEvent() {
+void RadioDevice::enableInterruptForPacketDoneEvent() {
 	NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk;
 }
 
@@ -71,9 +80,9 @@ void Radio::enableInterruptForPacketDoneEvent() {
  *
  * These shortcuts are:
  * - from state TXRU directly to state TX (without explicit start READY task, bypassing state TXIDLE)
- * - from state TX   directly to tstat DISABLED (without explicit DISABLE task, bypassing states TXIDLE and TXDISABLE)
+ * - from state TX   directly to state DISABLED (without explicit DISABLE task, bypassing states TXIDLE and TXDISABLE)
  */
-void Radio::setShortcutsAvoidSomeEvents() {
+void RadioDevice::setShortcutsAvoidSomeEvents() {
 	//
 	// In other words, make automatic transitions in state diagram.
 	NRF_RADIO->SHORTS = RADIO_SHORTS_READY_START_Msk // shortcut READY event to START task
@@ -88,7 +97,7 @@ void Radio::setShortcutsAvoidSomeEvents() {
 
 }
 
-void Radio::setRadioPowered(bool value){
+void RadioDevice::setRadioPowered(bool value){
 	NRF_RADIO->POWER = value;	// 1 or 0 per C++ standard and datasheet
 }
 
@@ -97,14 +106,14 @@ void Radio::setRadioPowered(bool value){
 
 // states
 
-bool Radio::isPacketDone() {
+bool RadioDevice::isPacketDone() {
 	// packet was received.
 	// radio state usually RXIDLE or TXIDLE and ???
 	// Event "END" means "end of packet"
 	return NRF_RADIO->EVENTS_END;  // == 1;
 }
 
-bool Radio::isDisabled() {
+bool RadioDevice::isDisabled() {
 	// i.e. not busy with (in midst of) xmit or rcv
 	return NRF_RADIO->EVENTS_DISABLED; // == 1;
 }
@@ -112,12 +121,12 @@ bool Radio::isDisabled() {
 
 
 
-bool Radio::isCRCValid() {
+bool RadioDevice::isCRCValid() {
 	return NRF_RADIO->CRCSTATUS == 1;	// CRCOk;
 }
 
 
-// FUTURE reduce coupling, transport shouldn't know this
-void Radio::clearPacketDoneEvent() {
+void RadioDevice::clearPacketDoneEvent() {
 	NRF_RADIO->EVENTS_END = 0;
+	(void)NRF_RADIO->EVENTS_END;	// flush ARM write buffer
 }

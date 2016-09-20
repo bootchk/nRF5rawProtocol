@@ -14,7 +14,8 @@ Raw :
 - unreliable datagrams, no acks
 - unbuffered (no queue) xmit and rcv
 
-I.e. simple use of radio peripheral in lower layers of stack, and not much else.
+I.e. simple use of radio peripheral in Physical layer of protocol stack, and not much else.
+No transport layer: connections, reliability, or flow control
 
 For algorithms that sleep mostly, transmit rarely, and deal w/ contention/noise and reliability in upper layers.
 

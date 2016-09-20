@@ -1,3 +1,5 @@
+#pragma once
+
 
 /*
  * The HF (16Mhz) xtal clock.

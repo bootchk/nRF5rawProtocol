@@ -75,7 +75,6 @@ C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioLowLevel.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
 C_SOURCE_FILES +=  modules/radioAddress.c
-C_SOURCE_FILES +=  modules/transport.c
 C_SOURCE_FILES +=  modules/timer.c
 C_SOURCE_FILES +=  modules/irqHandlers.c
 C_SOURCE_FILES +=  modules/hardFaultHandler.c

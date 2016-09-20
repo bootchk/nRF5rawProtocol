@@ -6,24 +6,15 @@
 #include "transport.h"
 
 // Class (singleton) data members
+RadioDevice RawTransport::device;
 Radio RawTransport::radio;
 void (*RawTransport::aRcvMsgCallback)();
 
 
-/*
- * State.
- * Can't tell from radio device whether xmit or rcv task was started,
- * (when using shortcuts.)
- */
-bool RawTransport::wasTransmitting;
 
 
 
-/*
- * IRQ Handler for radio
- *
- * Hack: really belongs to radio
- */
+// TODO Hack: really belongs to radio
 extern "C" {
 void RADIO_IRQHandler() {
 	RawTransport::eventHandler();	// relay
@@ -33,16 +24,17 @@ void RADIO_IRQHandler() {
 
 void RawTransport::eventHandler(void)
 {
-    if (radio.isPacketDone())
+    if (device.isPacketDone())
     {
         // We don't sample RSSI
     	// We don't use DAI device address match (which is a prefix of the payload)
-    	// We don't use RXMATCH to check which logical address was received (assumed environment with few foreign 2.4Mhz radios.)
+    	// We don't use RXMATCH to check which logical address was received
+    	// (assumed environment with few foreign 2.4Mhz devices.)
     	// We do check CRC (messages destroyed by noise.)
 
-        radio.clearPacketDoneEvent();
+        device.clearPacketDoneEvent();
 
-        if (radio.isCRCValid()) dispatchPacketCallback();
+        if (device.isCRCValid()) dispatchPacketCallback();
         // else garbled message received, ignore it
     }
     else
@@ -64,22 +56,8 @@ void RawTransport::dispatchPacketCallback() {
 
 
 
-// Xmit
-
-void RawTransport::transmit(uint8_t * data){
-	wasTransmitting = true;
-	radio.setupXmitOrRcv(data);
-	radio.startXmit();
-};
 
 
-// Rcv
-
-void RawTransport::startReceiver(uint8_t * data) {
-	wasTransmitting = false;
-	radio.setupXmitOrRcv(data);
-	radio.startRcv();
-}
 
 void RawTransport::init(void (*onRcvMsgCallback)()) {
 	radio.init();
@@ -87,34 +65,19 @@ void RawTransport::init(void (*onRcvMsgCallback)()) {
 }
 
 
-// Configuration
 
-void RawTransport::configure() {
-	// Should be redone whenever radio is power toggled on?
-	// None of it may be necessary if you are happy with reset defaults?
-
-	// Specific to the protocol, here rawish
-	radio.configureFixedFrequency();
-	radio.configureFixedLogicalAddress();
-	radio.configureNetworkAddressPool();
-	radio.configureCRC();
-	radio.configurePacketFormat();
-
-	// FUTURE: parameters
-	// Default tx power
-	// Default mode i.e. bits per second
-};
 
 
 
 
 // Pass through
 
+/*
 void RawTransport::powerOn() { radio.powerOn(); }
 void RawTransport::powerOff() { radio.powerOff(); }
 bool RawTransport::isDisabled() { return radio.isDisabled(); }
 void RawTransport::stopReceiver(){ radio.stopRcv(); }
 void RawTransport::spinUntilXmitComplete() { radio.spinUntilXmitComplete(); }
-
+*/
 
 

@@ -1,12 +1,10 @@
 
 #include "nrf.h"
 
-#include "radio.h"
+#include "radioDevice.h"
 
 /*
- * Low-level concerning configuration
- *
- * These are public to the transport layer
+ * Device level configuration
  *
  * Some device defaults will work.
  * Except that configurePacketFormat must be called since BALEN defaults to invalid value 0?
@@ -15,7 +13,7 @@
 
 
 
-void Radio::configureFixedFrequency(){
+void RadioDevice::configureFixedFrequency(){
 	// FUTURE: parameter
 	// Set Freq fixed to one of 3 BT advertising channels
 	NRF_RADIO->FREQUENCY = 2;	// or 26, 80
@@ -26,13 +24,13 @@ void Radio::configureFixedFrequency(){
 	configureWhiteningSeed(37);
 }
 
-void Radio::configureWhiteningSeed(int value){
+void RadioDevice::configureWhiteningSeed(int value){
 	NRF_RADIO->DATAWHITEIV = value & RADIO_DATAWHITEIV_DATAWHITEIV_Msk;
 	// Whitening enabled elsewhere
 }
 
 
-void Radio::configurePacketFormat() {
+void RadioDevice::configurePacketFormat() {
 	// tell radio device the structure of packet in memory and on air
 	// Memory structure is S0 (1 byte), LENGTH (1 byte), S1 (1 byte), PAYLOAD (count bytes given by LENGTH)
 	// Total length < 258 bytes
@@ -41,7 +39,7 @@ void Radio::configurePacketFormat() {
 	configurePayloadFormat();
 }
 
-void Radio::configureOnAirPacketFormat() {
+void RadioDevice::configureOnAirPacketFormat() {
 	// All done in bit-fields of PCNF0 register.
 
 	// Note this affects tx and rx.
@@ -59,7 +57,7 @@ void Radio::configureOnAirPacketFormat() {
 	// Datasheet says preamble length always one byte??? Conflicts with register description.
 }
 
-void Radio::configurePayloadFormat() {
+void RadioDevice::configurePayloadFormat() {
 	// 5 bytes, no padding (no length xmitted)
 	// 3 bytes address (2 + 1 prefix)
 	// All done in PCNF1 register
@@ -82,7 +80,7 @@ void Radio::configurePayloadFormat() {
 }
 
 
-void Radio::configureCRC() {
+void RadioDevice::configureCRC() {
 	NRF_RADIO->CRCCNF = (RADIO_CRCCNF_LEN_Two << RADIO_CRCCNF_LEN_Pos); // Number of checksum bits
 	NRF_RADIO->CRCINIT = 0xFFFFUL;      // Initial value
 	NRF_RADIO->CRCPOLY = 0x11021UL; // CRC poly: x^16+x^12^x^5+1

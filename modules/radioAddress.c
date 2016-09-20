@@ -4,7 +4,7 @@
 
 #include "nrf.h"
 
-#include "radio.h"
+#include "radioDevice.h"
 
 // Low-level concerning configuration of address
 
@@ -12,7 +12,7 @@
 /*
  * Fixed: receive same, single address we transmit. (But we don't receive our own transmissions.)
  */
-void Radio::configureFixedLogicalAddress(){
+void RadioDevice::configureFixedLogicalAddress(){
 	// FUTURE: parameter
 
 	NRF_RADIO->TXADDRESS   = 0x00;	// Transmit to logical address 0 (defined by PREFIX0.A + BASE0)
@@ -30,7 +30,7 @@ void Radio::configureFixedLogicalAddress(){
  * The 8 prefixes are packed into PREFIX0..PREFIX1
  * The 2 bases are in BASE0..BASE1
  */
-void Radio::configureNetworkAddressPool() {
+void RadioDevice::configureNetworkAddressPool() {
 	// Power on default (prefix 0, base 0) is adequate, but not optimal
 	// Optimal address extends preamble
 
@@ -42,7 +42,7 @@ void Radio::configureNetworkAddressPool() {
 
 }
 
-void Radio::setNetworkAddress(uint8_t* address, uint8_t len)
+void RadioDevice::setNetworkAddress(uint8_t* address, uint8_t len)
 {
 	// !!! See "RADIO.Address configuration" in data sheet
 	// !!! During xmit, base address register is truncated starting from LSByte (when BALEN < 4)

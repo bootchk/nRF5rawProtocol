@@ -1,6 +1,7 @@
 #pragma once
 
 #include "radio.h"
+#include "radioDevice.h"
 
 
 
@@ -17,25 +18,28 @@ public:
 	static void eventHandler();
 
 	static void init(void (*onRcvMsgCallback)());
-	static void configure();
-	static void transmit(uint8_t * data);
-	static void spinUntilXmitComplete();
 
-	static void startReceiver(uint8_t * data);
+
+
+
+	/*
+	static void spinUntilXmitComplete();
 	static void stopReceiver();
 
 	static void powerOn();
 	static void powerOff();
 
 	static bool isDisabled();
+	*/
 
 private:
 	static void dispatchPacketCallback();
 
 	// static, class data members
 	static Radio radio;
+	static RadioDevice device;
 	static void (*aRcvMsgCallback)();
-	static bool wasTransmitting;  // false: wasReceiving
+
 
 
 };
