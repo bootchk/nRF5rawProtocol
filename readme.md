@@ -1,7 +1,7 @@
 
 Raw Wireless Protocol for nRF5
 
-Work in progress.  Untested on hw.  Usually compiles cleanly.
+Status: Work in progress.  Usually compiles cleanly.  Tested flashing nrf52DK and RedBear BLE Nano.   Currently the two blink LED's but don't communicate, so there is a bug somewhere.
 
 About
 -
@@ -11,12 +11,14 @@ A primitive (raw) protocol stack for Nordic nRF52 family radio chips (SoC which 
 Raw :
 - broadcast, all units transmit and receive same address
 - no channel hopping (use one channel not used by WiFi or BT connections)
-- unreliable, no acks
-- unbuffered xmit and rcv
+- unreliable datagrams, no acks
+- unbuffered (no queue) xmit and rcv
 
 I.e. simple use of radio peripheral in lower layers of stack, and not much else.
 
 For algorithms that sleep mostly, transmit rarely, and deal w/ contention/noise and reliability in upper layers.
+
+Some emphasis on minimizing power, sleeping often.  My goal is to test sleep synchronization algorithms.
 
 See also
 -
@@ -26,9 +28,9 @@ Nordic documentation for radio peripheral.  See Nordic InfoCenter>nRF52 Series>n
 Radiohead.  That does the same thing except it requires polling, doesn't use interrupts?
 
 https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh . That implements a rawish protocol that cooperates with a BT protocol.  see nRF51/rbc_mesh/src/radio_control.c
-Here, I have hacked out the SoftDevice (BT stack) and the Trickle algorithm, leaving just a raw wireless protocol.
+Here, I have hacked out the SUntested on hw.  oftDevice (BT stack) and the Trickle algorithm, leaving just a raw wireless protocol.
 
-Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)
+Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)  That is interesting because it seems to use the PPI device to transmit an ack automagically when a message is received.
 
 Nordic example for receiving.  Source in SDK below /examples/peripheral/radio/receiver    http://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v11.0.0%2Fnrf_dev_radio_rx_example.html&cp=4_0_0_4_4_17
 
@@ -45,7 +47,7 @@ Uses:
 - Eclipse project.
 - GNU ARM toolchain (gcc and gdb for ARM)
 - hand maintained Makefile (as do most Nordic examples?)
-- linked resources (to the NRF SDK, as do most Nordic examples?)
+- linked resources (to the NRUntested on hw.  F SDK, as do most Nordic examples?)
 I followed the tutorial for this combination on Nordic website, and hacked the Makefile.
 
 
@@ -66,14 +68,14 @@ In ??? declare the POWER_CLOCK_IRQ handler as extern "C" so its name is not mang
 
 For the same reasons, in app_timer.c (because app_timer uses two interrupts, RTC1 and SWI0):
 
- #ifdef __cplusplus 
- extern "C" { 
- #endif
- void SWI0_IRQHandler(void);
- void RTC1_IRQHandler(void);
- #ifdef __cplusplus 
- } 
- #endif
+    #ifdef __cplusplus 
+    extern "C" { 
+    #endif
+    void SWI0_IRQHandler(void);
+    void RTC1_IRQHandler(void);
+    #ifdef __cplusplus 
+    } 
+    #endif
 
  
 Hacking using Eclipse and GNU ARM toolchain
@@ -109,23 +111,26 @@ Fix any other problems in the project, such as Properties>Resources>Linked Resou
 
 Chip families and board/modules
 -
+The project support nrf51 and nrf52 chip families, and two boards (dev kits or modules):  nrf52DK dev board and RedBear BLE Nano.
 
-There are two Makefiles, .nrf51 and .nrf52, for older and newer chip families.  If you add source files or make other changes, make in both Makefiles.
+There are two Makefiles, .nrf51 and .nrf52, for older and newer chip families.  I hacked the Makefiles (from the original) mostly in the same way, duplicating hacks.   If you intend to support both families and you add source files or make other changes, make the changes in both Makefiles.
 
 Also two .ld files (to configure different flash/RAM amounts.)
 
 (I haven't figured out whether I need to change the Eclipse projects linked resources.  Apparently the Makefile doesn't use them?)
 
-Also, some #ifdef's in the code to account for different boards/modules, nrf52KD dev board and RedBear BLE Nano module.  Specifically, for LED differences.
+Also, some #ifdef's in the code to account for different boards/modules.  Specifically, for LED differences.
 
 To change: copy one of the Makefiles.nrf5x over the Makefile and rebuild.  (I haven't figured out how to configure Eclipse for two different Makefiles.)
 
 Other hacks:
 
-Remember I hacked the SDK, and if you switch nrf52 to nrf51, you need to do it in two places:
-
-(The hacks to allow C++ IRQHandler are portable nrf52 to nrf51.)
-
-Capitalization issues gcc_startup_nrf51.S => .s
-
 To allow a large program to load in limited RAM:  In gcc_startup_nrf51.s     =>   .equ    Heap_Size, 0
+
+Remember I hacked the SDK, and if you switch nrf52 to nrf51, I repeated some hacks in two places:
+
+- (The hacks to allow C++ IRQHandler are portable nrf52 to nrf51.)
+
+- Capitalization issues gcc_startup_nrf51.S => .s
+
+
