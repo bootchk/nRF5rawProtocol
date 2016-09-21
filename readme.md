@@ -114,6 +114,8 @@ Chip families and board/modules
 -
 The project support nrf51 and nrf52 chip families, and two boards (dev kits or modules):  nrf52DK dev board and RedBear BLE Nano.
 
+The custom_board.h for BLE Nano provided by Electronut.
+
 There are two Makefiles, .nrf51 and .nrf52, for older and newer chip families.  I hacked the Makefiles (from the original) mostly in the same way, duplicating hacks.   If you intend to support both families and you add source files or make other changes, make the changes in both Makefiles.
 
 Also two .ld files (to configure different flash/RAM amounts.)

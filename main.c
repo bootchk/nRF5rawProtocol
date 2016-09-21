@@ -62,7 +62,7 @@ static void initLogging(void)
 
 
 /*
- * Callbacks from ISR, so keep short or schedule a task, queue work, etc.
+ * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
  * Here we set flag that main event loop reads.
  *
  * Passing address, so names can be C++ mangled
@@ -79,6 +79,8 @@ void msgReceivedCallback() { reasonForWake = MsgReceived; }
  * - in "system on", current is ~3uA == Ion + Irtc + Ix32k
  * No worry about RAM retention in "system on"
  * Here "system" means mcu.
+ * Internal event flag is NOT same e.g. RADIO.EVENT_DONE.
+ * Internal event flag is set by RTI in ISR.
  */
 void sleepSytemOn() {
 
@@ -129,8 +131,6 @@ int main(void)
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
-
-
     	NRF_LOG_INFO("Here\n");
 
     	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
@@ -141,6 +141,7 @@ int main(void)
     	radio.configure();
 
     	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
+    	assert(! radio.isEnabledInterruptForPacketDoneEvent());
 
     	radio.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
@@ -151,6 +152,7 @@ int main(void)
 
     	reasonForWake = Cleared;
     	radio.receive(rxAndTxBuffer);
+    	assert(radio.isEnabledInterruptForPacketDoneEvent());
 
     	timer.restart();	// oneshot timer must not trigger before we sleep, else sleep forever
     	sleepSytemOn();	// wake by received msg or timeout
@@ -170,11 +172,11 @@ int main(void)
     		;
     		// assert(false); // Unexpected
     		// TODO we are getting here, figure it out because it may be corrupting a receive?
+    		// See errata, FPU is waking us???
     	}
 #endif
 
     	// assert receiver still enabled
-
     	radio.stopReceive();
     	radio.powerOff();
 

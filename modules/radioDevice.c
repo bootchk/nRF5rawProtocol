@@ -47,7 +47,7 @@ void RadioDevice::passPacketAddress(BufferPointer data){
  *
  * Since we use a shortcut, on packet done, radio state becoming "disabled" signifies EOT.
  * Note we enable interrupt on RX Packet Done (END), but not on TX.
- * The RX ISR must clear  Packet Done (END) event, or another interrupt immediately occurs.
+ * The RX IRQHandler must clear  Packet Done (END) event, or another interrupt immediately occurs.
  *
  * The app can also disable() RX, taking state to DISABLED.
  * So state==DISABLED is not always EOT.
@@ -106,11 +106,16 @@ void RadioDevice::clearPacketDoneEvent() {
 
 
 
-// Interrupts and shortcuts
+/*
+ * Interrupts and shortcuts
+ *
+ * Is there a race between END interrupt and EVENT_DISABLED when shortcut?
+ * Maybe we should use interrupt on DISABLED instead of END
+ */
 
-void RadioDevice::enableInterruptForPacketDoneEvent() {
-	NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk;
-}
+void RadioDevice::enableInterruptForPacketDoneEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk; }
+void RadioDevice::disableInterruptForPacketDoneEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_END_Msk; }
+bool RadioDevice::isEnabledInterruptForPacketDoneEvent() { return NRF_RADIO->INTENSET & RADIO_INTENSET_END_Msk; }
 
 // TODO we never disable the interrupt
 

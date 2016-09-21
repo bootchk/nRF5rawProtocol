@@ -57,6 +57,7 @@ public:
 	static void powerOff();
 
 	static bool isDisabled();
+	static bool isEnabledInterruptForPacketDoneEvent();
 
 	static void transmit(BufferPointer data);
 	static void receive(BufferPointer data);

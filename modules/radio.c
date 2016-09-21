@@ -36,6 +36,7 @@ bool Radio::wasTransmitting;
 extern "C" {
 void RADIO_IRQHandler() {
 	Radio::eventHandler();	// relay to static C++ method
+	// assert RTI will be called and an internal event flag will be set that must be cleared by SEV???
 }
 }
 
@@ -54,9 +55,12 @@ void Radio::eventHandler(void)
         if (device.isCRCValid()) {
         	// assert buffer is valid received data, side effect
         	dispatchPacketCallback();
-
         }
-        // else garbled message received, ignore it
+        else {
+        	// TODO garbled message received, ignore it
+        	// TEST, this should be log
+        	assert(false);
+        }
     }
     else
     {
@@ -119,7 +123,7 @@ void Radio::powerOn() {
 	// not require off; might be on already
 	// require Vcc > 2.1V (see note below about DCDC)
 
-	hfClock.start();	// radio requires XTAL!!! hf clock, not the RC hf clock
+	hfClock.startXtalSource();	// radio requires XTAL!!! hf clock, not the RC hf clock
 	device.setRadioPowered(true);
 	disable();
 	spinUntilDisabled();	// This is how RadioHead ensures radio is ready
@@ -138,7 +142,7 @@ void Radio::powerOff() {
 	device.setRadioPowered(false);
 	// not ensure not ready; caller must spin if necessary
 
-	hfClock.stop();
+	hfClock.stopXtalSource();
 	// assert hf RC clock resumes for other peripherals
 
 	// assert radio and HFCLK are off, or will be soon
@@ -247,4 +251,9 @@ void Radio::spinUntilXmitComplete() {
 	// FUTURE use interrupt on xmit.
 	while (! device.isDisabled() ) {}
 }
+
+// Pass to device layer
+bool Radio::isEnabledInterruptForPacketDoneEvent() { return device.isEnabledInterruptForPacketDoneEvent(); }
+
+
 
