@@ -3,7 +3,7 @@
 #include <cassert>
 #include <inttypes.h>
 
-#include "boards.h"
+
 
 // lkk Can't get this to work
 //#define NRF_LOG_ENABLED 1
@@ -15,6 +15,8 @@
 
 #include "modules/timer.h"
 #include "modules/radio.h"
+
+#include "modules/ledLogger.h"
 
 
 typedef enum {
@@ -32,17 +34,7 @@ volatile uint8_t rxAndTxBuffer[Radio::PayloadCount];	// Must be as large as conf
 
 // Debugging code optional for production
 
-const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
-void toggleLEDs() {
-	for (int i = 0; i < LEDS_NUMBER; i++)
-	{
-		LEDS_INVERT(1 << leds_list[i]);
-		// nrf_delay_ms(500);
-	}
-}
-void toggleLEDOne() { LEDS_INVERT(1 << leds_list[0]); }
-void toggleLEDTwo() { LEDS_INVERT(1 << leds_list[1]); }
-void toggleLEDThree() { LEDS_INVERT(1 << leds_list[2]); }
+LEDLogger ledLogger;
 
 /*
  /extern "C" {
@@ -125,8 +117,9 @@ int main(void)
 	radio.init(msgReceivedCallback);
 
     // Debug configure LED-pins as outputs, default to on?
-    LEDS_CONFIGURE(LEDS_MASK);
-    toggleLEDs();	// off
+
+    ledLogger.init();
+    ledLogger.toggleLEDs();	// off
 
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
@@ -134,7 +127,7 @@ int main(void)
     	NRF_LOG_INFO("Here\n");
 
     	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
-    	toggleLEDOne();	//
+    	ledLogger.toggleLED(1);	//
 
     	// assert configuration is lost after power is cycled
     	radio.powerOn();
@@ -145,7 +138,7 @@ int main(void)
     	radio.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
     	radio.spinUntilXmitComplete();
-    	// assert xmit is complete
+    	// assert xmit is complete//leds_list =  LEDS_LIST;
 
     	assert(radio.isDisabled());	// radio disabled when xmit complete but still powered on
 
@@ -162,11 +155,11 @@ int main(void)
     	// Some interrupt ??? event woke us up and set reasonForWake
     	switch ( reasonForWake ) {
     	case MsgReceived:
-    		toggleLEDThree();
+    		ledLogger.toggleLED(3);
     		break;
 
     	case Timeout:
-    		toggleLEDTwo();
+    		ledLogger.toggleLED(2);
     		break;
     	default:
     		;

@@ -80,7 +80,7 @@ C_SOURCE_FILES +=  modules/irqHandlers.c
 C_SOURCE_FILES +=  modules/hardFaultHandler.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
-
+C_SOURCE_FILES +=  modules/ledLogger.c
 
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
