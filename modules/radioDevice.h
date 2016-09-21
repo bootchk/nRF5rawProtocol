@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "hfClock.h"
+#include "types.h"
 
 
 /*
@@ -22,18 +23,21 @@ public:
 	static void configureFixedLogicalAddress();
 	static void configureNetworkAddressPool();
 	static void configureCRC();
-	static void configurePacketFormat();
+	static void configurePacketFormat(const uint8_t, const uint8_t );
 	static void configureOnAirPacketFormat();
-	static void configurePayloadFormat();
+	static void configurePayloadFormat(const uint8_t, const uint8_t );
+
+	// Getters of configuration
+	static uint32_t frequency();
 
 	static void configureWhiteningSeed(int);
 
 	static void enableDCDCPower();
-	static void passPacketAddress(void * data);
+	static void passPacketAddress(BufferPointer data);
 
 	static bool isCRCValid();
 
-	static void setNetworkAddress(uint8_t* address, uint8_t len);
+	static void setNetworkAddress(const uint8_t* address, const uint8_t len);
 
 	// Tasks and events
 	static void startRXTask();

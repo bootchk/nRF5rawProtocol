@@ -36,13 +36,14 @@ void RadioDevice::configureNetworkAddressPool() {
 
 	// We only configure first logical address
 
-	uint8_t default_network_address[] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
+
+	// Design:
+	// As large as max network address, constant, and chosen to have adequate bit transitions 0xe7=0b01110111
+	static const uint8_t default_network_address[] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
 	setNetworkAddress(default_network_address, sizeof(default_network_address));
-
-
 }
 
-void RadioDevice::setNetworkAddress(uint8_t* address, uint8_t len)
+void RadioDevice::setNetworkAddress(const uint8_t* address, const uint8_t len)
 {
 	// !!! See "RADIO.Address configuration" in data sheet
 	// !!! During xmit, base address register is truncated starting from LSByte (when BALEN < 4)

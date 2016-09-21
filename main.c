@@ -1,15 +1,3 @@
-/* Copyright (c) 2014 Nordic Semiconductor. All Rights Reserved.
- *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
- *
- */
-
 
 // c++ includes
 #include <cassert>
@@ -36,6 +24,11 @@ typedef enum {
 } ReasonForWake;
 
 ReasonForWake reasonForWake;
+
+// Volatile: radio and mcu both write
+volatile uint8_t rxAndTxBuffer[Radio::PayloadCount];	// Must be as large as configured payload length.
+
+
 
 // Debugging code optional for production
 
@@ -87,8 +80,7 @@ void msgReceivedCallback() { reasonForWake = MsgReceived; }
  * No worry about RAM retention in "system on"
  * Here "system" means mcu.
  */
-void sleep() {
-	// Enter System ON sleep mode
+void sleepSytemOn() {
 
 	// Make sure any pending events are cleared
 	__SEV();
@@ -137,7 +129,7 @@ int main(void)
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
-    	uint8_t rxAndTxBuffer[5];	// Must as large as configured payload length.
+
 
     	NRF_LOG_INFO("Here\n");
 
@@ -161,7 +153,7 @@ int main(void)
     	radio.receive(rxAndTxBuffer);
 
     	timer.restart();	// oneshot timer must not trigger before we sleep, else sleep forever
-    	sleep();	// wait for received msg or timeout
+    	sleepSytemOn();	// wake by received msg or timeout
 
     	// If using nrf52DK with many LED's show result
 #ifndef BOARD_CUSTOM
@@ -177,7 +169,7 @@ int main(void)
     	default:
     		;
     		// assert(false); // Unexpected
-    		// TODO we are getting here, figure it out
+    		// TODO we are getting here, figure it out because it may be corrupting a receive?
     	}
 #endif
 

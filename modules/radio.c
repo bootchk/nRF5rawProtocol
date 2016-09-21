@@ -32,6 +32,7 @@ bool Radio::wasTransmitting;
 
 
 
+
 extern "C" {
 void RADIO_IRQHandler() {
 	Radio::eventHandler();	// relay to static C++ method
@@ -101,12 +102,13 @@ void Radio::configure() {
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
 	device.configureCRC();
-	device.configurePacketFormat();
+	device.configurePacketFormat(PayloadCount, AddressLength);
 
 	// FUTURE: parameters
 	// Default tx power
 	// Default mode i.e. bits per second
-};
+	assert(device.frequency() == 2);
+}
 
 
 
@@ -148,14 +150,14 @@ void Radio::powerOff() {
 
 
 
-void Radio::transmit(uint8_t * data){
+void Radio::transmit(volatile uint8_t * data){
 	wasTransmitting = true;
 	setupXmitOrRcv(data);
 	startXmit();
 };
 
 
-void Radio::receive(uint8_t * data) {
+void Radio::receive(volatile uint8_t * data) {
 	wasTransmitting = false;
 	setupXmitOrRcv(data);
 	startRcv();
@@ -189,7 +191,7 @@ void Radio::spinUntilDisabled() {
 
 
 
-void Radio::setupXmitOrRcv(void * data) {
+void Radio::setupXmitOrRcv(volatile uint8_t * data) {
 	// Setup common to xmit or rcv
 	device.setShortcutsAvoidSomeEvents();
 	device.passPacketAddress(data);

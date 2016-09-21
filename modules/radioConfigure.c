@@ -12,7 +12,7 @@
 
 
 
-
+// TODO rename channel
 void RadioDevice::configureFixedFrequency(){
 	// FUTURE: parameter
 	// Set Freq fixed to one of 3 BT advertising channels
@@ -23,6 +23,8 @@ void RadioDevice::configureFixedFrequency(){
 	// or 38, 39
 	configureWhiteningSeed(37);
 }
+uint32_t RadioDevice::frequency(){ return NRF_RADIO->FREQUENCY; }
+
 
 void RadioDevice::configureWhiteningSeed(int value){
 	NRF_RADIO->DATAWHITEIV = value & RADIO_DATAWHITEIV_DATAWHITEIV_Msk;
@@ -30,13 +32,13 @@ void RadioDevice::configureWhiteningSeed(int value){
 }
 
 
-void RadioDevice::configurePacketFormat() {
+void RadioDevice::configurePacketFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
 	// tell radio device the structure of packet in memory and on air
 	// Memory structure is S0 (1 byte), LENGTH (1 byte), S1 (1 byte), PAYLOAD (count bytes given by LENGTH)
 	// Total length < 258 bytes
 
 	configureOnAirPacketFormat();
-	configurePayloadFormat();
+	configurePayloadFormat(PayloadCount, AddressLength);
 }
 
 void RadioDevice::configureOnAirPacketFormat() {
@@ -57,15 +59,16 @@ void RadioDevice::configureOnAirPacketFormat() {
 	// Datasheet says preamble length always one byte??? Conflicts with register description.
 }
 
-void RadioDevice::configurePayloadFormat() {
+void RadioDevice::configurePayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
 	// 5 bytes, no padding (no length xmitted)
 	// 3 bytes address (2 + 1 prefix)
 	// All done in PCNF1 register
 	// Here we do it in one shot by OR'ing bit fields
+	// TODO we don't need the mask
 	NRF_RADIO->PCNF1 =
-			( ((5 << RADIO_PCNF1_MAXLEN_Pos)  & RADIO_PCNF1_MAXLEN_Msk)  // maximum length of payload
-			| ((5 << RADIO_PCNF1_STATLEN_Pos) & RADIO_PCNF1_STATLEN_Msk)	// expand the payload (over LENGTH) with 0 bytes
-			| ((2 << RADIO_PCNF1_BALEN_Pos) & RADIO_PCNF1_BALEN_Msk))	// base address length in number of bytes.
+			( ((PayloadCount << RADIO_PCNF1_MAXLEN_Pos)  & RADIO_PCNF1_MAXLEN_Msk)  // maximum length of payload
+			| ((PayloadCount << RADIO_PCNF1_STATLEN_Pos) & RADIO_PCNF1_STATLEN_Msk)	// expand the payload (over LENGTH) with 0 bytes
+			| (((AddressLength-1) << RADIO_PCNF1_BALEN_Pos) & RADIO_PCNF1_BALEN_Msk))	// base address length in number of bytes.
 			| ((1 << RADIO_PCNF1_WHITEEN_Pos) & RADIO_PCNF1_WHITEEN_Msk); 	// enable whiten
 			//len-1
 

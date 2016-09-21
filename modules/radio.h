@@ -3,6 +3,10 @@
 #include <inttypes.h>
 #include "hfClock.h"
 #include "radioDevice.h"
+#include "types.h"
+
+
+
 
 
 /*
@@ -21,9 +25,21 @@
  * - implements interrupt RX vs. spinning TX
  * - understands half-duplex (RX exclusive of TX)
  *
+ * Protocol is defined by:
+ * - constants for lengths, channels, bitrate
+ * - behaviour
+ * -- no acks xmitted as in ESB
+ * -- all units use one address
+ *
  * Singleton, all static class methods.
  */
 class Radio {
+public:
+	// Define protocol lengths
+	// TODO payload up to 258 bytes?
+	static const uint8_t PayloadCount = 5;
+	static const uint8_t AddressLength = 4;	// 1 byte preamble, 3 bytes base
+
 private:
 	static HfClock hfClock;
 	static RadioDevice device;
@@ -42,8 +58,8 @@ public:
 
 	static bool isDisabled();
 
-	static void transmit(uint8_t * data);
-	static void receive(uint8_t * data);
+	static void transmit(BufferPointer data);
+	static void receive(BufferPointer data);
 
 	static void stopXmit();
 	static void stopReceive();
@@ -56,7 +72,7 @@ private:
 	static void enableTX();
 	static void disable();
 	static void spinUntilDisabled();
-	static void setupXmitOrRcv(void * data);
+	static void setupXmitOrRcv(BufferPointer data);
 	static void startXmit();
 	static void startRcv();
 };

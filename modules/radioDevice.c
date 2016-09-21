@@ -32,7 +32,7 @@ void RadioDevice::enableDCDCPower(){
 	NRF_POWER->DCDCEN = 0x00000001;
 }
 
-void RadioDevice::passPacketAddress(void * data){
+void RadioDevice::passPacketAddress(BufferPointer data){
 	// point to packet in memory, pointer must fit in 4 byte register
 	// Is portable until address space exceeds 32-bit
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
@@ -57,10 +57,10 @@ void RadioDevice::clearEOTEvent() {
 }
 
 void RadioDevice::startRXTask() {
-	NRF_RADIO->TASKS_RXEN = 1;	// write TASK register
+	NRF_RADIO->TASKS_RXEN = 1;
 }
 void RadioDevice::startTXTask() {
-	NRF_RADIO->TASKS_TXEN = 1;	// write TASK register
+	NRF_RADIO->TASKS_TXEN = 1;
 }
 
 void RadioDevice::startDisablingTask(){
