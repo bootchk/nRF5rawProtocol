@@ -76,4 +76,13 @@ private:
 	static void setupXmitOrRcv(BufferPointer data);
 	static void startXmit();
 	static void startRcv();
+
+	static bool isValidPacket();
+
+	static bool isEventForEOTInterrupt();
+	static void clearEventForEOTInterrupt();
+	static void enableInterruptForEOT();
+	static void disableInterruptForEOT();
+public:
+	static bool isEnabledInterruptForEOT();
 };

@@ -36,23 +36,18 @@ bool Radio::wasTransmitting;
 extern "C" {
 void RADIO_IRQHandler() {
 	Radio::eventHandler();	// relay to static C++ method
-	// assert RTI will be called and an internal event flag will be set that must be cleared by SEV???
+	// assert RTI will be called but I don't understand how the compiler knows to do that?
+	// assert an internal event flag will be set on RTI that must be cleared by SEV???
 }
 }
 
 void Radio::eventHandler(void)
 {
-    if (device.isPacketDone())
+    if (isEventForEOTInterrupt())
     {
-        // We don't sample RSSI
-    	// We don't use DAI device address match (which is a prefix of the payload)
-    	// We don't use RXMATCH to check which logical address was received
-    	// (assumed environment with few foreign 2.4Mhz devices.)
-    	// We do check CRC (messages destroyed by noise.)
+    	clearEventForEOTInterrupt();
 
-        device.clearPacketDoneEvent();
-
-        if (device.isCRCValid()) {
+        if (isValidPacket()) {
         	// assert buffer is valid received data, side effect
         	dispatchPacketCallback();
         }
@@ -65,12 +60,45 @@ void Radio::eventHandler(void)
     else
     {
         // Programming error, interrupts other than the only enabled interrupt 'packet done'
-    	// FUTURE handle more gracefully by just clearing
+    	// FUTURE handle more gracefully by just clearing all events???
     	assert(false);
     }
     // We don't have a queue and we don't have a callback for idle
-    assert(!device.isPacketDone());	// Ensure event is clear else get another unexpected interrupt
+    assert(!isEventForEOTInterrupt());	// Ensure event is clear else get another unexpected interrupt
 }
+
+
+/*
+ * Private routines that isolate which event is used for interrupt on End Of Transmission.
+ * The choices are END or DISABLED.
+ */
+#ifdef PACKET_DONE_INTERRUPT
+bool Radio::isEventForEOTInterrupt() { return device.isPacketDone(); }
+void Radio::clearEventForEOTInterrupt() { device.clearPacketDoneEvent(); }
+void Radio::enableInterruptForEOT() { device.enableInterruptForPacketDoneEvent(); }
+void Radio::disableInterruptForEOT() { device.disableInterruptForPacketDoneEvent(); }
+bool Radio::isEnabledInterruptForEOT() { return device.isEnabledInterruptForPacketDoneEvent(); }
+#else
+// DISABLED event
+bool Radio::isEventForEOTInterrupt() { return device.isDisabled(); }
+void Radio::clearEventForEOTInterrupt() { device.clearDisabledEvent(); }
+void Radio::enableInterruptForEOT() { device.enableInterruptForDisabledEvent(); }
+void Radio::disableInterruptForEOT() { device.disableInterruptForDisabledEvent(); }
+bool Radio::isEnabledInterruptForEOT() { return device.isEnabledInterruptForDisabledEvent(); }
+#endif
+
+/*
+ * Packet was received, but it may be invalid
+ */
+bool Radio::isValidPacket(){
+	// We don't sample RSSI
+	// We don't use DAI device address match (which is a prefix of the payload)
+	// We don't use RXMATCH to check which logical address was received
+	// (assumed environment with few foreign 2.4Mhz devices.)
+	// We do check CRC (messages destroyed by noise.)
+	return device.isCRCValid();
+}
+
 
 
 void Radio::dispatchPacketCallback() {
@@ -199,8 +227,8 @@ void Radio::setupXmitOrRcv(volatile uint8_t * data) {
 	// Setup common to xmit or rcv
 	device.setShortcutsAvoidSomeEvents();
 	device.passPacketAddress(data);
-	device.enableInterruptForPacketDoneEvent();
-	device.clearPacketDoneEvent();
+	enableInterruptForEOT();
+	clearEventForEOTInterrupt();
 }
 
 
@@ -252,8 +280,7 @@ void Radio::spinUntilXmitComplete() {
 	while (! device.isDisabled() ) {}
 }
 
-// Pass to device layer
-bool Radio::isEnabledInterruptForPacketDoneEvent() { return device.isEnabledInterruptForPacketDoneEvent(); }
+
 
 
 

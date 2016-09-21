@@ -53,9 +53,14 @@ public:
 
 	static void enableInterruptForPacketDoneEvent();
 	static void disableInterruptForPacketDoneEvent();
-	bool isEnabledInterruptForPacketDoneEvent();
+	static bool isEnabledInterruptForPacketDoneEvent();
+
+	static void enableInterruptForDisabledEvent();
+	static void disableInterruptForDisabledEvent();
+	static bool isEnabledInterruptForDisabledEvent();
 
 	static void setShortcutsAvoidSomeEvents();
 
 	static void setRadioPowered(bool);
+	static bool isPowerOn();
 };

@@ -141,7 +141,7 @@ int main(void)
     	radio.configure();
 
     	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
-    	assert(! radio.isEnabledInterruptForPacketDoneEvent());
+    	assert(! radio.isEnabledInterruptForEOT());
 
     	radio.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
@@ -152,7 +152,8 @@ int main(void)
 
     	reasonForWake = Cleared;
     	radio.receive(rxAndTxBuffer);
-    	assert(radio.isEnabledInterruptForPacketDoneEvent());
+    	assert(radio.isEnabledInterruptForEOT());
+
 
     	timer.restart();	// oneshot timer must not trigger before we sleep, else sleep forever
     	sleepSytemOn();	// wake by received msg or timeout

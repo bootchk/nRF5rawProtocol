@@ -29,7 +29,7 @@ void RadioDevice::enableDCDCPower(){
 	// Per Radiohead
 	// Enabling DCDC converter lets the radio control it automatically.  Enabling does not turn it on.
 	// DCDC converter requires Vcc >= 2.1V and should be disabled below that.
-	NRF_POWER->DCDCEN = 0x00000001;
+	NRF_POWER->DCDCEN = 1;
 }
 
 void RadioDevice::passPacketAddress(BufferPointer data){
@@ -92,7 +92,7 @@ bool RadioDevice::isDisabledEventSet() {
  * Event "END" means "end of packet" (RX or TX)
  *
  * Since we use shortcuts, state has already passed through RXIDLE or TXIDLE to DISABLED
- * But the event is still set, is trigger for interrupt, and must be cleared.
+ * But the event is still set???? is trigger for interrupt, and must be cleared.
  */
 bool RadioDevice::isPacketDone() {
 	return NRF_RADIO->EVENTS_END;  // == 1;
@@ -116,6 +116,10 @@ void RadioDevice::clearPacketDoneEvent() {
 void RadioDevice::enableInterruptForPacketDoneEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk; }
 void RadioDevice::disableInterruptForPacketDoneEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_END_Msk; }
 bool RadioDevice::isEnabledInterruptForPacketDoneEvent() { return NRF_RADIO->INTENSET & RADIO_INTENSET_END_Msk; }
+
+void RadioDevice::enableInterruptForDisabledEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_DISABLED_Msk; }
+void RadioDevice::disableInterruptForDisabledEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_DISABLED_Msk; }
+bool RadioDevice::isEnabledInterruptForDisabledEvent() { return NRF_RADIO->INTENSET & RADIO_INTENSET_DISABLED_Msk; }
 
 // TODO we never disable the interrupt
 
@@ -155,7 +159,7 @@ void RadioDevice::setRadioPowered(bool value){
 	NRF_RADIO->POWER = value;	// 1 or 0 per C++ standard and datasheet
 }
 
-
+bool RadioDevice::isPowerOn() { return NRF_RADIO->POWER; }
 
 
 
