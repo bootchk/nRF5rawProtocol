@@ -25,6 +25,9 @@
 // Class (singleton) data members
 HfClock Radio::hfClock;
 RadioDevice Radio::device;
+Nvic Radio::nvic;
+PowerSupply Radio::powerSupply;
+
 void (*Radio::aRcvMsgCallback)();
 
 // State.  Can't tell from radio device whether xmit or rcv task was started, (when using shortcuts.)
@@ -54,7 +57,7 @@ void Radio::eventHandler(void)
         else {
         	// TODO garbled message received, ignore it
         	// TEST, this should be log
-        	assert(false);
+        	// assert(false);
         }
     }
     else
@@ -80,7 +83,13 @@ void Radio::disableInterruptForEOT() { device.disableInterruptForPacketDoneEvent
 bool Radio::isEnabledInterruptForEOT() { return device.isEnabledInterruptForPacketDoneEvent(); }
 #else
 // DISABLED event
-bool Radio::isEventForEOTInterrupt() { return device.isDisabled(); }
+bool Radio::isEventForEOTInterrupt() {
+	/*
+	 * !!! The radio stays in the disabled state, even after the event is cleared.
+	 * So this is not:  device.isDisabled().
+	 */
+	return device.isDisabledEventSet();
+}
 void Radio::clearEventForEOTInterrupt() { device.clearDisabledEvent(); }
 void Radio::enableInterruptForEOT() { device.enableInterruptForDisabledEvent(); }
 void Radio::disableInterruptForEOT() { device.disableInterruptForDisabledEvent(); }
@@ -113,7 +122,7 @@ void Radio::init(void (*onRcvMsgCallback)()) {
 	aRcvMsgCallback = onRcvMsgCallback;
 
 	// Not require device power on
-	device.enableDCDCPower();	// Radio device wants this enabled.
+	powerSupply.enableDCDCPower();	// Radio device wants this enabled.
 	// assert radio is configured to defaults.
 	// But this code doesn't handle all default events from radio,
 	// and default configuration of radio is non-functional.
@@ -199,6 +208,7 @@ void Radio::receive(volatile uint8_t * data) {
 
 void Radio::enableRX() {
 	device.clearEOTEvent();
+	nvic.enableRadioIRQ();
 	device.startRXTask();
 }
 void Radio::enableTX() {
@@ -254,6 +264,9 @@ void Radio::stopReceive() {
 	// RXRU : aborting before ramp-up complete
 	// or RXIDLE: on but never received start preamble signal
 	// or RX: in middle of receiving a packet
+	// or DISABLED: message was received and RX not enabled again
+	nvic.disableRadioIRQ();
+	disableInterruptForEOT();
 	device.startDisablingTask();
 	// assert radio state soon RXDISABLE and then immediately transitions to DISABLED
 }

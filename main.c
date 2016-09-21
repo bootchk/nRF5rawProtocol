@@ -141,7 +141,6 @@ int main(void)
     	radio.configure();
 
     	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
-    	assert(! radio.isEnabledInterruptForEOT());
 
     	radio.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
@@ -179,6 +178,8 @@ int main(void)
 
     	// assert receiver still enabled
     	radio.stopReceive();
+    	assert(! radio.isEnabledInterruptForEOT());
+    	// assert radioIRQ is disabled
     	radio.powerOff();
 
     	sleepWithRadioOff();

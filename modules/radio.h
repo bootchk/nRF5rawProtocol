@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include "hfClock.h"
 #include "radioDevice.h"
+#include "system.h"  // Nvic
 #include "types.h"
 
 
@@ -44,6 +45,9 @@ private:
 	static HfClock hfClock;
 	static RadioDevice device;
 	static bool wasTransmitting;  // false: wasReceiving
+	static Nvic nvic;
+	static PowerSupply powerSupply;
+
 	static void (*aRcvMsgCallback)();
 
 
@@ -79,6 +83,7 @@ private:
 
 	static bool isValidPacket();
 
+	// These mean EOTransmission, but currently only used for RX
 	static bool isEventForEOTInterrupt();
 	static void clearEventForEOTInterrupt();
 	static void enableInterruptForEOT();

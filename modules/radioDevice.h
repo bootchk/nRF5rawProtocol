@@ -16,6 +16,7 @@
  * Singleton, all static class methods.
  */
 class RadioDevice {
+
 public:
 	// Configuration: see notes in radioConfigure.c
 
@@ -32,7 +33,6 @@ public:
 
 	static void configureWhiteningSeed(int);
 
-	static void enableDCDCPower();
 	static void passPacketAddress(BufferPointer data);
 
 	static bool isCRCValid();

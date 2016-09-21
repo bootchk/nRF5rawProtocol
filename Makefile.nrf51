@@ -73,7 +73,7 @@ C_SOURCE_FILES +=  modules/timer.c
 C_SOURCE_FILES +=  modules/irqHandlers.c
 C_SOURCE_FILES +=  modules/hardFaultHandler.c
 C_SOURCE_FILES +=  modules/hfClock.c
-
+C_SOURCE_FILES +=  modules/system.c
 
 
 

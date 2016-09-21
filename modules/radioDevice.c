@@ -24,17 +24,19 @@
 
 // FUTURE inline
 
-void RadioDevice::enableDCDCPower(){
-	// Not really the radio, another peripheral.
-	// Per Radiohead
-	// Enabling DCDC converter lets the radio control it automatically.  Enabling does not turn it on.
-	// DCDC converter requires Vcc >= 2.1V and should be disabled below that.
-	NRF_POWER->DCDCEN = 1;
-}
+
 
 void RadioDevice::passPacketAddress(BufferPointer data){
-	// point to packet in memory, pointer must fit in 4 byte register
-	// Is portable until address space exceeds 32-bit
+	/*
+	 *  point to packet in memory, pointer must fit in 4 byte register
+	 *
+	 *  Address pointed to must be in "DATA RAM" i.e. writable memory,
+	 *  else per datasheet, "may result" in Hardfault (why not "shall").
+	 *
+	 *  Address pointed to is volatile: both RADIO and mcu may write it.
+	 *
+	 *  Implementation is portable until address space exceeds 32-bit
+	 */
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
 }
 
@@ -110,7 +112,10 @@ void RadioDevice::clearPacketDoneEvent() {
  * Interrupts and shortcuts
  *
  * Is there a race between END interrupt and EVENT_DISABLED when shortcut?
- * Maybe we should use interrupt on DISABLED instead of END
+ *
+ * !!! These just enable Radio to signal interrupt.  Must also:
+ * - Nvic.enableRadioIRQ (NVIC is documented by ARM, not by Nordic)
+ * - ensure PRIMASK IRQ bit is clear (IRQ enabled in mcu register)
  */
 
 void RadioDevice::enableInterruptForPacketDoneEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk; }
