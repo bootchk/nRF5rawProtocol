@@ -3,6 +3,9 @@
 
 #include "radio.h"
 
+#include "ledLogger.h"
+
+LEDLogger ledLogger2;
 
 /*
  * Implementation notes:
@@ -30,6 +33,8 @@ PowerSupply Radio::powerSupply;
 
 void (*Radio::aRcvMsgCallback)();
 
+
+
 // State.  Can't tell from radio device whether xmit or rcv task was started, (when using shortcuts.)
 bool Radio::wasTransmitting;
 
@@ -55,9 +60,9 @@ void Radio::eventHandler(void)
         	dispatchPacketCallback();
         }
         else {
-        	// TODO garbled message received, ignore it
-        	// TEST, this should be log
+        	// ignore invalid packet
         	// assert(false);
+        	ledLogger2.toggleLED(4);
         }
     }
     else

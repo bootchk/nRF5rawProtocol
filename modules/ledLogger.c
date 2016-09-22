@@ -1,10 +1,13 @@
 
 #include "ledLogger.h"
 
+// see board.h for macros
+
 // array of pin numbers of leds
 constexpr uint8_t LEDLogger::leds_list[LEDS_NUMBER] = LEDS_LIST;
 
 void LEDLogger::init(){
+	// configure GPIO pins as digital out to LED
 	LEDS_CONFIGURE(LEDS_MASK);
 }
 
@@ -16,5 +19,10 @@ void LEDLogger::toggleLEDs() {
 	}
 }
 
-void LEDLogger::toggleLED(int ordinal) { LEDS_INVERT(1 << leds_list[ordinal-1]); }
+void LEDLogger::toggleLED(int ordinal) {
+	// no effect if ordinal out of range
+	if ((ordinal < 1) || (ordinal > LEDS_NUMBER)) return;
+
+	LEDS_INVERT(1 << leds_list[ordinal-1]);
+}
 

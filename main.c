@@ -138,7 +138,7 @@ int main(void)
     	radio.transmit(rxAndTxBuffer);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
     	radio.spinUntilXmitComplete();
-    	// assert xmit is complete//leds_list =  LEDS_LIST;
+    	// assert xmit is complete
 
     	assert(radio.isDisabled());	// radio disabled when xmit complete but still powered on
 
@@ -151,7 +151,6 @@ int main(void)
     	sleepSytemOn();	// wake by received msg or timeout
 
     	// If using nrf52DK with many LED's show result
-#ifndef BOARD_CUSTOM
     	// Some interrupt ??? event woke us up and set reasonForWake
     	switch ( reasonForWake ) {
     	case MsgReceived:
@@ -167,7 +166,6 @@ int main(void)
     		// TODO we are getting here, figure it out because it may be corrupting a receive?
     		// See errata, FPU is waking us???
     	}
-#endif
 
     	// assert receiver still enabled
     	radio.stopReceive();

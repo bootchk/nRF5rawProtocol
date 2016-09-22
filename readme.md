@@ -1,7 +1,7 @@
 
 Raw Wireless Protocol for nRF5
 
-Status: Work in progress.  Usually compiles cleanly.  Tested flashing nrf52DK and RedBear BLE Nano.   Currently the two blink LED's but don't communicate, so there is a bug somewhere.
+Status: Works, but changes still in progress.  Usually compiles cleanly.  Tested on nrf52DK and RedBear BLE Nano.   Currently the two communicate, but there seem to be many CRC errors.
 
 About
 -
@@ -112,23 +112,27 @@ Fix any other problems in the project, such as Properties>Resources>Linked Resou
 
 Chip families and board/modules
 -
-The project support nrf51 and nrf52 chip families, and two boards (dev kits or modules):  nrf52DK dev board and RedBear BLE Nano.
+
+The project supports and has been tested on chip families and dev boards/modules: 
+- nrf51 on RedBear BLE Nano module
+- nrf52 on nrf52DK dev board
 
 The custom_board.h for BLE Nano provided by Electronut.
 
-There are two Makefiles, .nrf51 and .nrf52, for older and newer chip families.  I hacked the Makefiles (from the original) mostly in the same way, duplicating hacks.   If you intend to support both families and you add source files or make other changes, make the changes in both Makefiles.
+There are two Makefiles, .nrf51 and .nrf52.  I hacked the Makefiles (from the original) mostly in the same way, duplicating hacks.   If you intend to support both families and you add source files or make other changes, make the changes in both Makefiles.
 
 Also two .ld files (to configure different flash/RAM amounts.)
 
 (I haven't figured out whether I need to change the Eclipse projects linked resources.  Apparently the Makefile doesn't use them?)
 
-Also, some #ifdef's in the code to account for different boards/modules.  Specifically, for LED differences.
+Also, the LEDLogger class allows for LED differences on boards (if LED's don't exist, calls to toggleLED() have no effect.)
 
 To change: copy one of the Makefiles.nrf5x over the Makefile and rebuild.  (I haven't figured out how to configure Eclipse for two different Makefiles.)
 
 Other hacks:
 
 To allow a large program to load in limited RAM:  In gcc_startup_nrf51.s     =>   .equ    Heap_Size, 0
+The project does not use malloc or dynamically allocated objects.
 
 Remember I hacked the SDK, and if you switch nrf52 to nrf51, I repeated some hacks in two places:
 
