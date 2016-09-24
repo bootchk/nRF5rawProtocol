@@ -53,12 +53,12 @@ C_SOURCE_FILES += $(abspath $(TEMPLATE_PATH)/../system_nrf52.c)
 # (but also need to be declared as sources using the link name)
 # OR as here defined directly
 
-# libraries group
+# libraries
 C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/timer/app_timer.c
 C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/util/app_error.c
 C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/util/app_util_platform.c
 
-# drivers group
+# drivers
 C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/clock/nrf_drv_clock.c
 C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 
@@ -178,8 +178,16 @@ LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # let linker to dump unused sections
 LDFLAGS += -Wl,--gc-sections
-# use newlib in nano version
-LDFLAGS += --specs=nano.specs -lc -lnosys
+
+# Linker flags for libraries
+# use newlib version of std C libc, in nano version
+STDC_LIBS += --specs=nano.specs -lc -lnosys
+# My own static lib
+MY_LIBS += -L . -lfoo
+# libmath.a  Math lib is separate from libc.  
+# Math lib automatically include if use libstdc++, but we are not necessarily using libstdc++??
+MATH_LIBS += -lm
+LIBS += $(STDC_LIBS) $(MY_LIBS) $(MATH_LIBS)
 
 # Assembler flags
 ASMFLAGS += -x assembler-with-cpp
@@ -234,7 +242,7 @@ nrf52832_xxaa: LINKER_SCRIPT=gcc_nrf52.ld
 
 nrf52832_xxaa: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -lm -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
+	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
 
 ## Create build directories
@@ -253,8 +261,8 @@ $(OBJECT_DIRECTORY)/%.o: %.s
 	$(NO_ECHO)$(CC) $(ASMFLAGS) $(INC_PATHS) -c -o $@ $<
 # Link
 $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out: $(BUILD_DIRECTORIES) $(OBJECTS)
-	@echo Linking target: $(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -lm -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
+	@echo Linking target: $@
+	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 ## Create binary .bin file from the .out file
 $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin: $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	@echo Preparing: $(OUTPUT_FILENAME).bin

@@ -18,6 +18,9 @@
 
 #include "modules/ledLogger.h"
 
+// Testing link my static library
+#include "foo.h"
+static Foo myFoo;
 
 typedef enum {
 	MsgReceived,
@@ -42,7 +45,7 @@ ret_code_t nrf_log_init(nrf_log_timestamp_func_t timestamp_func);
 }
 */
 
-static void initLogging(void)
+void initLogging(void)
 {
     // Initialize logging library.
 	__attribute__((unused)) uint32_t err_code = NRF_LOG_INIT((nrf_log_timestamp_func_t) NULL);
@@ -108,6 +111,8 @@ int main(void)
 {
 	Timer timer;
 	Radio radio;
+
+	int bar = myFoo.foo();
 
 	initLogging();	// debug
 
