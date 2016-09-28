@@ -24,6 +24,11 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	sleepSystemOn();	// wake by received msg or timeout
 }
 
+void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }
+
+bool Sleeper::reasonForWakeIsMsgReceived() { return reasonForWake == MsgReceived; }
+bool Sleeper::reasonForWakeIsTimerExpired() { return reasonForWake == Timeout; }
+
 
 /*
  * nrf52:

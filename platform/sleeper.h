@@ -42,16 +42,17 @@ public:
 private:
 	static void rcvTimeoutTimerCallback(void * p_context) { reasonForWake = Timeout; }
 public:
-	// Public because radio IRQ hooks into it
-	static void msgReceivedCallback() { reasonForWake = MsgReceived; }
+	// Public because passed to radio so it can hook IRQ into it
+	static void msgReceivedCallback();
 
 	static void sleepUntilEventWithTimeout(OSTime);
 
+	// in-lined, not used by SleepSyncAgent?
 	static void clearReasonForWake() { reasonForWake = Cleared; }
 	static ReasonForWake getReasonForWake() { return reasonForWake; }
 
-	static bool reasonForWakeIsMsgReceived() { return reasonForWake == MsgReceived; }
-	static bool reasonForWakeIsTimerExpired() { return reasonForWake == Timeout; }
+	static bool reasonForWakeIsMsgReceived();
+	static bool reasonForWakeIsTimerExpired();
 
 private:
 	static void sleepSystemOn();
