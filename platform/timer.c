@@ -1,18 +1,28 @@
 
-// For app_timer
+
 #include "app_timer.h"
 #include "nrf_drv_clock.h"
 
 #include "timer.h"
 
-// Stuff needed for app_timer
-// See Nordic "Application timer tutorial"
-// Timer is single shot, times out a sleep while receiver on.
+/*
+ * Hacky, non-general.
+ *
+ * Two timers:
+ * - one-shot, reused by app, times out a sleep while receiver on.
+ * - repeating, just keeps app_timer from shutting down RTC1
+ * (because app reads RTC1 as free-running clock.)
+ *
+ * See Nordic "Application timer tutorial"
+ */
+
 
 // static class data
 // Macro defined by NRD SDK to define an app_timer instance
 // Thus difficult to cram into class??
 APP_TIMER_DEF(rcvTimeoutTimer);
+
+APP_TIMER_DEF(placeholderTimer);
 
 
 /*
@@ -25,6 +35,12 @@ void initLowFreqXtalClock() {
 	APP_ERROR_CHECK(err);
 	nrf_drv_clock_lfclk_request(NULL);
 }
+
+
+void placeholderTimeoutHandler(){
+	// Nothing.
+}
+
 
 void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 	// gdb break will stop here
@@ -44,21 +60,43 @@ void Timer::init() {	//TimerBasedOnLowFreqXtalClock() {
 			appTimerBuffer,
 			NULL);	// nullptr);
 	APP_ERROR_CHECK(err);
+
+	startPlaceholder();	// runs forever, does nothing
 }
 
 
 
 void Timer::createTimers(void (*timerTimeoutHandler)(void*))
 {
-    uint32_t err = app_timer_create(&rcvTimeoutTimer,
-            APP_TIMER_MODE_SINGLE_SHOT,
-			timerTimeoutHandler);
-    APP_ERROR_CHECK(err);
+	createOneShot(timerTimeoutHandler);
+	createPlaceholderTimer();
 }
 
-void Timer::restart() {
+void Timer::createOneShot(void (*timerTimeoutHandler)(void*))
+{
+	uint32_t err = app_timer_create(&rcvTimeoutTimer,
+	            APP_TIMER_MODE_SINGLE_SHOT,
+				timerTimeoutHandler);
+	APP_ERROR_CHECK(err);
+}
+
+void Timer::createPlaceholderTimer()
+{
+	uint32_t err = app_timer_create(&placeholderTimer,
+		            APP_TIMER_MODE_REPEATED,
+					placeholderTimeoutHandler);
+	APP_ERROR_CHECK(err);
+}
+
+
+void Timer::restart(int timeout) {
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
-	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(Timeout, TimerPrescaler), nullptr);
-	    APP_ERROR_CHECK(err);
+	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(timeout, TimerPrescaler), nullptr);
+	APP_ERROR_CHECK(err);
+}
+
+void Timer::startPlaceholder() {
+	uint32_t err = app_timer_start(placeholderTimer, MaxTimeout, nullptr);
+	APP_ERROR_CHECK(err);
 }
 

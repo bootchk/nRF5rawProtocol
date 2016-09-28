@@ -14,13 +14,20 @@ class Timer {
 private:
 	// 32/khz divide by 17 is about 1ms per tick
 	static const uint32_t TimerPrescaler = 16;
-	// Only one timer, but +1 ???  See tutorial.
-	static const uint8_t TimerQueueSize = 2;
 
-	static const uint16_t Timeout = 5000;	// units mSec, i.e. 1 second
+	// Only two timer, but +1 ???  See tutorial.
+	static const uint8_t TimerQueueSize = 3;
+
+	static const uint32_t MaxTimeout = 0xFFFFFF;	// 24-bit
 
 	public:
 		static void init();
 		static void createTimers(void (*func)(void*));
-		static void restart();
+		static void restart(int timeout);
+	private:
+		static void createOneShot(void (*func)(void*));
+		static void createPlaceholderTimer();
+
+		static void startPlaceholder();
+
 };

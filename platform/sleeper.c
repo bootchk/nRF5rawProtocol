@@ -12,15 +12,13 @@ Timer Sleeper::timer;
 void Sleeper::init() {
 	timer.init();
 	timer.createTimers(rcvTimeoutTimerCallback);
-	// Start repeating Timer to keep app_timer from stopping RTC clock.
-	// TODO
+	// Assert a placeholding repeating Timer keeps app_timer from stopping RTC clock.
 }
 
 
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// timeout units are 30uSec
-	// TODO pass timeout to timer
-	timer.restart();	// oneshot timer must not trigger before we sleep, else sleep forever
+	timer.restart(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
 	sleepSystemOn();	// wake by received msg or timeout
 }
 
