@@ -38,8 +38,9 @@ class Radio {
 public:
 	// Define protocol lengths
 	// TODO payload up to 258 bytes?
-	static const uint8_t PayloadCount = 5;
+	static const uint8_t PayloadCount = 9;
 	static const uint8_t AddressLength = 4;	// 1 byte preamble, 3 bytes base
+	static uint8_t staticBuffer[PayloadCount];
 
 private:
 	static HfClock hfClock;
@@ -55,7 +56,7 @@ public:
 	static void eventHandler();
 
 	static void init(void (*onRcvMsgCallback)());
-	static void configure();
+	static void configureStatic();
 
 	static void powerOn();
 	static void powerOff();
@@ -64,8 +65,17 @@ public:
 	static bool isDisabled();
 	static bool isEnabledInterruptForPacketDoneEvent();
 
+	static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
+	// Static: buffer owned by radio, of fixed length
+	static void transmitStatic();
+	static void transmitStaticSynchronously();
+	static void receiveStatic();
+
+#ifdef DYNAMIC
 	static void transmit(BufferPointer data, uint8_t length);
+	static void transmitSynchronously(BufferPointer data, uint8_t length);
 	static void receive(BufferPointer data, uint8_t length);
+#endif
 
 	static void stopXmit();
 	static void stopReceive();
@@ -78,7 +88,10 @@ private:
 	static void enableTX();
 	static void disable();
 	static void spinUntilDisabled();
+#ifdef DYNAMIC
 	static void setupXmitOrRcv(BufferPointer data, uint8_t length);
+#endif
+	static void setupStaticXmitOrRcv();
 	static void startXmit();
 	static void startRcv();
 

@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include "nrf.h"
 
 #include "radioDevice.h"
@@ -32,16 +33,25 @@ void RadioDevice::configureWhiteningSeed(int value){
 }
 
 
-void RadioDevice::configurePacketFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
-	// tell radio device the structure of packet in memory and on air
-	// Memory structure is S0 (1 byte), LENGTH (1 byte), S1 (1 byte), PAYLOAD (count bytes given by LENGTH)
-	// Total length < 258 bytes
-
-	configureOnAirPacketFormat();
-	configurePayloadFormat(PayloadCount, AddressLength);
+/*
+ * From Nordic docs:
+ * Memory structure is S0 (1 byte), LENGTH (1 byte), S1 (1 byte), PAYLOAD (count bytes given by LENGTH)
+ * On-air format may be smaller: less bits for S0, LENGTH, S1
+ * Total length < 258 bytes
+ */
+/*
+ * Static:
+ * LENGTH not transmitted (sender and receiver agree on fixed length)
+ * S0, S1 not transmitted
+ *
+ * Only needs to be configured once.
+ */
+void RadioDevice::configureStaticPacketFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
+	configureStaticOnAirPacketFormat();
+	configureStaticPayloadFormat(PayloadCount, AddressLength);
 }
 
-void RadioDevice::configureOnAirPacketFormat() {
+void RadioDevice::configureStaticOnAirPacketFormat() {
 	// All done in bit-fields of PCNF0 register.
 
 	// Note this affects tx and rx.
@@ -52,34 +62,40 @@ void RadioDevice::configureOnAirPacketFormat() {
 	// I.e. only xmit the payload, without xmit length
 	// And the memory format also has these fields (normally a byte) non-existant.
 
-	// RadioHead: NRF_RADIO->PCNF0 = ((8 << RADIO_PCNF0_LFLEN_Pos) & RADIO_PCNF0_LFLEN_Msk); // Length of LENGTH field in bits
+	// RadioHead: NRF_RADIO->PCNF0 = ((8 << RADIO_PCNF0_LFLEN_Pos) ); // Length of LENGTH field in bits
 	// We are not xmitting LENGTH field.
 
 	// default preamble length.
 	// Datasheet says preamble length always one byte??? Conflicts with register description.
 }
 
-void RadioDevice::configurePayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
-	// 5 bytes, no padding (no length xmitted)
-	// 3 bytes address (2 + 1 prefix)
-	// All done in PCNF1 register
-	// Here we do it in one shot by OR'ing bit fields
+/*
+ * Since not xmitting LENGTH, both MAXLEN and STALEN = PayloadCount bytes.
+ * xmit exactly PayloadCount
+ * rcv PayloadCount (and truncate excess)
+ */
+void RadioDevice::configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
+
 	// TODO we don't need the mask if we are certain parameters are not too large
+	assert(PayloadCount<256);
+	assert(AddressLength >= 3);	// see "Disable standard addressing" on DevZone
+	assert(AddressLength <= 5);
 	NRF_RADIO->PCNF1 =
-			( ((PayloadCount << RADIO_PCNF1_MAXLEN_Pos)  & RADIO_PCNF1_MAXLEN_Msk)  // maximum length of payload
-			| ((PayloadCount << RADIO_PCNF1_STATLEN_Pos) & RADIO_PCNF1_STATLEN_Msk)	// expand the payload (over LENGTH) with 0 bytes
-			| (((AddressLength-1) << RADIO_PCNF1_BALEN_Pos) & RADIO_PCNF1_BALEN_Msk))	// base address length in number of bytes.
-			| ((1 << RADIO_PCNF1_WHITEEN_Pos) & RADIO_PCNF1_WHITEEN_Msk); 	// enable whiten
-			//len-1
+			  (PayloadCount << RADIO_PCNF1_MAXLEN_Pos)  // max length of payload
+			| (PayloadCount << RADIO_PCNF1_STATLEN_Pos) // expand payload (over LENGTH) with 0 bytes
+			| ((AddressLength-1) << RADIO_PCNF1_BALEN_Pos)	// base address length in number of bytes.
+			| (1 << RADIO_PCNF1_WHITEEN_Pos); 	       // enable whiten
 
-
-	// Note AddressLength must be >= 3 bytes see "Disable standard addressing" on DevZone
 	// See also recommendations for longer address and CRC:  4 bytes give random noise match every 70 minutes
 
-	// Configuring the address field too i.e. BALEN
-	// Note endianess and whitening is also controlled by this register!!!
-	// So this code destroys any setting of those bit-fields.
-	// FUTURE use BIC and BIS to separate these concerns
+	/*
+	 * Here we do it in one shot by OR'ing bit fields
+	 * This is also configuring:
+	 * - address field i.e. BALEN
+	 * - endianess and whitening
+	 * So this code destroys any previous setting of those bit-fields.
+	 * FUTURE use BIC and BIS to separate these concerns
+	 */
 }
 
 

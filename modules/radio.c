@@ -33,8 +33,6 @@ PowerSupply Radio::powerSupply;
 
 void (*Radio::aRcvMsgCallback)();
 
-
-
 // State.  Can't tell from radio device whether xmit or rcv task was started, (when using shortcuts.)
 bool Radio::wasTransmitting;
 
@@ -74,6 +72,7 @@ void Radio::eventHandler(void)
     // We don't have a queue and we don't have a callback for idle
     assert(!isEventForEOTInterrupt());	// Ensure event is clear else get another unexpected interrupt
 }
+
 
 
 /*
@@ -128,10 +127,12 @@ void Radio::init(void (*onRcvMsgCallback)()) {
 
 	// Not require device power on
 	powerSupply.enableDCDCPower();	// Radio device wants this enabled.
-	// assert radio is configured to defaults.
+
+	// assert radio is configured to device reset defaults.
 	// But this code doesn't handle all default events from radio,
 	// and default configuration of radio is non-functional.
 	// Caller must do additional configuration.
+
 	// not ensure Radio or its underlying RadioDevice is functional.
 	// not ensure isPowerOn()
 }
@@ -139,7 +140,7 @@ void Radio::init(void (*onRcvMsgCallback)()) {
 
 // Configuration
 
-void Radio::configure() {
+void Radio::configureStatic() {
 	// Should be redone whenever radio device is power toggled on?
 	// None of it may be necessary if you are happy with reset defaults?
 
@@ -148,7 +149,11 @@ void Radio::configure() {
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
 	device.configureCRC();
-	device.configurePacketFormat(PayloadCount, AddressLength);
+	device.configureStaticPacketFormat(PayloadCount, AddressLength);
+	device.setShortcutsAvoidSomeEvents();
+
+	// Static: device always use single buffer owned by radio
+	device.configurePacketAddress(staticBuffer);
 
 	// FUTURE: parameters
 	// Default tx power
@@ -193,14 +198,31 @@ void Radio::powerOff() {
 
 bool Radio::isPowerOn() { return device.isPowerOn(); }
 
+// Get address and length of buffer the radio owns.
+void Radio::getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr) {
+	*handle = staticBuffer;
+	*lengthPtr = PayloadCount;
+}
 
+void Radio::transmitStaticSynchronously(){
+	transmitStatic();
+	spinUntilDisabled();
+	// assert xmit is complete and device is disabled
+}
 
+void Radio::transmitStatic(){
+	wasTransmitting = true;
+	setupStaticXmitOrRcv();
+	startXmit();
+	// not assert xmit is complete, i.e. asynchronous and non-blocking
+};
 
-
+#ifdef DYNAMIC
 void Radio::transmit(volatile uint8_t * data, uint8_t length){
 	wasTransmitting = true;
 	setupXmitOrRcv(data, length);
 	startXmit();
+	// not assert xmit is complete, i.e. asynchronous and non-blocking
 };
 
 
@@ -209,6 +231,7 @@ void Radio::receive(volatile uint8_t * data, uint8_t length) {
 	setupXmitOrRcv(data, length);
 	startRcv();
 }
+#endif
 
 /*
  * Enabling
@@ -225,6 +248,7 @@ void Radio::enableRX() {
 }
 void Radio::enableTX() {
 	device.clearEOTEvent();
+	// No interrupt for xmit.
 	device.startTXTask();
 }
 
@@ -244,15 +268,30 @@ void Radio::spinUntilDisabled() {
 
 
 
-
-void Radio::setupXmitOrRcv(volatile uint8_t * data, uint8_t length) {
-	// Setup common to xmit or rcv
-	device.setShortcutsAvoidSomeEvents();
-	device.configurePacketAddress(data);
-	device.configurePacketLength(length);
+void Radio::setupStaticXmitOrRcv() {
+	/*
+	 * Assert
+	 * is configured: shortcuts, packetAddress, etc.
+	 * Fixed-length buffer is filled
+	 */
 	enableInterruptForEOT();
 	clearEventForEOTInterrupt();
 }
+
+
+#ifdef DYNAMIC
+void Radio::setupXmitOrRcv(volatile uint8_t * data, uint8_t length) {
+	/*
+	 * Assert
+	 * is configured: shortcuts, packetAddress, etc.
+	 */
+	device.setShortcutsAvoidSomeEvents();
+	device.configurePacketAddress(data);
+	//device.configurePacketLength(length);
+	enableInterruptForEOT();
+	clearEventForEOTInterrupt();
+}
+#endif
 
 
 

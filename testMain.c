@@ -22,7 +22,7 @@
 
 
 // Volatile: radio and mcu both write
-volatile uint8_t rxAndTxBuffer[Radio::PayloadCount];	// Must be as large as configured payload length.
+//TODO DYNAMIC  volatile uint8_t rxAndTxBuffer[Radio::PayloadCount];	// Must be as large as configured payload length.
 
 
 
@@ -85,19 +85,22 @@ void testMain(void)
 
     	// assert configuration is lost after power is cycled
     	radio.powerOn();
-    	radio.configure();
+    	radio.configureStatic();
 
     	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
-    	radio.transmit(rxAndTxBuffer, 5);
-    	// assert xmit is NOT complete (radio is asynchronous to mcu)
-    	radio.spinUntilXmitComplete();
-    	// assert xmit is complete
+
+    	// TODO DYNAMIC radio.transmit(rxAndTxBuffer, 5);
+
+    	// TODO put something in buffer
+    	radio.transmitStaticSynchronously();
+    	// assert xmit is complete (radio is synchronous to mcu)
 
     	assert(radio.isDisabled());	// radio disabled when xmit complete but still powered on
 
     	sleeper.clearReasonForWake();
-    	radio.receive(rxAndTxBuffer, 5);
+    	// DYNAMIC radio.receive(rxAndTxBuffer, 5);
+    	radio.receiveStatic();
     	assert(radio.isEnabledInterruptForEOT());
 
     	sleeper.sleepUntilEventWithTimeout(1000);
