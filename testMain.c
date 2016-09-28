@@ -89,7 +89,7 @@ void testMain(void)
 
     	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
-    	radio.transmit(rxAndTxBuffer);
+    	radio.transmit(rxAndTxBuffer, 5);
     	// assert xmit is NOT complete (radio is asynchronous to mcu)
     	radio.spinUntilXmitComplete();
     	// assert xmit is complete
@@ -97,7 +97,7 @@ void testMain(void)
     	assert(radio.isDisabled());	// radio disabled when xmit complete but still powered on
 
     	sleeper.clearReasonForWake();
-    	radio.receive(rxAndTxBuffer);
+    	radio.receive(rxAndTxBuffer, 5);
     	assert(radio.isEnabledInterruptForEOT());
 
     	sleeper.sleepUntilEventWithTimeout(1000);

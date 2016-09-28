@@ -197,14 +197,14 @@ bool Radio::isPowerOn() { return device.isPowerOn(); }
 
 
 
-void Radio::transmit(volatile uint8_t * data){
+void Radio::transmit(volatile uint8_t * data, uint8_t length){
 	wasTransmitting = true;
 	setupXmitOrRcv(data);
 	startXmit();
 };
 
 
-void Radio::receive(volatile uint8_t * data) {
+void Radio::receive(volatile uint8_t * data, uint8_t length) {
 	wasTransmitting = false;
 	setupXmitOrRcv(data);
 	startRcv();

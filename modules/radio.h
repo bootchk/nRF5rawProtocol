@@ -64,8 +64,8 @@ public:
 	static bool isDisabled();
 	static bool isEnabledInterruptForPacketDoneEvent();
 
-	static void transmit(BufferPointer data);
-	static void receive(BufferPointer data);
+	static void transmit(BufferPointer data, uint8_t length);
+	static void receive(BufferPointer data, uint8_t length);
 
 	static void stopXmit();
 	static void stopReceive();
