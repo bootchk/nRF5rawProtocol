@@ -3,7 +3,7 @@
 
 #include "radio.h"
 
-#include "ledLogger.h"
+#include "../platform/ledLogger.h"
 
 LEDLogger ledLogger2;
 
@@ -191,6 +191,7 @@ void Radio::powerOff() {
 }
 
 
+bool Radio::isPowerOn() { return device.isPowerOn(); }
 
 
 

@@ -59,6 +59,7 @@ public:
 
 	static void powerOn();
 	static void powerOff();
+	static bool isPowerOn();
 
 	static bool isDisabled();
 	static bool isEnabledInterruptForPacketDoneEvent();

@@ -72,16 +72,19 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
 C_SOURCE_FILES +=  testMain.c
+C_SOURCE_FILES +=  wedgedMain.c
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
 C_SOURCE_FILES +=  modules/radioAddress.c
-C_SOURCE_FILES +=  modules/timer.c
-C_SOURCE_FILES +=  modules/irqHandlers.c
-C_SOURCE_FILES +=  modules/hardFaultHandler.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
-C_SOURCE_FILES +=  modules/ledLogger.c
+C_SOURCE_FILES +=  platform/timer.c
+C_SOURCE_FILES +=  platform/irqHandlers.c
+C_SOURCE_FILES +=  platform/hardFaultHandler.c
+C_SOURCE_FILES +=  platform/ledLogger.c
+C_SOURCE_FILES +=  platform/uniqueID.c
+C_SOURCE_FILES +=  platform/sleeper.c
 
 #assembly files common to all targets
 #lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
