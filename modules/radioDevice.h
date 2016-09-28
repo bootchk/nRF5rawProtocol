@@ -26,14 +26,16 @@ public:
 	static void configureCRC();
 	static void configurePacketFormat(const uint8_t, const uint8_t );
 	static void configureOnAirPacketFormat();
-	static void configurePayloadFormat(const uint8_t, const uint8_t );
+	static void configurePayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength);
+	static void configurePacketAddress(BufferPointer data);
+	static void configurePacketLength(uint8_t length);
 
 	// Getters of configuration
 	static uint32_t frequency();
 
 	static void configureWhiteningSeed(int);
 
-	static void passPacketAddress(BufferPointer data);
+
 
 	static bool isCRCValid();
 

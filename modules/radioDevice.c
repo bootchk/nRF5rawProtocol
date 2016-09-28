@@ -24,23 +24,6 @@
 
 // FUTURE inline
 
-
-
-void RadioDevice::passPacketAddress(BufferPointer data){
-	/*
-	 *  point to packet in memory, pointer must fit in 4 byte register
-	 *
-	 *  Address pointed to must be in "DATA RAM" i.e. writable memory,
-	 *  else per datasheet, "may result" in Hardfault (why not "shall").
-	 *
-	 *  Address pointed to is volatile: both RADIO and mcu may write it.
-	 *
-	 *  Implementation is portable until address space exceeds 32-bit
-	 */
-	NRF_RADIO->PACKETPTR = (uint32_t) data;
-}
-
-
 // Events and tasks
 
 

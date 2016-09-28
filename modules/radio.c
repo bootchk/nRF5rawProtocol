@@ -199,18 +199,24 @@ bool Radio::isPowerOn() { return device.isPowerOn(); }
 
 void Radio::transmit(volatile uint8_t * data, uint8_t length){
 	wasTransmitting = true;
-	setupXmitOrRcv(data);
+	setupXmitOrRcv(data, length);
 	startXmit();
 };
 
 
 void Radio::receive(volatile uint8_t * data, uint8_t length) {
 	wasTransmitting = false;
-	setupXmitOrRcv(data);
+	setupXmitOrRcv(data, length);
 	startRcv();
 }
 
-// Enabling
+/*
+ * Enabling
+ *
+ * Enabling is final step.
+ * Start a task on the device.
+ * Require device is configured, including data.
+ */
 
 void Radio::enableRX() {
 	device.clearEOTEvent();
@@ -239,10 +245,11 @@ void Radio::spinUntilDisabled() {
 
 
 
-void Radio::setupXmitOrRcv(volatile uint8_t * data) {
+void Radio::setupXmitOrRcv(volatile uint8_t * data, uint8_t length) {
 	// Setup common to xmit or rcv
 	device.setShortcutsAvoidSomeEvents();
-	device.passPacketAddress(data);
+	device.configurePacketAddress(data);
+	device.configurePacketLength(length);
 	enableInterruptForEOT();
 	clearEventForEOTInterrupt();
 }

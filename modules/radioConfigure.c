@@ -64,7 +64,7 @@ void RadioDevice::configurePayloadFormat(const uint8_t PayloadCount, const uint8
 	// 3 bytes address (2 + 1 prefix)
 	// All done in PCNF1 register
 	// Here we do it in one shot by OR'ing bit fields
-	// TODO we don't need the mask
+	// TODO we don't need the mask if we are certain parameters are not too large
 	NRF_RADIO->PCNF1 =
 			( ((PayloadCount << RADIO_PCNF1_MAXLEN_Pos)  & RADIO_PCNF1_MAXLEN_Msk)  // maximum length of payload
 			| ((PayloadCount << RADIO_PCNF1_STATLEN_Pos) & RADIO_PCNF1_STATLEN_Msk)	// expand the payload (over LENGTH) with 0 bytes
@@ -73,7 +73,7 @@ void RadioDevice::configurePayloadFormat(const uint8_t PayloadCount, const uint8
 			//len-1
 
 
-	// Note address must be >= 3 bytes see "Disable standard addressing" on DevZone
+	// Note AddressLength must be >= 3 bytes see "Disable standard addressing" on DevZone
 	// See also recommendations for longer address and CRC:  4 bytes give random noise match every 70 minutes
 
 	// Configuring the address field too i.e. BALEN
@@ -87,4 +87,19 @@ void RadioDevice::configureCRC() {
 	NRF_RADIO->CRCCNF = (RADIO_CRCCNF_LEN_Two << RADIO_CRCCNF_LEN_Pos); // Number of checksum bits
 	NRF_RADIO->CRCINIT = 0xFFFFUL;      // Initial value
 	NRF_RADIO->CRCPOLY = 0x11021UL; // CRC poly: x^16+x^12^x^5+1
+}
+
+
+void RadioDevice::configurePacketAddress(BufferPointer data){
+	/*
+	 *  point to packet in memory, pointer must fit in 4 byte register
+	 *
+	 *  Address pointed to must be in "DATA RAM" i.e. writable memory,
+	 *  else per datasheet, "may result" in Hardfault (why not "shall").
+	 *
+	 *  Address pointed to is volatile: both RADIO and mcu may write it.
+	 *
+	 *  Implementation is portable until address space exceeds 32-bit
+	 */
+	NRF_RADIO->PACKETPTR = (uint32_t) data;
 }

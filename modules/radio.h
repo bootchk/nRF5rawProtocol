@@ -78,7 +78,7 @@ private:
 	static void enableTX();
 	static void disable();
 	static void spinUntilDisabled();
-	static void setupXmitOrRcv(BufferPointer data);
+	static void setupXmitOrRcv(BufferPointer data, uint8_t length);
 	static void startXmit();
 	static void startRcv();
 
