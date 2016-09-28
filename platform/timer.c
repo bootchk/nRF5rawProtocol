@@ -1,4 +1,5 @@
 
+#include <cassert>
 
 #include "app_timer.h"
 #include "nrf_drv_clock.h"
@@ -92,6 +93,12 @@ void Timer::createPlaceholderTimer()
 void Timer::restart(int timeout) {
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
 	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(timeout, TimerPrescaler), nullptr);
+	APP_ERROR_CHECK(err);
+}
+
+void Timer::restartInTicks(uint32_t timeout) {
+	assert(timeout <= MaxTimeout);
+	uint32_t err = app_timer_start(rcvTimeoutTimer, timeout, nullptr);
 	APP_ERROR_CHECK(err);
 }
 
