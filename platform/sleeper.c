@@ -18,8 +18,8 @@ void Sleeper::init() {
 
 
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
-	// timeout units are 30uSec
-	timer.restart(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
+	// units are ticks, when RTC has zero prescaler: 30uSec
+	timer.restartInTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
 	sleepSystemOn();	// wake by received msg or timeout
 }
 

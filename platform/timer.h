@@ -30,7 +30,7 @@ private:
 		static void init();
 		static void createTimers(void (*func)(void*));
 		// Units mSec
-		static void restart(int timeout);	// units mSec
+		static void restartInMSec(int timeout);
 		// Units OSTicks i.e. resolution of RTC1 counter
 		static void restartInTicks(uint32_t timeout);
 

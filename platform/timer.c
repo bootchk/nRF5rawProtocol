@@ -89,7 +89,7 @@ void Timer::createPlaceholderTimer()
 }
 
 
-void Timer::restart(int timeout) {
+void Timer::restartInMSec(int timeout) {
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
 	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(timeout, TimerPrescaler), nullptr);
 	APP_ERROR_CHECK(err);
