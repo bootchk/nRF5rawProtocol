@@ -1,4 +1,5 @@
 
+#include <cassert>
 
 #include "sleeper.h"
 #include "nrf.h"
@@ -19,8 +20,24 @@ void Sleeper::init() {
 
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// units are ticks, when RTC has zero prescaler: 30uSec
-	timer.restartInTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
-	sleepSystemOn();	// wake by received msg or timeout
+
+	reasonForWake = Cleared;
+	if (timeout < 5) {
+		/*
+		 * Less than minimum required by restartInTicks().
+		 * Don't sleep, but set reason for waking.
+		 * I.E. simulate a sleep.
+		 */
+		reasonForWake = Timeout;
+		return;
+	}
+	else {
+		timer.restartInTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
+		sleepSystemOn();	// wake by received msg or timeout
+	}
+	// We either never slept and simulated reasonForWake == Timeout,
+	// or slept then woke and reasonForWake in [Timeout, MsgReceived)
+	assert(reasonForWake != Cleared);
 }
 
 void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }

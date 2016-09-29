@@ -96,12 +96,15 @@ void Timer::restartInMSec(int timeout) {
 }
 
 void Timer::restartInTicks(uint32_t timeout) {
+	// !!! Per Nordic docs, min timeout is 5 ticks.  Else returns NRF_ERROR_INVALID_PARAM
 	assert(timeout <= MaxTimeout);
 	uint32_t err = app_timer_start(rcvTimeoutTimer, timeout, nullptr);
 	APP_ERROR_CHECK(err);
 }
 
 void Timer::startPlaceholder() {
+	// By starting with max possible timeout, it expires and repeats as infrequently as possible
+	// saving cpu cycles.
 	uint32_t err = app_timer_start(placeholderTimer, MaxTimeout, nullptr);
 	APP_ERROR_CHECK(err);
 }
