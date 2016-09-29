@@ -38,9 +38,10 @@ class Radio {
 public:
 	// Define protocol lengths
 	// TODO payload up to 258 bytes?
-	static const uint8_t PayloadCount = 9;
-	static const uint8_t AddressLength = 4;	// 1 byte preamble, 3 bytes base
+	static const uint8_t PayloadCount = 11;
+	static const uint8_t NetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
 	static uint8_t staticBuffer[PayloadCount];
+
 
 private:
 	static HfClock hfClock;
@@ -66,6 +67,9 @@ public:
 	static bool isEnabledInterruptForPacketDoneEvent();
 
 	static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
+	// Can't define in-line, is exported
+	static uint8_t* getBufferAddress();
+
 	// Static: buffer owned by radio, of fixed length
 	static void transmitStatic();
 	static void transmitStaticSynchronously();

@@ -25,7 +25,7 @@ LEDLogger ledLogger2;
  */
 
 
-// Class (singleton) data members
+// Private class (singleton) data members
 HfClock Radio::hfClock;
 RadioDevice Radio::device;
 Nvic Radio::nvic;
@@ -35,6 +35,8 @@ void (*Radio::aRcvMsgCallback)();
 
 // State.  Can't tell from radio device whether xmit or rcv task was started, (when using shortcuts.)
 bool Radio::wasTransmitting;
+
+uint8_t Radio::staticBuffer[PayloadCount];
 
 
 
@@ -149,7 +151,7 @@ void Radio::configureStatic() {
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
 	device.configureCRC();
-	device.configureStaticPacketFormat(PayloadCount, AddressLength);
+	device.configureStaticPacketFormat(PayloadCount, NetworkAddressLength);
 	device.setShortcutsAvoidSomeEvents();
 
 	// Static: device always use single buffer owned by radio
@@ -204,6 +206,9 @@ void Radio::getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr) {
 	*lengthPtr = PayloadCount;
 }
 
+uint8_t* Radio::getBufferAddress() { return staticBuffer; }
+
+
 void Radio::transmitStaticSynchronously(){
 	transmitStatic();
 	spinUntilDisabled();
@@ -216,6 +221,12 @@ void Radio::transmitStatic(){
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
 };
+
+void Radio::receiveStatic() {
+	wasTransmitting = false;
+	setupStaticXmitOrRcv();
+	startRcv();
+}
 
 #ifdef DYNAMIC
 void Radio::transmit(volatile uint8_t * data, uint8_t length){
