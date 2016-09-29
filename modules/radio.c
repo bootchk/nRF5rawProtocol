@@ -168,6 +168,12 @@ void Radio::configureStatic() {
 // Powering
 // Power off saves more power than just disable.  A SoftDevice powers off to save power.
 
+void Radio::powerOnAndConfigure() {
+	powerOn();
+	configureStatic();
+}
+
+
 void Radio::powerOn() {
 	// not require off; might be on already
 	// require Vcc > 2.1V (see note below about DCDC)
@@ -182,6 +188,8 @@ void Radio::powerOn() {
 	// i.e. it needs to be reconfigured
 
 	// assert HFCLK is on since radio uses it
+
+	// !!! Configuration was lost, caller must now configure it
 }
 
 

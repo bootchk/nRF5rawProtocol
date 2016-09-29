@@ -18,14 +18,14 @@ void onWorkMsgQueued() {
 
 
 Radio radio;
-
-SleepSyncAgent sleepSyncAgent(&radio, onWorkMsgQueued);
+SleepSyncAgent sleepSyncAgent;
 
 
 int wedgedMain() {
 	// assert embedded system startup is done and calls main.
 	// assert platform initialized radio
 
+	sleepSyncAgent.init(&radio, onWorkMsgQueued);
 	sleepSyncAgent.loopOnEvents();	// never returns
 	return 0;
 }

@@ -59,7 +59,7 @@ public:
 	static void init(void (*onRcvMsgCallback)());
 	static void configureStatic();
 
-	static void powerOn();
+	static void powerOnAndConfigure();
 	static void powerOff();
 	static bool isPowerOn();
 
@@ -87,6 +87,7 @@ public:
 	static void spinUntilXmitComplete();
 
 private:
+	static void powerOn();	// public uses powerOnAndConfigure, a radio on is useless without configuration
 	static void dispatchPacketCallback();
 	static void enableRX();
 	static void enableTX();

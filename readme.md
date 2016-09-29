@@ -1,7 +1,11 @@
 
 Raw Wireless Protocol for nRF5
 
-Status: Works, but changes still in progress.  Usually compiles cleanly.  Tested on nrf52DK and RedBear BLE Nano.   Currently the two communicate, but there seem to be many CRC errors.
+Status: Works, but changes still in progress.  
+
+    - Usually compiles cleanly.  
+    - Tested on nrf52DK and RedBear BLE Nano.   The two communicate, but there are many CRC errors?
+    - Testing integration with external library sleepSync
 
 About
 -
@@ -9,10 +13,11 @@ About
 A primitive (raw) protocol stack for Nordic nRF52 family radio chips (SoC which includes ARM mcu)
 
 Raw :
-- broadcast, all units transmit and receive same address
-- no channel hopping (use one channel not used by WiFi or BT connections)
-- unreliable datagrams, no acks
-- unbuffered (no queue) xmit and rcv
+    - broadcast, all units transmit and receive same address
+    - no channel hopping (use one channel not used by WiFi or BT connections)
+    - unreliable datagrams, no acks
+    - unbuffered (no queue) xmit and rcv
+    - static payload length
 
 I.e. simple use of radio peripheral in Physical layer of protocol stack, and not much else.
 No transport layer: connections, reliability, or flow control
@@ -45,10 +50,10 @@ Dev environment
 -
 
 Uses:
-- Eclipse project.
-- GNU ARM toolchain (gcc and gdb for ARM)
-- hand maintained Makefile (as do most Nordic examples?)
-- linked resources (to the NRUntested on hw.  F SDK, as do most Nordic examples?)
+    - Eclipse project.
+    - GNU ARM toolchain (gcc and gdb for ARM)
+    - hand maintained Makefile (as do most Nordic examples?)
+    - linked resources (to the NRUF SDK, as do most Nordic examples?)
 I followed the tutorial for this combination on Nordic website, and hacked the Makefile.
 
 
@@ -141,3 +146,18 @@ Remember I hacked the SDK, and if you switch nrf52 to nrf51, I repeated some hac
 - Capitalization issues gcc_startup_nrf51.S => .s
 
 
+Building with external library
+-
+
+Keep a real application in another library (e.g. see my other GitHub project libsleepSyncAgent.a).  It wedges into this project:  this project calls the library main (so to speak) and the library calls back to this project for the radio and other platform libraries.
+
+Copy libfoo.a and libfoo.h (e.g. sleepSyncAgent.h) to this project directory.
+
+Change main.c() to call wedgeMain() which calls the library.  wedgeMain instantiates a single object from the library and calls into it, never to return.
+
+Edit the makefile:
+
+    - MY_LIBS += -L . -lfoo
+    - C_SOURCE_FILES +=  wedgedMain.c
+
+To revert, you must remove wedgedMain.c from C_SOURCE_FILES.  Else it compiles also, and the objects that it instantiates are built into the executable, even though you never call them (for some optimization level?) 
