@@ -9,6 +9,10 @@
  *
  * Uses 32khz xtal clock.
  * 
+ * Creates two timers:
+ * - a single-shot that can be restarted
+ * - a placeholder that does nothing
+ *
  */
 class Timer {
 private:
@@ -17,7 +21,7 @@ private:
 	// 2^8-1 yields 125ms per tick
 	static const uint32_t TimerPrescaler = 0;
 
-	// Only two timer, but +1 ???  See tutorial.
+	// Only two timers, but +1 ???  See tutorial.
 	static const uint8_t TimerQueueSize = 3;
 
 	static const uint32_t MaxTimeout = 0xFFFFFF;	// 24-bit
@@ -29,10 +33,12 @@ private:
 		static void restart(int timeout);	// units mSec
 		// Units OSTicks i.e. resolution of RTC1 counter
 		static void restartInTicks(uint32_t timeout);
+
+		static void startPlaceholder();
+		//static bool isPlaceholderRunning();
+
 	private:
 		static void createOneShot(void (*func)(void*));
 		static void createPlaceholderTimer();
-
-		static void startPlaceholder();
 
 };

@@ -38,7 +38,8 @@ void initLowFreqXtalClock() {
 }
 
 
-void placeholderTimeoutHandler(){
+// type app_timer_timeout_handler_t {aka void (*)(void*)}
+void placeholderTimeoutHandler(void*){
 	// Nothing.
 }
 
@@ -61,8 +62,6 @@ void Timer::init() {	//TimerBasedOnLowFreqXtalClock() {
 			appTimerBuffer,
 			NULL);	// nullptr);
 	APP_ERROR_CHECK(err);
-
-	startPlaceholder();	// runs forever, does nothing
 }
 
 
@@ -106,4 +105,12 @@ void Timer::startPlaceholder() {
 	uint32_t err = app_timer_start(placeholderTimer, MaxTimeout, nullptr);
 	APP_ERROR_CHECK(err);
 }
+
+#ifdef FUTURE
+Not exposed by app_timer.h
+bool Timer::isPlaceholderRunning() {
+	// Copied from app_timer.c
+	return (((timer_node_t*)*placeholderTimer)->is_running);
+}
+#endif
 

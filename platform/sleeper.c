@@ -12,7 +12,8 @@ Timer Sleeper::timer;
 void Sleeper::init() {
 	timer.init();
 	timer.createTimers(rcvTimeoutTimerCallback);
-	// Assert a placeholding repeating Timer keeps app_timer from stopping RTC clock.
+	timer.startPlaceholder();	// runs forever, does nothing
+	// FUTURE assert(timer.isPlaceholderRunning());	// keeps app_timer from stopping RTC clock.
 }
 
 
