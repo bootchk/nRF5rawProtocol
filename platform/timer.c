@@ -91,7 +91,8 @@ void Timer::createPlaceholderTimer()
 
 void Timer::restartInMSec(int timeout) {
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
-	uint32_t err = app_timer_start(rcvTimeoutTimer, APP_TIMER_TICKS(timeout, TimerPrescaler), nullptr);
+	uint32_t timeoutTicks = APP_TIMER_TICKS(timeout, TimerPrescaler);
+	uint32_t err = app_timer_start(rcvTimeoutTimer, timeoutTicks, nullptr);
 	APP_ERROR_CHECK(err);
 }
 

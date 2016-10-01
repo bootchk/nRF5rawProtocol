@@ -3,7 +3,12 @@
 
 /*
  * Log to set of LED's.
+ *
  * Safe to log to any index, they just won't light if they don't exist.
+ *
+ * Safe to have more than one instance.
+ * E.G. a library can have its own instance,
+ * but of course you must coordinate use of LEDs.
  */
 class LEDLogger {
 private:

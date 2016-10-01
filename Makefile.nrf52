@@ -16,11 +16,8 @@ NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
 OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
 TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
 
-ifeq ($(OS),Windows_NT)
-include $(TEMPLATE_PATH)/Makefile.windows
-else
+
 include $(TEMPLATE_PATH)/Makefile.posix
-endif
 
 MK := mkdir
 RM := rm -rf
@@ -79,6 +76,7 @@ C_SOURCE_FILES +=  modules/radioConfigure.c
 C_SOURCE_FILES +=  modules/radioAddress.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
+
 C_SOURCE_FILES +=  platform/timer.c
 C_SOURCE_FILES +=  platform/irqHandlers.c
 C_SOURCE_FILES +=  platform/hardFaultHandler.c
@@ -182,6 +180,9 @@ LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # let linker to dump unused sections
 LDFLAGS += -Wl,--gc-sections
+
+#lkk suppress warnings about wchar 4 or 2
+LDFLAGS += -Wl,--no-wchar-size-warning
 
 # Linker flags for libraries
 # use newlib version of std C libc, in nano version

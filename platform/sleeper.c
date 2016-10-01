@@ -29,15 +29,16 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 * I.E. simulate a sleep.
 		 */
 		reasonForWake = Timeout;
-		return;
 	}
 	else {
 		timer.restartInTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
 		sleepSystemOn();	// wake by received msg or timeout
+		// assert IRQ
 	}
 	// We either never slept and simulated reasonForWake == Timeout,
-	// or slept then woke and reasonForWake in [Timeout, MsgReceived)
-	assert(reasonForWake != Cleared);
+	// or slept then woke and the handler (at SWI0 priority of APP_LOW) set reasonForWake in [Timeout, MsgReceived)
+	// or an unexpected event woke us.
+	// Because of the latter possiblity we can't assert(reasonForWake != Cleared);
 }
 
 void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }

@@ -3,6 +3,7 @@
 # c++ but use .c for file suffixes, Makefile does not support .cpp suffix
 # derived from project blinky_blank_pca10040 in SDK11 !!! Not exist anymore in v12
 
+
 export OUTPUT_FILENAME
 #MAKEFILE_NAME := $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 MAKEFILE_NAME := $(MAKEFILE_LIST)
@@ -16,16 +17,12 @@ NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
 OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
 TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
 
-ifeq ($(OS),Windows_NT)
-include $(TEMPLATE_PATH)/Makefile.windows
-else
+
 include $(TEMPLATE_PATH)/Makefile.posix
-endif
 
 MK := mkdir
 RM := rm -rf
 
-VERBOSE = 1
 #echo suspend
 ifeq ("$(VERBOSE)","1")
 NO_ECHO := 
@@ -34,7 +31,7 @@ NO_ECHO := @
 endif
 
 # Toolchain commands
-#lkk was gcc
+#lkk gcc => g++
 CC              := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-g++'
 AS              := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-as'
 AR              := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-ar' -r
@@ -48,11 +45,9 @@ SIZE            := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-size'
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
 # Source from the SDK, needed by every nrf project
-C_SOURCE_FILES += $(abspath $(TEMPLATE_PATH)/../system_nrf52.c)
+C_SOURCE_FILES += $(abspath $(TEMPLATE_PATH)/../system_nrf51.c)
 
-# !!! other Nordic source files used by app CAN be soft links created in virtual folders e.g. ./Device or ./nrfLibraries
-# (but also need to be declared as sources using the link name)
-# OR as here defined directly
+
 
 # libraries
 C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/timer/app_timer.c
@@ -74,12 +69,14 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 C_SOURCE_FILES +=  main.c
 #C_SOURCE_FILES +=  testMain.c
 C_SOURCE_FILES +=  wedgedMain.c
+
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
 C_SOURCE_FILES +=  modules/radioAddress.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
+
 C_SOURCE_FILES +=  platform/timer.c
 C_SOURCE_FILES +=  platform/irqHandlers.c
 C_SOURCE_FILES +=  platform/hardFaultHandler.c
@@ -87,13 +84,16 @@ C_SOURCE_FILES +=  platform/ledLogger.c
 C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 
+
+
+#$(abspath ../../../main.c) \
+#$(abspath ../../../../../../components/drivers_nrf/delay/nrf_delay.c) \
+
 #assembly files common to all targets
-#lkk this file is linked linked resource in Eclipse, but not a linked file in Linux
-#lkk was lower case .s
-ASM_SOURCE_FILES  = $(abspath $(TEMPLATE_PATH)/gcc_startup_nrf52.s)
-# ASM_SOURCE_FILES  = gcc_startup_nrf52.s
-#lkk
-#ASM_SOURCE_FILES += modules/hardFaultHandler.s
+ASM_SOURCE_FILES  = $(abspath $(TEMPLATE_PATH)/gcc_startup_nrf51.s)
+
+
+
 
 #includes common to all targets
 #lkk !!! Case sensitive, and since the SDK comes from Windows case insensitive, often SDK has vagaries of capitalization?
@@ -140,25 +140,13 @@ OUTPUT_BINARY_DIRECTORY = $(OBJECT_DIRECTORY)
 BUILD_DIRECTORIES := $(sort $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY) $(LISTING_DIRECTORY) )
 
 #flags common to all targets
-CFLAGS  = -DNRF52_PAN_12
-CFLAGS += -DNRF52_PAN_15
-CFLAGS += -DNRF52_PAN_58
-CFLAGS += -DNRF52_PAN_20
-CFLAGS += -DNRF52_PAN_54
-CFLAGS += -DNRF52_PAN_31
-CFLAGS += -DNRF52_PAN_30
-CFLAGS += -DNRF52_PAN_51
-CFLAGS += -DNRF52_PAN_36
-CFLAGS += -DNRF52_PAN_53
-CFLAGS += -DCONFIG_GPIO_AS_PINRESET
-CFLAGS += -DNRF52_PAN_64
-CFLAGS += -DNRF52_PAN_55
-CFLAGS += -DNRF52_PAN_62
-CFLAGS += -DNRF52_PAN_63
-CFLAGS += -DBOARD_PCA10040
-CFLAGS += -DNRF52
+CFLAGS  = -DNRF51
+#lkk declare a custom board
+#CFLAGS += -DBOARD_PCA10028
+# BLE Nano or other.  Uses custom_board.h in project via boards.h in SDK
+CFLAGS += -DBOARD_CUSTOM
 CFLAGS += -DBSP_DEFINES_ONLY
-CFLAGS += -mcpu=cortex-m4
+CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs 
 
 # lkk not valid for g++: CFLAGS += --std=gnu11   original was gnu99
@@ -167,23 +155,24 @@ CFLAGS += -mthumb -mabi=aapcs
 # lkk add -std=c++11 for support of nullptr
 CFLAGS += -fpermissive -std=c++11
 
-CFLAGS += -Wall -O0 -g3
-CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS += -Wall -O3 -g3
+CFLAGS += -mfloat-abi=soft
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
+
 #lkk
 CFLAGS += -DDEBUG
-#CFLAGS += -fshort-wchar
-
 
 # keep every function in separate section. This will allow linker to dump unused functions
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
-LDFLAGS += -mcpu=cortex-m4
-LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LDFLAGS += -mcpu=cortex-m0
 # let linker to dump unused sections
 LDFLAGS += -Wl,--gc-sections
+
+#lkk suppress warnings about wchar 4 or 2
+LDFLAGS += -Wl,--no-wchar-size-warning
 
 # Linker flags for libraries
 # use newlib version of std C libc, in nano version
@@ -197,37 +186,22 @@ LIBS += $(STDC_LIBS) $(MY_LIBS) $(MATH_LIBS)
 
 # Assembler flags
 ASMFLAGS += -x assembler-with-cpp
-ASMFLAGS += -DNRF52_PAN_12
-ASMFLAGS += -DNRF52_PAN_15
-ASMFLAGS += -DNRF52_PAN_58
-ASMFLAGS += -DNRF52_PAN_20
-ASMFLAGS += -DNRF52_PAN_54
-ASMFLAGS += -DNRF52_PAN_31
-ASMFLAGS += -DNRF52_PAN_30
-ASMFLAGS += -DNRF52_PAN_51
-ASMFLAGS += -DNRF52_PAN_36
-ASMFLAGS += -DNRF52_PAN_53
-ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
-ASMFLAGS += -DNRF52_PAN_64
-ASMFLAGS += -DNRF52_PAN_55
-ASMFLAGS += -DNRF52_PAN_62
-ASMFLAGS += -DNRF52_PAN_63
-ASMFLAGS += -DBOARD_PCA10040
-ASMFLAGS += -DNRF52
+ASMFLAGS += -DNRF51
+ASMFLAGS += -DBOARD_PCA10028
 ASMFLAGS += -DBSP_DEFINES_ONLY
 
 #default target - first one defined
-default: clean nrf52832_xxaa
+default: clean nrf51422_xxac
 
 #building all targets
 all: clean
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e cleanobj
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf52832_xxaa
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf51422_xxac
 
 #target for printing all targets
 help:
 	@echo following targets are available:
-	@echo 	nrf52832_xxaa
+	@echo 	nrf51422_xxac
 
 C_SOURCE_FILE_NAMES = $(notdir $(C_SOURCE_FILES))
 C_PATHS = $(call remduplicates, $(dir $(C_SOURCE_FILES) ) )
@@ -242,11 +216,10 @@ vpath %.s $(ASM_PATHS)
 
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
-nrf52832_xxaa: OUTPUT_FILENAME := nrf52832_xxaa
-nrf52832_xxaa: LINKER_SCRIPT=gcc_nrf52.ld
-# ble nano   use nrf51_xxaa.ld (no softdevice, 256k flash, 16k RAM)
+nrf51422_xxac: OUTPUT_FILENAME := nrf51422_xxac
+nrf51422_xxac: LINKER_SCRIPT=gcc_nrf51.ld
 
-nrf52832_xxaa: $(BUILD_DIRECTORIES) $(OBJECTS)
+nrf51422_xxac: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
@@ -260,7 +233,7 @@ $(BUILD_DIRECTORIES):
 $(OBJECT_DIRECTORY)/%.o: %.c
 	@echo Compiling file: $(notdir $<)
 	$(NO_ECHO)$(CC) $(CFLAGS) $(INC_PATHS) -c -o $@ $<
-	
+
 # Assemble files
 $(OBJECT_DIRECTORY)/%.o: %.s
 	@echo Assembly file: $(notdir $<)
@@ -268,7 +241,7 @@ $(OBJECT_DIRECTORY)/%.o: %.s
 # Link
 $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $@
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -lm -o $@
+	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 ## Create binary .bin file from the .out file
 $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin: $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	@echo Preparing: $(OUTPUT_FILENAME).bin
@@ -299,7 +272,9 @@ clean:
 
 cleanobj:
 	$(RM) $(BUILD_DIRECTORIES)/*.o
-flash: nrf52832_xxaa
+flash: nrf51422_xxac
 	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
-	$(OTHER_TOOLS)/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
-	$(OTHER_TOOLS)/nrfjprog --reset -f nrf52
+	$(OTHER_TOOLS)/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf51  --chiperase
+	$(OTHER_TOOLS)/nrfjprog --reset -f nrf51
+
+## Flash softdevice
