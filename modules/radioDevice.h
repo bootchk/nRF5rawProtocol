@@ -42,32 +42,35 @@ public:
 	static uint32_t frequency();
 
 
-
-
-
 	static bool isCRCValid();
-
-
 
 	// Tasks and events
 	static void startRXTask();
 	static void startTXTask();
+#ifdef USE_PACKET_DONE_FOR_EOT
 	static bool isPacketDone();
 	static void clearPacketDoneEvent();
+#else
+	// Not implemented or used static bool isEOTEvent();
 	static void clearEOTEvent();
+#endif
 
+	// !!!
 	static void startDisablingTask();
 	static bool isDisabledEventSet();
 	static void clearDisabledEvent();
 	static bool isDisabled();
 
+#ifdef USE_PACKET_DONE_FOR_EOT
 	static void enableInterruptForPacketDoneEvent();
 	static void disableInterruptForPacketDoneEvent();
 	static bool isEnabledInterruptForPacketDoneEvent();
-
+#else
+	// use disabled event for EOT
 	static void enableInterruptForDisabledEvent();
 	static void disableInterruptForDisabledEvent();
 	static bool isEnabledInterruptForDisabledEvent();
+#endif
 
 	static void setShortcutsAvoidSomeEvents();
 

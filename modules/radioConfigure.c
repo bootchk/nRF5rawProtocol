@@ -100,7 +100,8 @@ void RadioDevice::configureStaticPayloadFormat(const uint8_t PayloadCount, const
 
 
 void RadioDevice::configureCRC() {
-	NRF_RADIO->CRCCNF = (RADIO_CRCCNF_LEN_Two << RADIO_CRCCNF_LEN_Pos); // Number of checksum bits
+	// 2 bytes of CRC
+	NRF_RADIO->CRCCNF = (RADIO_CRCCNF_LEN_Two << RADIO_CRCCNF_LEN_Pos);
 	NRF_RADIO->CRCINIT = 0xFFFFUL;      // Initial value
 	NRF_RADIO->CRCPOLY = 0x11021UL; // CRC poly: x^16+x^12^x^5+1
 }

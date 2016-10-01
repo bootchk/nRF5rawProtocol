@@ -43,17 +43,21 @@ uint8_t Radio::staticBuffer[PayloadCount];
 
 extern "C" {
 void RADIO_IRQHandler() {
-	Radio::eventHandler();	// relay to static C++ method
+	Radio::receivedEventHandler();	// relay to static C++ method
 	// assert RTI will be called but I don't understand how the compiler knows to do that?
 	// assert an internal event flag will be set on RTI that must be cleared by SEV???
 }
 }
 
-void Radio::eventHandler(void)
+void Radio::receivedEventHandler(void)
 {
+	// assert(device.isOnlyEnabledInterruptForDisabled());
+	// We only expect an interrupt on packet received
+
     if (isEventForEOTInterrupt())
     {
     	clearEventForEOTInterrupt();
+    	ledLogger2.toggleLED(2);	// LED 2 show every receive
 
         if (isValidPacket()) {
         	// assert buffer is valid received data, side effect
@@ -62,12 +66,13 @@ void Radio::eventHandler(void)
         else {
         	// ignore invalid packet
         	// assert(false);
-        	ledLogger2.toggleLED(4);
+        	ledLogger2.toggleLED(4);	// LED 4 shows invalid received
         }
     }
     else
     {
-        // Programming error, interrupts other than the only enabled interrupt 'packet done'
+        // Programming error, interrupts other than the only enabled interrupt 'EOT'
+    	// (which on some platforms is radio DISABLED)
     	// FUTURE handle more gracefully by just clearing all events???
     	assert(false);
     }
@@ -143,7 +148,7 @@ void Radio::init(void (*onRcvMsgCallback)()) {
 // Configuration
 
 void Radio::configureStatic() {
-	// Should be redone whenever radio device is power toggled on?
+	// Must be redone whenever radio device transitions from power off=>on?
 	// None of it may be necessary if you are happy with reset defaults?
 
 	// Specific to the protocol, here rawish
@@ -193,9 +198,18 @@ void Radio::powerOn() {
 }
 
 
+
 void Radio::powerOff() {
 	// not require on; might be off already
-	// not require disabled
+
+	/*
+	 * require disabled: caller must not power off without disabling
+	 * because we also use the disabled state for EOT (with interrupts)
+	 * The docs do not make clear whether the device passes through
+	 * the DISABLED state (generating an interrupt) when powered off.
+	 */
+	assert(device.isDisabled());
+
 	device.setRadioPowered(false);
 	// not ensure not ready; caller must spin if necessary
 
@@ -279,7 +293,7 @@ void Radio::disable() {
 bool Radio::isDisabled() { return device.isDisabled(); }
 
 void Radio::spinUntilDisabled() {
-	// Assert we start the task disable.
+	// Assert we started the task DISABLE or we think isDisabled, want to assert isDisabled
 	// Wait until the event that signifies disable is complete
 	// See data sheet.  For (1Mbit mode, TX) delay is ~6us, for RX, ~0us
 	while (!device.isDisabled()) ;
@@ -338,8 +352,13 @@ void Radio::stopReceive() {
 	// or DISABLED: message was received and RX not enabled again
 	nvic.disableRadioIRQ();
 	disableInterruptForEOT();
-	device.startDisablingTask();
-	// assert radio state soon RXDISABLE and then immediately transitions to DISABLED
+	if (! device.isDisabled()) {
+		// was receiving and no messages received (device in state RXRU, etc. but not in state DISABLED)
+		device.startDisablingTask();
+		// assert radio state soon RXDISABLE and then immediately transitions to DISABLED
+		spinUntilDisabled();
+	}
+	assert(device.isDisabled());
 }
 
 void Radio::stopXmit() {

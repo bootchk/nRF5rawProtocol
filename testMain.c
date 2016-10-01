@@ -84,8 +84,7 @@ void testMain(void)
     	ledLogger.toggleLED(1);	//
 
     	// assert configuration is lost after power is cycled
-    	radio.powerOn();
-    	radio.configureStatic();
+    	radio.powerOnAndConfigure();	// Configures for fixed length messages
 
     	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 

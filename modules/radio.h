@@ -54,7 +54,7 @@ private:
 
 
 public:
-	static void eventHandler();
+	static void receivedEventHandler();
 
 	static void init(void (*onRcvMsgCallback)());
 	static void configureStatic();

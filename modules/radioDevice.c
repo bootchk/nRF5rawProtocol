@@ -52,6 +52,8 @@ void RadioDevice::startDisablingTask(){
 	NRF_RADIO->TASKS_DISABLE = 1;
 }
 
+
+
 void RadioDevice::clearDisabledEvent(){
 	NRF_RADIO->EVENTS_DISABLED = 0;
 	(void)NRF_RADIO->EVENTS_DISABLED;	// flush ARM write buffer
@@ -72,7 +74,7 @@ bool RadioDevice::isDisabledEventSet() {
 	return NRF_RADIO->EVENTS_DISABLED; // == 1
 }
 
-
+#ifdef USE_PACKET_DONE_FOR_EOT
 /*
  * Event "END" means "end of packet" (RX or TX)
  *
@@ -89,6 +91,11 @@ void RadioDevice::clearPacketDoneEvent() {
 	assert(!isPacketDone());	// ensure
 }
 
+void RadioDevice::enableInterruptForPacketDoneEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk; }
+void RadioDevice::disableInterruptForPacketDoneEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_END_Msk; }
+bool RadioDevice::isEnabledInterruptForPacketDoneEvent() { return NRF_RADIO->INTENSET & RADIO_INTENSET_END_Msk; }
+
+#endif
 
 
 /*
@@ -100,10 +107,6 @@ void RadioDevice::clearPacketDoneEvent() {
  * - Nvic.enableRadioIRQ (NVIC is documented by ARM, not by Nordic)
  * - ensure PRIMASK IRQ bit is clear (IRQ enabled in mcu register)
  */
-
-void RadioDevice::enableInterruptForPacketDoneEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_END_Msk; }
-void RadioDevice::disableInterruptForPacketDoneEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_END_Msk; }
-bool RadioDevice::isEnabledInterruptForPacketDoneEvent() { return NRF_RADIO->INTENSET & RADIO_INTENSET_END_Msk; }
 
 void RadioDevice::enableInterruptForDisabledEvent() { NRF_RADIO->INTENSET = RADIO_INTENSET_DISABLED_Msk; }
 void RadioDevice::disableInterruptForDisabledEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_DISABLED_Msk; }
