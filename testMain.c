@@ -100,8 +100,10 @@ void testMain(void)
     	sleeper.clearReasonForWake();
     	// DYNAMIC radio.receive(rxAndTxBuffer, 5);
     	radio.receiveStatic();
-    	assert(radio.isEnabledInterruptForEOT());
+    	// Receiving with interrupt enabled.
+    	assert(radio.isEnabledInterruptForMsgReceived());
 
+    	// Sleep until msg received or timeout
     	sleeper.sleepUntilEventWithTimeout(1000);
 
     	// If using nrf52DK with many LED's show result
@@ -123,7 +125,7 @@ void testMain(void)
 
     	// assert receiver still enabled
     	radio.stopReceive();
-    	assert(! radio.isEnabledInterruptForEOT());
+    	assert(! radio.isEnabledInterruptForMsgReceived());
     	// assert radioIRQ is disabled
     	radio.powerOff();
 

@@ -69,8 +69,8 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
 # lkk uncomment one of the two following mains
-C_SOURCE_FILES +=  testMain.c
-#C_SOURCE_FILES +=  wedgedMain.c
+#C_SOURCE_FILES +=  testMain.c
+C_SOURCE_FILES +=  wedgedMain.c
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c

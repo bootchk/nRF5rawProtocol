@@ -322,7 +322,7 @@ void Radio::spinUntilDisabled() {
 }
 
 
-
+// TODO this assertion is not a require, just how we happen to use it.
 void Radio::setupInterruptForMsgReceivedEvent() {
 	/*
 	 * Assert
@@ -367,13 +367,19 @@ void Radio::startRcv() {
 }
 
 void Radio::stopReceive() {
-	// assert radio state is:
-	// RXRU : aborting before ramp-up complete
-	// or RXIDLE: on but never received start preamble signal
-	// or RX: in middle of receiving a packet
-	// or DISABLED: message was received and RX not enabled again
+	/*
+	 *  assert radio state is:
+	* RXRU : aborting before ramp-up complete
+	* or RXIDLE: on but never received start preamble signal
+	* or RX: in middle of receiving a packet
+	* or DISABLED: message was received and RX not enabled again
+	* */
+
+	// In interrupt chain, disable in two places: nvic and device
 	nvic.disableRadioIRQ();
 	disableInterruptForMsgReceived();
+	// TODO just device.disableInterruptForMsgReceived
+
 	if (! device.isDisabled()) {
 		// was receiving and no messages received (device in state RXRU, etc. but not in state DISABLED)
 		device.startDisablingTask();
@@ -381,6 +387,7 @@ void Radio::stopReceive() {
 		spinUntilDisabled();
 	}
 	assert(device.isDisabled());
+	// assert no interrupts enabled from radio, for any event
 }
 
 void Radio::stopXmit() {
