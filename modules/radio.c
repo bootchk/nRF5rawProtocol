@@ -54,30 +54,31 @@ void Radio::receivedEventHandler(void)
 	// assert(device.isOnlyEnabledInterruptForDisabled());
 	// We only expect an interrupt on packet received
 
-    if (isEventForEOTInterrupt())
+    if (isEventForMsgReceivedInterrupt())
     {
-    	clearEventForEOTInterrupt();
+    	clearEventForMsgReceivedInterrupt();
     	ledLogger2.toggleLED(2);	// LED 2 show every receive
 
         if (isValidPacket()) {
         	// assert buffer is valid received data, side effect
         	dispatchPacketCallback();
+        	ledLogger2.toggleLED(3);	// LED 3 valid received
         }
         else {
         	// ignore invalid packet
         	// assert(false);
-        	ledLogger2.toggleLED(4);	// LED 4 shows invalid received
+        	ledLogger2.toggleLED(4);	// LED 4 invalid received
         }
     }
     else
     {
-        // Programming error, interrupts other than the only enabled interrupt 'EOT'
+        // Programming error, interrupts other than the only enabled interrupt 'MsgReceived'
     	// (which on some platforms is radio DISABLED)
     	// FUTURE handle more gracefully by just clearing all events???
     	assert(false);
     }
     // We don't have a queue and we don't have a callback for idle
-    assert(!isEventForEOTInterrupt());	// Ensure event is clear else get another unexpected interrupt
+    assert(!isEventForMsgReceivedInterrupt());	// Ensure event is clear else get another unexpected interrupt
 }
 
 
@@ -94,17 +95,19 @@ void Radio::disableInterruptForEOT() { device.disableInterruptForPacketDoneEvent
 bool Radio::isEnabledInterruptForEOT() { return device.isEnabledInterruptForPacketDoneEvent(); }
 #else
 // DISABLED event
-bool Radio::isEventForEOTInterrupt() {
+bool Radio::isEventForMsgReceivedInterrupt() {
 	/*
 	 * !!! The radio stays in the disabled state, even after the event is cleared.
 	 * So this is not:  device.isDisabled().
 	 */
 	return device.isDisabledEventSet();
 }
-void Radio::clearEventForEOTInterrupt() { device.clearDisabledEvent(); }
-void Radio::enableInterruptForEOT() { device.enableInterruptForDisabledEvent(); }
-void Radio::disableInterruptForEOT() { device.disableInterruptForDisabledEvent(); }
-bool Radio::isEnabledInterruptForEOT() { return device.isEnabledInterruptForDisabledEvent(); }
+void Radio::clearEventForMsgReceivedInterrupt() { device.clearDisabledEvent(); }
+void Radio::enableInterruptForMsgReceived() { device.enableInterruptForDisabledEvent(); }
+void Radio::disableInterruptForMsgReceived() { device.disableInterruptForDisabledEvent(); }
+void Radio::disableInterruptForEndTransmit() { device.disableInterruptForDisabledEvent(); }
+bool Radio::isEnabledInterruptForMsgReceived() { return device.isEnabledInterruptForDisabledEvent(); }
+bool Radio::isEnabledInterruptForEndTransmit() { return device.isEnabledInterruptForDisabledEvent(); }
 #endif
 
 /*
@@ -147,6 +150,7 @@ void Radio::init(void (*onRcvMsgCallback)()) {
 
 // Configuration
 
+// TODO rename Fixed and Variable
 void Radio::configureStatic() {
 	// Must be redone whenever radio device transitions from power off=>on?
 	// None of it may be necessary if you are happy with reset defaults?
@@ -180,14 +184,13 @@ void Radio::powerOnAndConfigure() {
 
 
 void Radio::powerOn() {
-	// not require off; might be on already
+	assert(!device.isPowerOn());  // require off
+
 	// require Vcc > 2.1V (see note below about DCDC)
 
 	hfClock.startXtalSource();	// radio requires XTAL!!! hf clock, not the RC hf clock
 	device.setRadioPowered(true);
-	disable();
-	spinUntilDisabled();	// This is how RadioHead ensures radio is ready
-	// ensure ready
+	spinUntilReady();
 
 	// assert if it was off, the radio and its registers are in initial state as specified by datasheet
 	// i.e. it needs to be reconfigured
@@ -195,16 +198,31 @@ void Radio::powerOn() {
 	// assert HFCLK is on since radio uses it
 
 	// !!! Configuration was lost, caller must now configure it
+	assert(!isEnabledInterruptForMsgReceived());
+	assert(device.isDisabled());		// after power on and ready, initial state is DISABLED
 }
 
 
+void Radio::spinUntilReady() {
+	// BUG: WAS disable(); spinUntilDisabled();  but then I added an assertion to disable();
+	/*
+	 * Wait until power supply ramps up.
+	 * Until then, device registers are indeterminate?
+	 *
+	 * This is the way RadioHead does it.
+	 * But how do you start a task when registers are indeterminate?
+	 */
+	device.clearDisabledEvent();
+	device.startDisablingTask();
+	spinUntilDisabled();
+}
 
 void Radio::powerOff() {
 	// not require on; might be off already
 
 	/*
 	 * require disabled: caller must not power off without disabling
-	 * because we also use the disabled state for EOT (with interrupts)
+	 * because we also use the disabled state for MsgReceived (with interrupts)
 	 * The docs do not make clear whether the device passes through
 	 * the DISABLED state (generating an interrupt) when powered off.
 	 */
@@ -222,16 +240,19 @@ void Radio::powerOff() {
 
 bool Radio::isPowerOn() { return device.isPowerOn(); }
 
+#ifdef OBSOLETE
 // Get address and length of buffer the radio owns.
 void Radio::getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr) {
 	*handle = staticBuffer;
 	*lengthPtr = PayloadCount;
 }
+#endif
 
 uint8_t* Radio::getBufferAddress() { return staticBuffer; }
 
 
 void Radio::transmitStaticSynchronously(){
+	disableInterruptForEndTransmit();	// spin, not interrupt
 	transmitStatic();
 	spinUntilDisabled();
 	// assert xmit is complete and device is disabled
@@ -239,15 +260,15 @@ void Radio::transmitStaticSynchronously(){
 
 void Radio::transmitStatic(){
 	wasTransmitting = true;
-	setupStaticXmitOrRcv();
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
 };
 
 void Radio::receiveStatic() {
 	wasTransmitting = false;
-	setupStaticXmitOrRcv();
+	setupInterruptForMsgReceivedEvent();
 	startRcv();
+	// assert will get IRQ on message received
 }
 
 #ifdef DYNAMIC
@@ -275,17 +296,18 @@ void Radio::receive(volatile uint8_t * data, uint8_t length) {
  */
 
 void Radio::enableRX() {
-	device.clearEOTEvent();
+	device.clearMsgReceivedEvent();
 	nvic.enableRadioIRQ();
 	device.startRXTask();
 }
 void Radio::enableTX() {
-	device.clearEOTEvent();
+	device.clearEndTransmitEvent();
 	// No interrupt for xmit.
 	device.startTXTask();
 }
 
 void Radio::disable() {
+	assert(!isEnabledInterruptForEndTransmit());
 	device.clearDisabledEvent();
 	device.startDisablingTask();
 }
@@ -301,14 +323,14 @@ void Radio::spinUntilDisabled() {
 
 
 
-void Radio::setupStaticXmitOrRcv() {
+void Radio::setupInterruptForMsgReceivedEvent() {
 	/*
 	 * Assert
 	 * is configured: shortcuts, packetAddress, etc.
 	 * Fixed-length buffer is filled
 	 */
-	enableInterruptForEOT();
-	clearEventForEOTInterrupt();
+	enableInterruptForMsgReceived();
+	clearEventForMsgReceivedInterrupt();
 }
 
 
@@ -351,7 +373,7 @@ void Radio::stopReceive() {
 	// or RX: in middle of receiving a packet
 	// or DISABLED: message was received and RX not enabled again
 	nvic.disableRadioIRQ();
-	disableInterruptForEOT();
+	disableInterruptForMsgReceived();
 	if (! device.isDisabled()) {
 		// was receiving and no messages received (device in state RXRU, etc. but not in state DISABLED)
 		device.startDisablingTask();

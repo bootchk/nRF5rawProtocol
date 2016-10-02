@@ -88,6 +88,7 @@ public:
 
 private:
 	static void powerOn();	// public uses powerOnAndConfigure, a radio on is useless without configuration
+	static void spinUntilReady();
 	static void dispatchPacketCallback();
 	static void enableRX();
 	static void enableTX();
@@ -96,17 +97,18 @@ private:
 #ifdef DYNAMIC
 	static void setupXmitOrRcv(BufferPointer data, uint8_t length);
 #endif
-	static void setupStaticXmitOrRcv();
+	static void setupInterruptForMsgReceivedEvent();
 	static void startXmit();
 	static void startRcv();
 
 	static bool isValidPacket();
 
-	// These mean EOTransmission, but currently only used for RX
-	static bool isEventForEOTInterrupt();
-	static void clearEventForEOTInterrupt();
-	static void enableInterruptForEOT();
-	static void disableInterruptForEOT();
+	static bool isEventForMsgReceivedInterrupt();
+	static void clearEventForMsgReceivedInterrupt();
+	static void enableInterruptForMsgReceived();
+	static void disableInterruptForMsgReceived();
+	static void disableInterruptForEndTransmit();
 public:
-	static bool isEnabledInterruptForEOT();
+	static bool isEnabledInterruptForMsgReceived();
+	static bool isEnabledInterruptForEndTransmit();
 };

@@ -52,7 +52,8 @@ public:
 	static void clearPacketDoneEvent();
 #else
 	// Not implemented or used static bool isEOTEvent();
-	static void clearEOTEvent();
+	static void clearMsgReceivedEvent();
+	static void clearEndTransmitEvent();
 #endif
 
 	// !!!

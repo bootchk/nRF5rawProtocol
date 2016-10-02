@@ -28,16 +28,23 @@
 
 
 /*
- * End Of Transceive (transmission or reception) will set this event.
+ * EndOfTransmit AND MsgReceived will BOTH set the same DISABLED event.
+ * Device cannot transmit and receive at the same time.
  *
- * Since we use a shortcut, on packet done, radio state becoming "disabled" signifies EOT.
- * Note we enable interrupt on RX Packet Done (END), but not on TX.
- * The RX IRQHandler must clear  Packet Done (END) event, or another interrupt immediately occurs.
+ * Since we use a shortcut, on packet done (TX or RX), radio state becoming DISABLED signifies end.
  *
- * The app can also disable() RX, taking state to DISABLED.
- * So state==DISABLED is not always EOT.
+ * !!! Note we enable interrupt on RX, but not on TX.
+ *
+ * The RX IRQHandler must clear this event, or another interrupt immediately occurs.
+ *
+ * The app can also stopReceive() (end receiving before any msg or after one msg), taking state to DISABLED.
+ * !!! So state==DISABLED is not always MsgReceived or EndOfTransmit.
+ * Must disable any interrupt on DISABLED before calling stopReceive()
  */
-void RadioDevice::clearEOTEvent() {
+void RadioDevice::clearMsgReceivedEvent() {
+	clearDisabledEvent();
+}
+void RadioDevice::clearEndTransmitEvent() {
 	clearDisabledEvent();
 }
 
