@@ -180,7 +180,7 @@ LDFLAGS += -Wl,--no-wchar-size-warning
 # use newlib version of std C libc, in nano version
 STDC_LIBS += --specs=nano.specs -lc -lnosys
 # My own static lib
-MY_LIBS += -L . -lsleepSyncAgent
+MY_LIBS += -L . -lsleepSyncAgentM0
 # libmath.a  Math lib is separate from libc.  
 # Math lib automatically include if use libstdc++, but we are not necessarily using libstdc++??
 MATH_LIBS += -lm
