@@ -21,6 +21,7 @@ void Sleeper::init() {
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// units are ticks, when RTC has zero prescaler: 30uSec
 
+	// TODO should we be clearing, or asserting (rely on caller to clear, because of races?)
 	reasonForWake = Cleared;
 	if (timeout < 5) {
 		/*
@@ -41,11 +42,13 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// Because of the latter possiblity we can't assert(reasonForWake != Cleared);
 }
 
+// !!! Note rcvTimeoutTimerCallback is implemented in-line in sleeper.h
 void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }
 
+void Sleeper::clearReasonForWake() { reasonForWake = Cleared; }
 bool Sleeper::reasonForWakeIsMsgReceived() { return reasonForWake == MsgReceived; }
 bool Sleeper::reasonForWakeIsTimerExpired() { return reasonForWake == Timeout; }
-
+bool Sleeper::reasonForWakeIsCleared() { return reasonForWake == Cleared; }
 
 /*
  * nrf52:

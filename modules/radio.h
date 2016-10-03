@@ -106,14 +106,14 @@ private:
 	static void startXmit();
 	static void startRcv();
 
-	static bool isValidPacket();
-
 	static bool isEventForMsgReceivedInterrupt();
 	static void clearEventForMsgReceivedInterrupt();
 	static void enableInterruptForMsgReceived();
 	static void disableInterruptForMsgReceived();
 	static void disableInterruptForEndTransmit();
 public:
+	static bool isValidPacket();
+
 	static bool isEnabledInterruptForMsgReceived();
 	static bool isEnabledInterruptForEndTransmit();
 };

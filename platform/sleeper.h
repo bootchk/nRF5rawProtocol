@@ -45,14 +45,19 @@ public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();
 
+
+
 	static void sleepUntilEventWithTimeout(OSTime);
 
-	// in-lined, not used by SleepSyncAgent?
-	static void clearReasonForWake() { reasonForWake = Cleared; }
+	// Public, but in-lined, not used by external libraries, SleepSyncAgent?
+
 	static ReasonForWake getReasonForWake() { return reasonForWake; }
 
+	// Not in-lined
+	static void clearReasonForWake();
 	static bool reasonForWakeIsMsgReceived();
 	static bool reasonForWakeIsTimerExpired();
+	static bool reasonForWakeIsCleared();
 
 private:
 	static void sleepSystemOn();
