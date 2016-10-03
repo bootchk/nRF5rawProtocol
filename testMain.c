@@ -6,6 +6,8 @@
 #include <cassert>
 #include <inttypes.h>
 
+#include <cstdlib>	// rand
+
 // lkk Can't get this to work
 //#define NRF_LOG_ENABLED 1
 //#define NRF_LOG_DEFAULT_LEVEL 0
@@ -43,18 +45,35 @@ void initLogging(void)
     // APP_ERROR_CHECK(err_code);
 }
 
+
+Sleeper sleeper;
+
+
 void sleepWithRadioOff(){
 	// FUTURE
 	// assert LFCLK (RTC w xtal) is on
 	// current ~10uA
 	// sleep with RAM retention: state describes clique
 	// random delay here
-	// timer.restart();
-	// sleep();
+	int foo = rand();
+	foo = foo & 0x3;	// lower two bits
+	sleeper.sleepUntilEventWithTimeout(10000 * foo);
 }
 
 /*
- * This is main without SD (SoftDevice i.e. Nordic-provided wireless stack)
+ * Test Raw wireless stack.
+ * Basic loop:  xmit, rcv, sleep.
+ * When testing with two units:
+ * - LED1 should toggle every loop to indicate still functioning
+ * - Either LED2 and (LED3 OR LED4) should toggle every loop
+ *      LED3 received valid packet from other unit
+ *      LED4 received invalid packet (CRC wrong) from other
+ *      LED2 not received from other unit
+ * Note it is toggle, not blink.  E.g. LED1 is off one loop, on the next loop.
+ *
+ * It should run indefinitely.
+ * If there is an exception, LED1 will stop toggling.
+ *
  * Interrupt handlers defined in gcc_startup_nrf52.s
  *
  * main event loop basic state machine: [xmittedThenListening, woken for message, woken for timeout]
@@ -62,13 +81,14 @@ void sleepWithRadioOff(){
 void testMain(void)
 {
 	Radio radio;
-	Sleeper sleeper;
+
 
 	initLogging();	// debug
 
 	sleeper.init();
 
 	radio.init(sleeper.msgReceivedCallback);
+	radio.powerOff();	// for case not reset i.e. using debugger
 
     // Debug configure LED-pins as outputs, default to on?
 
@@ -104,13 +124,17 @@ void testMain(void)
     	assert(radio.isEnabledInterruptForMsgReceived());
 
     	// Sleep until msg received or timeout
-    	sleeper.sleepUntilEventWithTimeout(1000);
+    	// units of .03 uSec ticks
+    	sleeper.sleepUntilEventWithTimeout(30000);
 
     	// If using nrf52DK with many LED's show result
     	// Some interrupt ??? event woke us up and set reasonForWake
     	switch ( sleeper.getReasonForWake() ) {
     	case MsgReceived:
-    		ledLogger.toggleLED(3);
+    		if (radio.isValidPacket())
+    			ledLogger.toggleLED(3);
+    		else
+    			ledLogger.toggleLED(4);
     		break;
 
     	case Timeout:

@@ -37,10 +37,15 @@
 class Radio {
 public:
 	// Define protocol lengths
-	// TODO payload up to 258 bytes?
-	static const uint8_t PayloadCount = 11;
+
+	// FUTURE Variable payload up to 258 bytes?
+
+	// Fixed: device configured to not transmit S0, LENGTH, S1
+	// Fixed payload count dictated by app
+	static const uint8_t FixedPayloadCount = 11;
+
 	static const uint8_t NetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
-	static uint8_t staticBuffer[PayloadCount];
+	static uint8_t radioBuffer[FixedPayloadCount];
 
 
 private:

@@ -36,7 +36,7 @@ void (*Radio::aRcvMsgCallback)();
 // State.  Can't tell from radio device whether xmit or rcv task was started, (when using shortcuts.)
 bool Radio::wasTransmitting;
 
-uint8_t Radio::staticBuffer[PayloadCount];
+uint8_t Radio::radioBuffer[FixedPayloadCount];
 
 
 
@@ -160,11 +160,11 @@ void Radio::configureStatic() {
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
 	device.configureCRC();
-	device.configureStaticPacketFormat(PayloadCount, NetworkAddressLength);
+	device.configureStaticPacketFormat(FixedPayloadCount, NetworkAddressLength);
 	device.setShortcutsAvoidSomeEvents();
 
 	// Static: device always use single buffer owned by radio
-	device.configurePacketAddress(staticBuffer);
+	device.configurePacketAddress(radioBuffer);
 
 	// FUTURE: parameters
 	// Default tx power
@@ -248,7 +248,7 @@ void Radio::getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr) {
 }
 #endif
 
-uint8_t* Radio::getBufferAddress() { return staticBuffer; }
+uint8_t* Radio::getBufferAddress() { return radioBuffer; }
 
 
 void Radio::transmitStaticSynchronously(){

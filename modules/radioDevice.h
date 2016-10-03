@@ -26,6 +26,7 @@ public:
 	static void configureCRC();
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 private:
+	static void configureCRCPolynomialForShortData();
 	static void configureStaticOnAirPacketFormat();
 	static void configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength);
 	static void configureWhiteningSeed(int);
