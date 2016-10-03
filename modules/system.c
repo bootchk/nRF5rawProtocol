@@ -20,3 +20,10 @@ void Nvic::disableRadioIRQ() {
 	NVIC_ClearPendingIRQ(RADIO_IRQn);
 	NVIC_DisableIRQ(RADIO_IRQn);
 }
+
+#ifdef FUTURE
+Its not clear how to do this with CMSIS functions
+bool isEnabledRadioIRQ() {
+
+}
+#endif

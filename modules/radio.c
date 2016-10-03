@@ -103,10 +103,25 @@ bool Radio::isEventForMsgReceivedInterrupt() {
 	return device.isDisabledEventSet();
 }
 void Radio::clearEventForMsgReceivedInterrupt() { device.clearDisabledEvent(); }
-void Radio::enableInterruptForMsgReceived() { device.enableInterruptForDisabledEvent(); }
-void Radio::disableInterruptForMsgReceived() { device.disableInterruptForDisabledEvent(); }
+
+/*
+ * In interrupt chain, disable in two places: nvic and device
+ * Assume PRIMASK is always set to allow interrupts.
+ */
+void Radio::enableInterruptForMsgReceived() {
+	nvic.enableRadioIRQ();
+	device.enableInterruptForDisabledEvent();
+}
+void Radio::disableInterruptForMsgReceived() {
+	nvic.disableRadioIRQ();
+	device.disableInterruptForDisabledEvent();
+}
+bool Radio::isEnabledInterruptForMsgReceived() {
+	return device.isEnabledInterruptForDisabledEvent();	// FUTURE && nvic.isEnabledRadioIRQ();
+}
+
 void Radio::disableInterruptForEndTransmit() { device.disableInterruptForDisabledEvent(); }
-bool Radio::isEnabledInterruptForMsgReceived() { return device.isEnabledInterruptForDisabledEvent(); }
+
 bool Radio::isEnabledInterruptForEndTransmit() { return device.isEnabledInterruptForDisabledEvent(); }
 #endif
 
@@ -163,8 +178,7 @@ void Radio::configureStatic() {
 	device.configureStaticPacketFormat(FixedPayloadCount, NetworkAddressLength);
 	device.setShortcutsAvoidSomeEvents();
 
-	// Static: device always use single buffer owned by radio
-	device.configurePacketAddress(radioBuffer);
+	// !!! DMA set up later, not here.
 
 	// FUTURE: parameters
 	// Default tx power
@@ -248,7 +262,19 @@ void Radio::getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr) {
 }
 #endif
 
+
+
+
+/*
+ * Per Nordic docs, must setup DMA each xmit/rcv
+ * Fixed: device always use single buffer owned by radio
+ */
+void Radio::setupFixedDMA() {
+	device.configurePacketAddress(radioBuffer);
+}
+
 uint8_t* Radio::getBufferAddress() { return radioBuffer; }
+
 
 
 void Radio::transmitStaticSynchronously(){
@@ -260,12 +286,14 @@ void Radio::transmitStaticSynchronously(){
 
 void Radio::transmitStatic(){
 	wasTransmitting = true;
+	setupFixedDMA();
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
 };
 
 void Radio::receiveStatic() {
 	wasTransmitting = false;
+	setupFixedDMA();
 	setupInterruptForMsgReceivedEvent();
 	startRcv();
 	// assert will get IRQ on message received
@@ -288,23 +316,21 @@ void Radio::receive(volatile uint8_t * data, uint8_t length) {
 #endif
 
 /*
- * Enabling
- *
- * Enabling is final step.
+ * Starting task is final step.
  * Start a task on the device.
- * Require device is configured, including data.
+ * Require device is configured, including data and DMA.
  */
-
-void Radio::enableRX() {
-	device.clearMsgReceivedEvent();
-	nvic.enableRadioIRQ();
+// TODO rename startxxTask
+void Radio::enableRXTask() {
+	device.clearMsgReceivedEvent();	// clear event that triggers interrupt
 	device.startRXTask();
 }
-void Radio::enableTX() {
-	device.clearEndTransmitEvent();
-	// No interrupt for xmit.
+void Radio::enableTXTask() {
+	device.clearEndTransmitEvent();	// clear event we spin on
 	device.startTXTask();
 }
+
+// Disabling
 
 void Radio::disable() {
 	assert(!isEnabledInterruptForEndTransmit());
@@ -356,13 +382,13 @@ void Radio::setupXmitOrRcv(volatile uint8_t * data, uint8_t length) {
 
 void Radio::startXmit() {
 	assert(device.isDisabled());  // require, else behaviour undefined per datasheet
-	enableTX();
+	enableTXTask();
 	// assert radio state will soon be TXRU and since shortcut, TX
 }
 
 void Radio::startRcv() {
 	assert(device.isDisabled());  // require, else behaviour undefined per datasheet
-	enableRX();
+	enableRXTask();
 	// assert radio state will soon be RXRU, then since shortcut, RX
 }
 
@@ -375,10 +401,7 @@ void Radio::stopReceive() {
 	* or DISABLED: message was received and RX not enabled again
 	* */
 
-	// In interrupt chain, disable in two places: nvic and device
-	nvic.disableRadioIRQ();
 	disableInterruptForMsgReceived();
-	// TODO just device.disableInterruptForMsgReceived
 
 	if (! device.isDisabled()) {
 		// was receiving and no messages received (device in state RXRU, etc. but not in state DISABLED)

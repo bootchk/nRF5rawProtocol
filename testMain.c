@@ -95,6 +95,7 @@ void testMain(void)
     ledLogger.init();
     ledLogger.toggleLEDs();	// off
 
+
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
@@ -131,10 +132,7 @@ void testMain(void)
     	// Some interrupt ??? event woke us up and set reasonForWake
     	switch ( sleeper.getReasonForWake() ) {
     	case MsgReceived:
-    		if (radio.isValidPacket())
-    			ledLogger.toggleLED(3);
-    		else
-    			ledLogger.toggleLED(4);
+    		// !!! Note toggling of LED 3,4 is done in radio.c
     		break;
 
     	case Timeout:

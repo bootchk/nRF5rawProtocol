@@ -13,6 +13,7 @@ class Nvic {
 public:
 	static void enableRadioIRQ();
 	static void disableRadioIRQ();
+	// FUTURE static bool isEnabledRadioIRQ();
 };
 
 class PowerSupply {

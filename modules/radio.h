@@ -71,9 +71,10 @@ public:
 	static bool isDisabled();
 	static bool isEnabledInterruptForPacketDoneEvent();
 
-	static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
+	// FUTURE DYNAMIC static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
 	// Can't define in-line, is exported
 	static uint8_t* getBufferAddress();
+	static void setupFixedDMA();
 
 	// Static: buffer owned by radio, of fixed length
 	static void transmitStatic();
@@ -95,16 +96,19 @@ private:
 	static void powerOn();	// public uses powerOnAndConfigure, a radio on is useless without configuration
 	static void spinUntilReady();
 	static void dispatchPacketCallback();
-	static void enableRX();
-	static void enableTX();
+
 	static void disable();
 	static void spinUntilDisabled();
 #ifdef DYNAMIC
 	static void setupXmitOrRcv(BufferPointer data, uint8_t length);
 #endif
 	static void setupInterruptForMsgReceivedEvent();
+
 	static void startXmit();
 	static void startRcv();
+
+	static void enableRXTask();
+	static void enableTXTask();
 
 	static bool isEventForMsgReceivedInterrupt();
 	static void clearEventForMsgReceivedInterrupt();

@@ -1,5 +1,5 @@
 
-#include "boards.h"	// defines LEDS_NUMBER and LEDS_LIST
+#include "boards.h"	// via nested includes, depends on -DBOARD_<FOO> , defines LEDS_NUMBER and LEDS_LIST
 
 /*
  * Log to set of LED's.
