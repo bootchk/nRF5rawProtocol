@@ -170,5 +170,7 @@ bool RadioDevice::isCRCValid() {
 	return NRF_RADIO->CRCSTATUS == 1;	// CRCOk;
 }
 
-
+uint8_t RadioDevice::receivedLogicalAddress() {
+	return NRF_RADIO->RXMATCH;
+}
 

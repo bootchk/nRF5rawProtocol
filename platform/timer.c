@@ -26,12 +26,15 @@ APP_TIMER_DEF(rcvTimeoutTimer);
 APP_TIMER_DEF(placeholderTimer);
 
 
+
+// Ordinary functions
+
+
 /*
- * Start LFCLK oscillator.
  * Needed by RTC1 which is needed by app_timer.
  * Not needed if SoftDevice is used.
  */
-void initLowFreqXtalClock() {
+void initLowFreqXtalOsc() {
 	uint32_t err = nrf_drv_clock_init();
 	APP_ERROR_CHECK(err);
 	nrf_drv_clock_lfclk_request(NULL);
@@ -51,8 +54,34 @@ void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 	// FUTURE attempt recovery and log
 }
 
-void Timer::init() {	//TimerBasedOnLowFreqXtalClock() {
-	initLowFreqXtalClock();
+
+/*
+ * 24-bits of free-running counter, in LSB of 32-bit word
+ *
+ * Since RTC is started/stopped by app_timer, must keep a Timer scheduled
+ * to ensure app_timer does not stop RTC.
+ *
+ * Roll over handled by library wedge.
+ *
+ * app_timer uses RTC1
+ * SoftDevice uses RTC0
+ * nrf52 has additional RTC2
+ *
+ * To save power, use RTC1 shared with app_timer
+ */
+// Return OSTime type
+ uint32_t OSClockTicks() {
+	 return NRF_RTC1->COUNTER;
+ }
+
+
+
+
+
+bool Timer::isPlaceholderStarted = false;
+
+void Timer::init() {
+	initLowFreqXtalOsc();
 
 	// Null scheduler function
 	//APP_TIMER_INIT(TimerPrescaler, TimerQueueSize, nullptr);
@@ -62,6 +91,7 @@ void Timer::init() {	//TimerBasedOnLowFreqXtalClock() {
 			appTimerBuffer,
 			NULL);	// nullptr);
 	APP_ERROR_CHECK(err);
+	// not assert OSClock is running, until app_timer needs it
 }
 
 
@@ -104,11 +134,20 @@ void Timer::restartInTicks(uint32_t timeout) {
 }
 
 void Timer::startPlaceholder() {
+
 	// By starting with max possible timeout, it expires and repeats as infrequently as possible
 	// saving cpu cycles.
 	uint32_t err = app_timer_start(placeholderTimer, MaxTimeout, nullptr);
 	APP_ERROR_CHECK(err);
+
+	isPlaceholderStarted = true;
+	// assert OSClock is running, since app_timer needs it
 }
+
+bool Timer::isOSClockRunning() {
+	return isPlaceholderStarted;
+}
+
 
 #ifdef FUTURE
 Not exposed by app_timer.h

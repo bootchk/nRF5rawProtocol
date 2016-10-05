@@ -23,10 +23,13 @@ public:
 	static void configureFixedFrequency();
 	static void configureFixedLogicalAddress();
 	static void configureNetworkAddressPool();
-	static void configureCRC();
+	static void configureShortCRC();
+	static void configureLongCRC();
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 private:
-	static void configureCRCPolynomialForShortData();
+	static void configureShortCRCLength();
+	static void configureShortCRCGeneratorInit();
+	static void configureShortCRCPolynomialForShortData();
 	static void configureStaticOnAirPacketFormat();
 	static void configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength);
 	static void configureWhiteningSeed(int);
@@ -44,6 +47,7 @@ public:
 
 
 	static bool isCRCValid();
+	static uint8_t receivedLogicalAddress();
 
 	// Tasks and events
 	static void startRXTask();

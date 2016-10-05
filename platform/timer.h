@@ -10,8 +10,8 @@
  * Uses 32khz xtal clock.
  * 
  * Creates two timers:
- * - a single-shot that can be restarted
- * - a placeholder that does nothing
+ * - a single-shot that is exported and can be restarted
+ * - a placeholder that does nothing and is mostly not exported, except it starts OSClock
  *
  */
 class Timer {
@@ -26,6 +26,9 @@ private:
 
 	static const uint32_t MaxTimeout = 0xFFFFFF;	// 24-bit
 
+	static bool isPlaceholderStarted;
+
+
 	public:
 		static void init();
 		static void createTimers(void (*func)(void*));
@@ -35,7 +38,7 @@ private:
 		static void restartInTicks(uint32_t timeout);
 
 		static void startPlaceholder();
-		//static bool isPlaceholderRunning();
+		static bool isOSClockRunning();
 
 	private:
 		static void createOneShot(void (*func)(void*));

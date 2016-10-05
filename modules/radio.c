@@ -61,13 +61,17 @@ void Radio::receivedEventHandler(void)
 
         if (isValidPacket()) {
         	// assert buffer is valid received data, side effect
-        	dispatchPacketCallback();
+
+        	// Call Sleeper::msgReceivedCallback() which sets reason for wake
+        	aRcvMsgCallback();
         	ledLogger2.toggleLED(3);	// LED 3 valid received
         }
         else {
         	// ignore invalid packet
         	// assert(false);
         	ledLogger2.toggleLED(4);	// LED 4 invalid received
+        	// TEST: halt if wrong address received
+        	assert(device.receivedLogicalAddress() == 0);
         }
     }
     else
@@ -138,12 +142,13 @@ bool Radio::isValidPacket(){
 }
 
 
-
+#ifdef OBSOLETE
 void Radio::dispatchPacketCallback() {
 	// Dispatch to owner callbacks
 	if ( ! wasTransmitting ) { aRcvMsgCallback(); }
 	// No callback for xmit
 }
+#endif
 
 
 
@@ -174,7 +179,7 @@ void Radio::configureStatic() {
 	device.configureFixedFrequency();
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
-	device.configureCRC();
+	device.configureShortCRC();		// OR LongCRC
 	device.configureStaticPacketFormat(FixedPayloadCount, NetworkAddressLength);
 	device.setShortcutsAvoidSomeEvents();
 

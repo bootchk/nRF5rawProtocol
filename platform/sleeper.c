@@ -13,9 +13,11 @@ Timer Sleeper::timer;
 void Sleeper::init() {
 	timer.init();
 	timer.createTimers(rcvTimeoutTimerCallback);
-	timer.startPlaceholder();	// runs forever, does nothing
-	// FUTURE assert(timer.isPlaceholderRunning());	// keeps app_timer from stopping RTC clock.
+	timer.startPlaceholder();	// runs forever, does nothing but keep OSClock running
+	assert(timer.isOSClockRunning());
 }
+
+bool Sleeper::isOSClockRunning() { return timer.isOSClockRunning(); }
 
 
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {

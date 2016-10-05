@@ -71,11 +71,12 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
 # lkk uncomment one of the two following mains
-#C_SOURCE_FILES +=  testMain.c
-C_SOURCE_FILES +=  wedgedMain.c
+C_SOURCE_FILES +=  testMain.c
+#C_SOURCE_FILES +=  wedgedMain.c
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
+C_SOURCE_FILES +=  modules/radioConfigureCRC.c
 C_SOURCE_FILES +=  modules/radioAddress.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
@@ -191,7 +192,7 @@ LDFLAGS += -Wl,--no-wchar-size-warning
 # use newlib version of std C libc, in nano version
 STDC_LIBS += --specs=nano.specs -lc -lnosys
 # My own static lib
-MY_LIBS += -L . -lsleepSyncAgentM4
+#MY_LIBS += -L . -lsleepSyncAgentM4
 # libmath.a  Math lib is separate from libc.  
 # Math lib automatically include if use libstdc++, but we are not necessarily using libstdc++??
 MATH_LIBS += -lm

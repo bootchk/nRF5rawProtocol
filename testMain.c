@@ -87,7 +87,7 @@ void testMain(void)
 
 	sleeper.init();
 
-	radio.init(sleeper.msgReceivedCallback);
+	radio.init(&sleeper.msgReceivedCallback);
 	radio.powerOff();	// for case not reset i.e. using debugger
 
     // Debug configure LED-pins as outputs, default to on?
@@ -112,7 +112,14 @@ void testMain(void)
 
     	// TODO DYNAMIC radio.transmit(rxAndTxBuffer, 5);
 
-    	// TODO put something in buffer
+    	// put something in buffer
+    	uint8_t* buffer;
+    	buffer = radio.getBufferAddress();
+    	buffer[0]=1;
+    	buffer[1]=2;
+    	buffer[3]=5;
+    	buffer[4]=6;
+
     	radio.transmitStaticSynchronously();
     	// assert xmit is complete (radio is synchronous to mcu)
 
@@ -132,11 +139,12 @@ void testMain(void)
     	// Some interrupt ??? event woke us up and set reasonForWake
     	switch ( sleeper.getReasonForWake() ) {
     	case MsgReceived:
-    		// !!! Note toggling of LED 3,4 is done in radio.c
+    		// !!! Note toggling of LED 2,3 is done in radio.c
     		break;
 
     	case Timeout:
-    		ledLogger.toggleLED(2);
+    		// !!! LED's scarce, currently using this for invalid packets.
+    		//ledLogger.toggleLED(4);
     		break;
     	default:
     		;

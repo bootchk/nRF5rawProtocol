@@ -32,6 +32,7 @@ private:
 
 public:
 	static void init();
+	static bool isOSClockRunning();
 
 	/*
 	 * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
