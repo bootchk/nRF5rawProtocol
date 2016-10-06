@@ -36,12 +36,20 @@ void RadioDevice::configureNetworkAddressPool() {
 
 	// We only configure first logical address
 
+	setFirstNetworkAddressInPool();
 
 	// Design:
 	// As large as max network address, constant, and chosen to have adequate bit transitions 0xe7=0b01110111
-	static const uint8_t default_network_address[] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
-	setFirstNetworkAddressInPool(default_network_address, sizeof(default_network_address));
+	//static const uint8_t default_network_address[] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
+	//setFirstNetworkAddressInPool(default_network_address, sizeof(default_network_address));
 }
+
+// Fill all bytes of first network address to 0xE7
+void RadioDevice::setFirstNetworkAddressInPool() {
+	NRF_RADIO->PREFIX0	  = (0xE7 << RADIO_PREFIX0_AP0_Pos);	// Destroys other prefixes
+	NRF_RADIO->BASE0 = 0xE7E7E7E7;
+}
+
 
 
 // FUTURE this is setting one, add a parameter index.

@@ -24,7 +24,6 @@ LEDLogger ledLogger2;
  * !!! Note this file has no knowledge of registers (nrf.h) , see radioLowLevel and radioConfigure.c
  */
 
-
 // Private class (singleton) data members
 HfClock Radio::hfClock;
 RadioDevice Radio::device;
@@ -33,8 +32,8 @@ PowerSupply Radio::powerSupply;
 
 void (*Radio::aRcvMsgCallback)();
 
-// State.  Can't tell from radio device whether xmit or rcv task was started, (when using shortcuts.)
-bool Radio::wasTransmitting;
+// State currently just used for assertions
+RadioState Radio::state;
 
 uint8_t Radio::radioBuffer[FixedPayloadCount];
 
@@ -56,6 +55,7 @@ void Radio::receivedEventHandler(void)
 
     if (isEventForMsgReceivedInterrupt())
     {
+    	assert(state == Receiving);	// sanity
     	clearEventForMsgReceivedInterrupt();
     	ledLogger2.toggleLED(2);	// LED 2 show every receive
 
@@ -113,6 +113,7 @@ void Radio::clearEventForMsgReceivedInterrupt() { device.clearDisabledEvent(); }
  * Assume PRIMASK is always set to allow interrupts.
  */
 void Radio::enableInterruptForMsgReceived() {
+	assert(!device.isDisabledEventSet());	// else interrupt immediately???
 	nvic.enableRadioIRQ();
 	device.enableInterruptForDisabledEvent();
 }
@@ -216,9 +217,11 @@ void Radio::powerOn() {
 
 	// assert HFCLK is on since radio uses it
 
+	state = Idle;
+
 	// !!! Configuration was lost, caller must now configure it
 	assert(!isEnabledInterruptForMsgReceived());
-	assert(device.isDisabled());		// after power on and ready, initial state is DISABLED
+	assert(device.isDisabledState());		// after power on and ready, initial state is DISABLED
 }
 
 
@@ -245,7 +248,7 @@ void Radio::powerOff() {
 	 * The docs do not make clear whether the device passes through
 	 * the DISABLED state (generating an interrupt) when powered off.
 	 */
-	assert(device.isDisabled());
+	assert(device.isDisabledState());
 
 	device.setRadioPowered(false);
 	// not ensure not ready; caller must spin if necessary
@@ -253,6 +256,7 @@ void Radio::powerOff() {
 	hfClock.stopXtalSource();
 	// assert hf RC clock resumes for other peripherals
 
+	state = PowerOff;
 	// assert radio and HFCLK are off, or will be soon
 }
 
@@ -290,14 +294,14 @@ void Radio::transmitStaticSynchronously(){
 }
 
 void Radio::transmitStatic(){
-	wasTransmitting = true;
+	state = Transmitting;
 	setupFixedDMA();
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
 };
 
 void Radio::receiveStatic() {
-	wasTransmitting = false;
+	state = Receiving;
 	setupFixedDMA();
 	setupInterruptForMsgReceivedEvent();
 	startRcv();
@@ -306,7 +310,7 @@ void Radio::receiveStatic() {
 
 #ifdef DYNAMIC
 void Radio::transmit(volatile uint8_t * data, uint8_t length){
-	wasTransmitting = true;
+	state = Transmitting;
 	setupXmitOrRcv(data, length);
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
@@ -341,27 +345,28 @@ void Radio::disable() {
 	assert(!isEnabledInterruptForEndTransmit());
 	device.clearDisabledEvent();
 	device.startDisablingTask();
+	state == Idle;
 }
 
-bool Radio::isDisabled() { return device.isDisabled(); }
+bool Radio::isDisabledState() { return device.isDisabledState(); }
 
 void Radio::spinUntilDisabled() {
 	// Assert we started the task DISABLE or we think isDisabled, want to assert isDisabled
 	// Wait until the event that signifies disable is complete
 	// See data sheet.  For (1Mbit mode, TX) delay is ~6us, for RX, ~0us
-	while (!device.isDisabled()) ;
+	while (!device.isDisabledState()) ;
 }
 
 
-// TODO this assertion is not a require, just how we happen to use it.
+/*
+ * Usually (but not required),
+ * device is configured: shortcuts, packetAddress, etc.
+ * and buffer is filled.
+ */
 void Radio::setupInterruptForMsgReceivedEvent() {
-	/*
-	 * Assert
-	 * is configured: shortcuts, packetAddress, etc.
-	 * Fixed-length buffer is filled
-	 */
-	enableInterruptForMsgReceived();
+	// Clear event before enabling, else immediate interrupt
 	clearEventForMsgReceivedInterrupt();
+	enableInterruptForMsgReceived();
 }
 
 
@@ -386,13 +391,13 @@ void Radio::setupXmitOrRcv(volatile uint8_t * data, uint8_t length) {
 // task/event architecture, these trigger or enable radio device tasks.
 
 void Radio::startXmit() {
-	assert(device.isDisabled());  // require, else behaviour undefined per datasheet
+	assert(device.isDisabledState());  // require, else behaviour undefined per datasheet
 	enableTXTask();
 	// assert radio state will soon be TXRU and since shortcut, TX
 }
 
 void Radio::startRcv() {
-	assert(device.isDisabled());  // require, else behaviour undefined per datasheet
+	assert(device.isDisabledState());  // require, else behaviour undefined per datasheet
 	enableRXTask();
 	// assert radio state will soon be RXRU, then since shortcut, RX
 }
@@ -400,21 +405,28 @@ void Radio::startRcv() {
 void Radio::stopReceive() {
 	/*
 	 *  assert radio state is:
-	* RXRU : aborting before ramp-up complete
-	* or RXIDLE: on but never received start preamble signal
-	* or RX: in middle of receiving a packet
-	* or DISABLED: message was received and RX not enabled again
-	* */
+	 * RXRU : aborting before ramp-up complete
+	 * or RXIDLE: on but never received start preamble signal
+	 * or RX: in middle of receiving a packet
+	 * or DISABLED: message was received and RX not enabled again
+	 */
 
 	disableInterruptForMsgReceived();
+	//isReceiving = false;
 
-	if (! device.isDisabled()) {
+	if (! device.isDisabledState()) {
 		// was receiving and no messages received (device in state RXRU, etc. but not in state DISABLED)
 		device.startDisablingTask();
 		// assert radio state soon RXDISABLE and then immediately transitions to DISABLED
 		spinUntilDisabled();
+		// DISABLED event was just set, clear it now before we later enable interrupts for it
+		device.clearMsgReceivedEvent();
 	}
-	assert(device.isDisabled());
+	state = Idle;
+
+	assert(device.isDisabledState());
+	assert(!device.isDisabledEventSet());	// same as MsgReceivedEvent
+	assert(!device.isEnabledInterruptForDisabledEvent()); // "
 	// assert no interrupts enabled from radio, for any event
 }
 
@@ -437,7 +449,8 @@ void Radio::spinUntilXmitComplete() {
 	// Here, for xmit, we do not enable interrupt on DISABLED event.
 	// Since it we expect it to be quick.
 	// FUTURE use interrupt on xmit.
-	while (! device.isDisabled() ) {}
+	while (! device.isDisabledState() ) {}
+	state = Idle;
 }
 
 

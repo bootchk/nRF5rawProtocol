@@ -66,7 +66,7 @@ void RadioDevice::clearDisabledEvent(){
 	(void)NRF_RADIO->EVENTS_DISABLED;	// flush ARM write buffer
 }
 
-bool RadioDevice::isDisabled() {
+bool RadioDevice::isDisabledState() {
 	/*
 	 * i.e. not busy with (in midst of) xmit or rcv
 	 *

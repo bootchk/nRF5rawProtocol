@@ -107,7 +107,7 @@ void testMain(void)
     	// assert configuration is lost after power is cycled
     	radio.powerOnAndConfigure();	// Configures for fixed length messages
 
-    	assert(radio.isDisabled());	// powerOn (initial entry) and stopReceiver (loop) ensures this
+    	assert(radio.isDisabledState());	// powerOn (initial entry) and stopReceiver (loop) ensures this
 
 
     	// TODO DYNAMIC radio.transmit(rxAndTxBuffer, 5);
@@ -123,7 +123,7 @@ void testMain(void)
     	radio.transmitStaticSynchronously();
     	// assert xmit is complete (radio is synchronous to mcu)
 
-    	assert(radio.isDisabled());	// radio disabled when xmit complete but still powered on
+    	assert(radio.isDisabledState());	// radio disabled when xmit complete but still powered on
 
     	sleeper.clearReasonForWake();
     	// DYNAMIC radio.receive(rxAndTxBuffer, 5);

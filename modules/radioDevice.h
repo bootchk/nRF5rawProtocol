@@ -34,7 +34,9 @@ private:
 	static void configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength);
 	static void configureWhiteningSeed(int);
 
+	// overloaded
 	static void setFirstNetworkAddressInPool(const uint8_t* address, const uint8_t len);
+	static void setFirstNetworkAddressInPool();
 
 public:
 	static void configurePacketAddress(BufferPointer data);
@@ -56,16 +58,22 @@ public:
 	static bool isPacketDone();
 	static void clearPacketDoneEvent();
 #else
-	// Not implemented or used static bool isEOTEvent();
+	// Not implemented or used: static bool isEOTEvent();
 	static void clearMsgReceivedEvent();
 	static void clearEndTransmitEvent();
 #endif
 
-	// !!!
+	/*
+	 * Events are NOT SAME as state.
+	 * !!! DISABLE task sets event and state
+	 * DISABLE event and sate set by either DISABLE Task OR after packet done
+	 */
 	static void startDisablingTask();
+	// events
 	static bool isDisabledEventSet();
 	static void clearDisabledEvent();
-	static bool isDisabled();
+	// state remains in effect even after even is cleared
+	static bool isDisabledState();
 
 #ifdef USE_PACKET_DONE_FOR_EOT
 	static void enableInterruptForPacketDoneEvent();

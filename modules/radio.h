@@ -7,7 +7,12 @@
 #include "types.h"
 
 
-
+typedef enum {
+	Receiving,
+	Transmitting,
+	Idle,
+	PowerOff
+} RadioState;
 
 
 /*
@@ -46,6 +51,7 @@ public:
 
 	static const uint8_t NetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
 	static uint8_t radioBuffer[FixedPayloadCount];
+	static RadioState state;
 
 
 private:
@@ -68,7 +74,7 @@ public:
 	static void powerOff();
 	static bool isPowerOn();
 
-	static bool isDisabled();
+	static bool isDisabledState();
 	static bool isEnabledInterruptForPacketDoneEvent();
 
 	// FUTURE DYNAMIC static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
