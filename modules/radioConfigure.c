@@ -28,8 +28,16 @@ uint32_t RadioDevice::frequency(){ return NRF_RADIO->FREQUENCY; }
 
 
 void RadioDevice::configureWhiteningSeed(int value){
+	// assert(value < )
 	NRF_RADIO->DATAWHITEIV = value & RADIO_DATAWHITEIV_DATAWHITEIV_Msk;
 	// Whitening enabled elsewhere
+}
+
+void RadioDevice::configureWhiteningOn() {
+	// !!! Must not destroy contents of PCNF1, configured previously
+	// Configuring packet format later destroys this.
+	NRF_RADIO->PCNF1 = NRF_RADIO->PCNF1		// Bit set
+			| ((1 << RADIO_PCNF1_WHITEEN_Pos) & RADIO_PCNF1_WHITEEN_Msk);
 }
 
 
@@ -78,14 +86,13 @@ void RadioDevice::configureStaticPayloadFormat(const uint8_t PayloadCount, const
 
 	// TODO we don't need the mask if we are certain parameters are not too large
 	assert(PayloadCount<256);
-	assert(AddressLength >= 3);	// see "Disable standard addressing" on DevZone
+	// Nordic docs disallow AddressLength 2 but others have reported it works
+	assert(AddressLength >= 2);	// see "Disable standard addressing" on DevZone
 	assert(AddressLength <= 5);
 	NRF_RADIO->PCNF1 =
 			  (PayloadCount << RADIO_PCNF1_MAXLEN_Pos)  // max length of payload
 			| (PayloadCount << RADIO_PCNF1_STATLEN_Pos) // expand payload (over LENGTH) with 0 bytes
 			| ((AddressLength-1) << RADIO_PCNF1_BALEN_Pos);	// base address length in number of bytes.
-
-	//		| (1 << RADIO_PCNF1_WHITEEN_Pos); 	       // enable whiten
 
 	/*
 	 * See also Nordic recommendations to use long address

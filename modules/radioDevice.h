@@ -26,6 +26,7 @@ public:
 	static void configureShortCRC();
 	static void configureLongCRC();
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
+	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
 private:
 	static void configureShortCRCLength();
 	static void configureShortCRCGeneratorInit();
@@ -33,6 +34,7 @@ private:
 	static void configureStaticOnAirPacketFormat();
 	static void configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength);
 	static void configureWhiteningSeed(int);
+
 
 	// overloaded
 	static void setFirstNetworkAddressInPool(const uint8_t* address, const uint8_t len);

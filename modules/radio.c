@@ -177,12 +177,13 @@ void Radio::configureStatic() {
 	// None of it may be necessary if you are happy with reset defaults?
 
 	// Specific to the protocol, here rawish
-	device.configureFixedFrequency();
+	device.configureFixedFrequency();	// also configures whitening seed
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
 	device.configureShortCRC();		// OR LongCRC
 	device.configureStaticPacketFormat(FixedPayloadCount, NetworkAddressLength);
 	device.setShortcutsAvoidSomeEvents();
+	// FUTURE, not working: device.configureWhiteningOn();
 
 	// !!! DMA set up later, not here.
 
@@ -345,7 +346,7 @@ void Radio::disable() {
 	assert(!isEnabledInterruptForEndTransmit());
 	device.clearDisabledEvent();
 	device.startDisablingTask();
-	state == Idle;
+	state = Idle;
 }
 
 bool Radio::isDisabledState() { return device.isDisabledState(); }
