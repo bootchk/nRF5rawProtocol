@@ -17,8 +17,8 @@
 
 typedef enum {
 	MsgReceived,
-	Timeout,
-	Cleared
+	TimerExpired,
+	None
 } ReasonForWake;
 
 
@@ -41,7 +41,7 @@ public:
 	 * Passing address, so names can be C++ mangled
 	 */
 private:
-	static void rcvTimeoutTimerCallback(void * p_context) { reasonForWake = Timeout; }
+	static void rcvTimeoutTimerCallback(void * p_context) { reasonForWake = TimerExpired; }
 public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();

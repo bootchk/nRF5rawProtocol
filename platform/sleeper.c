@@ -24,14 +24,14 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// units are ticks, when RTC has zero prescaler: 30uSec
 
 	// TODO should we be clearing, or asserting (rely on caller to clear, because of races?)
-	reasonForWake = Cleared;
+	clearReasonForWake();
 	if (timeout < 5) {
 		/*
-		 * Less than minimum required by restartInTicks().
+		 * Less than minimum required by restartInTicks() of app_timer library.
 		 * Don't sleep, but set reason for waking.
 		 * I.E. simulate a sleep.
 		 */
-		reasonForWake = Timeout;
+		reasonForWake = TimerExpired;
 	}
 	else {
 		timer.restartInTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
@@ -48,7 +48,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }
 
 ReasonForWake Sleeper::getReasonForWake() { return reasonForWake; }
-void Sleeper::clearReasonForWake() { reasonForWake = Cleared; }
+void Sleeper::clearReasonForWake() { reasonForWake = None; }
 
 
 /*
