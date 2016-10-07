@@ -35,7 +35,7 @@ void (*Radio::aRcvMsgCallback)();
 // State currently just used for assertions
 RadioState Radio::state;
 
-uint8_t Radio::radioBuffer[FixedPayloadCount];
+volatile uint8_t Radio::radioBuffer[FixedPayloadCount];
 
 
 
@@ -288,6 +288,7 @@ uint8_t* Radio::getBufferAddress() { return radioBuffer; }
 
 
 void Radio::transmitStaticSynchronously(){
+	ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
 	disableInterruptForEndTransmit();	// spin, not interrupt
 	transmitStatic();
 	spinUntilDisabled();

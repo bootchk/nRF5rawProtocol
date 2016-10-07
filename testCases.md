@@ -112,6 +112,12 @@ Test sleep synchronization
 
 The duration of the test depends on the duty cycle.  You can shorten the DutyCycleInverse (to say 20) to shorten the test, but then LED's toggle faster.
 
+To set up, repeatedly power on restart one unit until it is out of sync with the other.
+
+Because they both have accurate xtal 32khz clocks, they won't just drift into sync; the algorithm does it.
+
+For these tests, LED4 is also toggled by a transmit (as well as a rare invalid receive.)
+
 Expect initially:
 
     LED1's of the two units toggle, not in unison
@@ -126,7 +132,8 @@ Expect eventually (say after about half of DutyCycleInverse cycles):
 Expect subsequently:
 
     LED1's of the units toggle in unison
-    LED2 and LED3 of one unit toggle in unison about every 6 cycles (hearing sync from the other unit)
+    LED2 and LED3 of Slave unit toggle in unison about every 6 cycles (hearing sync from the other unit)
+    The Master unit LED4 should toggle about every 6 cycles (sending sync)
    
     
 TODO Tests with more than two units

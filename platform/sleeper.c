@@ -47,10 +47,9 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 // !!! Note rcvTimeoutTimerCallback is implemented in-line in sleeper.h
 void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }
 
+ReasonForWake Sleeper::getReasonForWake() { return reasonForWake; }
 void Sleeper::clearReasonForWake() { reasonForWake = Cleared; }
-bool Sleeper::reasonForWakeIsMsgReceived() { return reasonForWake == MsgReceived; }
-bool Sleeper::reasonForWakeIsTimerExpired() { return reasonForWake == Timeout; }
-bool Sleeper::reasonForWakeIsCleared() { return reasonForWake == Cleared; }
+
 
 /*
  * nrf52:
