@@ -49,8 +49,9 @@ public:
 	// Fixed payload count dictated by app
 	static const uint8_t FixedPayloadCount = 11;
 
-	// static const uint8_t NetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
-	static const uint8_t NetworkAddressLength = 2;	// 1 byte preamble, 1 bytes base
+	static const uint8_t LongNetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
+	static const uint8_t MediumNetworkAddressLength = 3;	// 1 byte preamble, 2 bytes base
+	static const uint8_t ShortNetworkAddressLength = 2;	// 1 byte preamble, 1 bytes base
 
 	static volatile uint8_t radioBuffer[FixedPayloadCount];
 	static RadioState state;

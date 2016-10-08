@@ -11,7 +11,7 @@
  * Whether CRC includes address is also configurable.
  * Fixed payload of 10 bytes plus 3 bytes address yields 13 bytes or 104 bits
  */
-void RadioDevice::configureLongCRC() {
+void RadioDevice::configureMediumCRC() {
 	// CRC appropriate to data length about 120 bits: shorter, and better polynomial
 
 	// This defines:

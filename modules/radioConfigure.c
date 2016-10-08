@@ -18,12 +18,8 @@ void RadioDevice::configureFixedFrequency(){
 	// FUTURE: parameter
 	// Set Freq fixed to one of 3 BT advertising channels
 	NRF_RADIO->FREQUENCY = 2;	// or 26, 80
-
-	// Convention: whitening seed derived from channel
-	// ?? how does 37 derive from channel 2?
-	// or 38, 39
-	configureWhiteningSeed(37);
 }
+
 uint32_t RadioDevice::frequency(){ return NRF_RADIO->FREQUENCY; }
 
 
@@ -82,17 +78,17 @@ void RadioDevice::configureStaticOnAirPacketFormat() {
  * xmit exactly PayloadCount
  * rcv PayloadCount (and truncate excess)
  */
-void RadioDevice::configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength) {
+void RadioDevice::configureStaticPayloadFormat(const uint8_t payloadCount, const uint8_t addressLength) {
 
 	// TODO we don't need the mask if we are certain parameters are not too large
-	assert(PayloadCount<256);
+	assert(payloadCount<256);
 	// Nordic docs disallow AddressLength 2 but others have reported it works
-	assert(AddressLength >= 2);	// see "Disable standard addressing" on DevZone
-	assert(AddressLength <= 5);
+	assert(addressLength >= 2);	// see "Disable standard addressing" on DevZone
+	assert(addressLength <= 5);
 	NRF_RADIO->PCNF1 =
-			  (PayloadCount << RADIO_PCNF1_MAXLEN_Pos)  // max length of payload
-			| (PayloadCount << RADIO_PCNF1_STATLEN_Pos) // expand payload (over LENGTH) with 0 bytes
-			| ((AddressLength-1) << RADIO_PCNF1_BALEN_Pos);	// base address length in number of bytes.
+			  (payloadCount << RADIO_PCNF1_MAXLEN_Pos)  // max length of payload
+			| (payloadCount << RADIO_PCNF1_STATLEN_Pos) // expand payload (over LENGTH) with 0 bytes
+			| ((addressLength-1) << RADIO_PCNF1_BALEN_Pos);	// base address length in number of bytes.
 
 	/*
 	 * See also Nordic recommendations to use long address

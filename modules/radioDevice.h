@@ -24,7 +24,7 @@ public:
 	static void configureFixedLogicalAddress();
 	static void configureNetworkAddressPool();
 	static void configureShortCRC();
-	static void configureLongCRC();
+	static void configureMediumCRC();
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
 private:

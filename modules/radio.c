@@ -131,7 +131,8 @@ bool Radio::isEnabledInterruptForEndTransmit() { return device.isEnabledInterrup
 #endif
 
 /*
- * Packet was received, but it may be invalid
+ * The register is read only.
+ * Should only be called when packet was newly received (after an IRQ or event indicating packet done.)
  */
 bool Radio::isValidPacket(){
 	// We don't sample RSSI
@@ -172,18 +173,40 @@ void Radio::init(void (*onRcvMsgCallback)()) {
 // Configuration
 
 // TODO rename Fixed and Variable
-void Radio::configureStatic() {
-	// Must be redone whenever radio device transitions from power off=>on?
-	// None of it may be necessary if you are happy with reset defaults?
 
+/*
+ * A. Radio POR power-on-reset resets configuration to default values.
+ * B. Reset defaults seem to be non-functional
+ *
+ * Thus configure() must be called after every radio device transitions from power off=>on?
+ *
+ * C. Configuration can only be done when radio is DISABLED.
+ * (except for certain registers, EVENT regs, PACKETPTR register, see elsewhere.)
+ */
+//#define LONG_MESSAGE 1
+#define MEDIUM_MESSAGE
+void Radio::configureStatic() {
+
+	assert(isDisabledState());
 	// Specific to the protocol, here rawish
 	device.configureFixedFrequency();	// also configures whitening seed
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
+#ifdef LONG_MESSAGE
+	device.configureMediumCRC();
+	device.configureStaticPacketFormat(FixedPayloadCount, LongNetworkAddressLength);
+#endif
+#ifdef MEDIUM_MESSAGE
 	device.configureShortCRC();		// OR LongCRC
-	device.configureStaticPacketFormat(FixedPayloadCount, NetworkAddressLength);
+	device.configureStaticPacketFormat(FixedPayloadCount, MediumNetworkAddressLength);
+#endif
 	device.setShortcutsAvoidSomeEvents();
+
 	// FUTURE, not working: device.configureWhiteningOn();
+	// Convention: whitening seed derived from channel
+	// ?? how does 37 derive from channel 2?
+	// or 38, 39
+	// configureWhiteningSeed(37);
 
 	// !!! DMA set up later, not here.
 
@@ -192,6 +215,8 @@ void Radio::configureStatic() {
 	// Default mode i.e. bits per second
 	assert(device.frequency() == 2);
 }
+
+// void Radio::isConfigured() { }
 
 
 
@@ -288,7 +313,7 @@ uint8_t* Radio::getBufferAddress() { return radioBuffer; }
 
 
 void Radio::transmitStaticSynchronously(){
-	ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
+	//ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
 	disableInterruptForEndTransmit();	// spin, not interrupt
 	transmitStatic();
 	spinUntilDisabled();
