@@ -118,7 +118,8 @@ void RadioDevice::configurePacketAddress(BufferPointer data){
 	 *
 	 *  Address pointed to is volatile: both RADIO and mcu may write it.
 	 *
-	 *  Implementation is portable until address space exceeds 32-bit
+	 *  Implementation is portable until platform (ARM) pointers exceed 32-bit.
+	 *  Cast a pointer as ordinary 32-bit int.
 	 */
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
 }

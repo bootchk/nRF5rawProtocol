@@ -45,9 +45,12 @@ public:
 
 	// FUTURE Variable payload up to 258 bytes?
 
-	// Fixed: device configured to not transmit S0, LENGTH, S1
-	// Fixed payload count dictated by app
-	static const uint8_t FixedPayloadCount = 11;
+	/*
+	 * Fixed: all payloads same size.
+	 * Device configured to not transmit S0, LENGTH, S1
+	 * Buffer not include S0, LENGTH, S1 fields.
+	 */
+	static const uint8_t FixedPayloadCount = 10;
 
 	static const uint8_t LongNetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
 	static const uint8_t MediumNetworkAddressLength = 3;	// 1 byte preamble, 2 bytes base
