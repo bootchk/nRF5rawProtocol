@@ -23,6 +23,8 @@ LED meaning:
     4 toggles on invalid receive
     
 If in any test, LED1 stops toggling, the unit has halted for an exception.
+
+!!! I don't always leave the code toggling LED's as listed above; the code may be toggling LED's differently for other test cases.
     
 Solitary unit
 -
@@ -103,7 +105,12 @@ To build:
     edit Makefile to have source wedgedMain.c instead of testMain.c
     edit Makefile to define MYLIBS
     
-All LED's mean the same as for testMain (they are toggled in nRFrawProtocol, not the library.
+Meaning of LED's:
+
+	1 toggles every event loop
+    2 toggles on every receive (valid or invalid)
+    3 toggles on role swap between Fisher and Merger
+    4 toggles on transmit
 
 The event loop is constant duration.  LED1 toggles regularly, no matter what messages are received.
 
@@ -116,24 +123,61 @@ To set up, repeatedly power on restart one unit until it is out of sync with the
 
 Because they both have accurate xtal 32khz clocks, they won't just drift into sync; the algorithm does it.
 
-For these tests, LED4 is also toggled by a transmit (as well as a rare invalid receive.)
+Note that the units (Master and Slave) behave differently.
+
+Master (unit with larger ID)
+-
 
 Expect initially:
 
-    LED1's of the two units toggle, not in unison
-    LED2 and LED3 toggle in unison, almost never (each unit is asleep when the other transmits)
-    LED4 almost never toggles (invalid)
+    LED1's of the two units toggle regularly, not in unison
+    LED4 toggles irregularly (at least every six sync periods) as xmit sync
     
-Expect eventually (say after about half of DutyCycleInverse cycles):
+Later expect:
 
-    LED2 and LED3 of one unit toggle in unison (fished sync of the other, or heard mergeSync from other)
-    LED1's of the units should toggle in unison
+    LED2 toggle as Sync msg received while fishing
+    LED3 toggle as swap to Master/Merger role (merging the other unit, which becomes a Slave.
+    LED4 toggles about twice as fast, xmitting sync in self's clique, xmitting MergeSync in other unit's former sync slot
     
-Expect subsequently:
+Later expect forever:
+	
+	LED1's of the two units toggle regularly, in unison (other unit now in Master's clique.)
+	LED2 not toggle (no other units to hear)
+	LED3 not toggle (stays in Fisher role and never hears.)
+	LED4 toggles toggles irregularly (at least every six sync periods) as xmit sync
 
-    LED1's of the units toggle in unison
-    LED2 and LED3 of Slave unit toggle in unison about every 6 cycles (hearing sync from the other unit)
-    The Master unit LED4 should toggle about every 6 cycles (sending sync)
+This behaviour should continue if:
+
+	There is no noise to obscure sync messages.
+	Both units have enough power.
+	
+The probabalistic algorithm for detecting dropout should allow a few sync messages to be obscured by noise.
+
+Slave (unit with smaller ID)
+-
+
+Expect initially:
+
+    LED1's of the two units toggle regularly, not in unison
+    LED4 toggles irregularly (at least every six sync periods) as xmit sync in Master role as Master of self's initial clique
+    
+Later expect:
+
+    LED2 toggle once as Sync msg received while fishing
+    LED3 toggle as swap to Slave/Merger role: merging self unit's clique (only member is self) into Master's clique
+    LED4 toggles irregularly at same rate, xmitting only MergeSync in self's former clique's Sync slot
+    
+Later expect:
+
+	LED3 toggle as swap to Slave/Fisher role: stop sending MergeSync to former clique
+	
+Later expect forever:
+	
+	LED1's of the two units toggle regularly, in unison (other unit now in Master's clique.)
+	LED2 toggle irregularly (hear Sync from Master)
+	LED3 not toggle (stays in Slave/Fisher role and never hears.)
+	LED4 not toggle (not xmitting Sync or MergeSync)
+
    
     
 TODO Tests with more than two units

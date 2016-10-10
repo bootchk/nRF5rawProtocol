@@ -64,12 +64,12 @@ void Radio::receivedEventHandler(void)
 
         	// Call Sleeper::msgReceivedCallback() which sets reason for wake
         	aRcvMsgCallback();
-        	ledLogger2.toggleLED(3);	// LED 3 valid received
+        	//ledLogger2.toggleLED(3);	// LED 3 valid received
         }
         else {
         	// ignore invalid packet
         	// assert(false);
-        	ledLogger2.toggleLED(4);	// LED 4 invalid received
+        	//ledLogger2.toggleLED(4);	// LED 4 invalid received
         	// TEST: halt if wrong address received
         	assert(device.receivedLogicalAddress() == 0);
         }
@@ -313,7 +313,7 @@ uint8_t* Radio::getBufferAddress() { return radioBuffer; }
 
 
 void Radio::transmitStaticSynchronously(){
-	//ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
+	ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
 	disableInterruptForEndTransmit();	// spin, not interrupt
 	transmitStatic();
 	spinUntilDisabled();

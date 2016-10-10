@@ -13,6 +13,7 @@ About
 A primitive (raw) protocol stack for Nordic nRF52 family radio chips (SoC which includes ARM mcu)
 
 Raw :
+
     - broadcast, all units transmit and receive same address
     - no channel hopping (use one channel not used by WiFi or BT connections)
     - unreliable datagrams, no acks
@@ -34,7 +35,7 @@ Nordic documentation for radio peripheral.  See Nordic InfoCenter>nRF52 Series>n
 Radiohead.  That does the same thing except it requires polling, doesn't use interrupts?
 
 https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh . That implements a rawish protocol that cooperates with a BT protocol.  see nRF51/rbc_mesh/src/radio_control.c
-Here, I have hacked out the SUntested on hw.  oftDevice (BT stack) and the Trickle algorithm, leaving just a raw wireless protocol.
+Here, I have hacked out the SoftDevice (BT stack) and the Trickle algorithm, leaving just a raw wireless protocol.
 
 Nordic proprietary (sic?) protocol ESB examples in NRF SDK (simple protocol, but uses acks.)  That is interesting because it seems to use the PPI device to transmit an ack automagically when a message is received.
 
@@ -60,9 +61,6 @@ I followed the tutorial for this combination on Nordic website, and hacked the M
  
 Compatibility
 -
- 
-Uses nRF52 family chip.
-Might be compatible with earlier chips nRF51, but I noticed in passing that the state diagram for the radio has changed and I have not explored this thoroughly.
  
 Developed using NRF SDK v11, and then v12.
 
@@ -122,7 +120,9 @@ The project supports and has been tested on chip families and dev boards/modules
 - nrf51 on RedBear BLE Nano module
 - nrf52 on nrf52DK dev board
 
-The custom_board.h for BLE Nano provided by Electronut.
+(I might test Rigado BMD-300 nrf52 module, but I think it lacks a 32kHz crystal; the code is not ready for that?)
+
+The custom_board.h for BLE Nano was provided by Electronut.
 
 There are two Makefiles, .nrf51 and .nrf52.  I hacked the Makefiles (from the original) mostly in the same way, duplicating hacks.   If you intend to support both families and you add source files or make other changes, make the changes in both Makefiles.
 
