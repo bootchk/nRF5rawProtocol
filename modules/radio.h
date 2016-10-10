@@ -82,7 +82,7 @@ public:
 
 	// FUTURE DYNAMIC static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
 	// Can't define in-line, is exported
-	static uint8_t* getBufferAddress();
+	static BufferPointer getBufferAddress();
 	static void setupFixedDMA();
 
 	// Static: buffer owned by radio, of fixed length

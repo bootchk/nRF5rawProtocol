@@ -308,7 +308,7 @@ void Radio::setupFixedDMA() {
 	device.configurePacketAddress(radioBuffer);
 }
 
-uint8_t* Radio::getBufferAddress() { return radioBuffer; }
+BufferPointer Radio::getBufferAddress() { return radioBuffer; }
 
 
 

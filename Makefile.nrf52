@@ -169,6 +169,7 @@ CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -fpermissive -std=c++11
 
 CFLAGS += -Wall -O0 -g3
+CFLAGS += -Wextra
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
