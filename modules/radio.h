@@ -128,7 +128,7 @@ private:
 	static void disableInterruptForMsgReceived();
 	static void disableInterruptForEndTransmit();
 public:
-	static bool isValidPacket();
+	static bool isPacketCRCValid();
 
 	static bool isEnabledInterruptForMsgReceived();
 	static bool isEnabledInterruptForEndTransmit();

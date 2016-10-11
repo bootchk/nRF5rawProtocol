@@ -43,46 +43,42 @@ volatile uint8_t Radio::radioBuffer[FixedPayloadCount];
 extern "C" {
 void RADIO_IRQHandler() {
 	Radio::receivedEventHandler();	// relay to static C++ method
-	// assert RTI will be called but I don't understand how the compiler knows to do that?
-	// assert an internal event flag will be set on RTI that must be cleared by SEV???
+	// assert ARM is in IRQ mode and assembler will generate proper RTI instructions
+	// ARM set an internal event flag will be set on RTI that must be cleared by SEV
 }
 }
 
 void Radio::receivedEventHandler(void)
 {
-	// assert(device.isOnlyEnabledInterruptForDisabled());
 	// We only expect an interrupt on packet received
 
     if (isEventForMsgReceivedInterrupt())
     {
     	assert(state == Receiving);	// sanity
+
     	clearEventForMsgReceivedInterrupt();
-    	ledLogger2.toggleLED(2);	// LED 2 show every receive
 
-        if (isValidPacket()) {
-        	// assert buffer is valid received data, side effect
+    	ledLogger2.toggleLED(2);	// debug: LED 2 show every receive
 
-        	// Call Sleeper::msgReceivedCallback() which sets reason for wake
-        	aRcvMsgCallback();
-        	//ledLogger2.toggleLED(3);	// LED 3 valid received
-        }
-        else {
-        	// ignore invalid packet
-        	// assert(false);
-        	//ledLogger2.toggleLED(4);	// LED 4 invalid received
-        	// TEST: halt if wrong address received
-        	assert(device.receivedLogicalAddress() == 0);
-        }
+    	// Call Sleeper::msgReceivedCallback() which sets reasonForWake
+    	aRcvMsgCallback();
     }
     else
     {
-        // Programming error, interrupts other than the only enabled interrupt 'MsgReceived'
-    	// (which on some platforms is radio DISABLED)
+        /*
+         * Probable programming error.
+         * We were awakened by an event other than the only enabled interrupt 'MsgReceived'
+         * (which on some platforms is radio DISABLED)
+         * Brownout and bus faults (DMA?) could come while mcu is sleeping.
+		 * Invalid op code faults can not come while mcu is sleeping.
+         */
     	// FUTURE handle more gracefully by just clearing all events???
+    	// FUTURE recover by raising exception and recovering by reset?
     	assert(false);
     }
     // We don't have a queue and we don't have a callback for idle
     assert(!isEventForMsgReceivedInterrupt());	// Ensure event is clear else get another unexpected interrupt
+    // assert Sleeper::reasonForWake != None
 }
 
 
@@ -134,7 +130,7 @@ bool Radio::isEnabledInterruptForEndTransmit() { return device.isEnabledInterrup
  * The register is read only.
  * Should only be called when packet was newly received (after an IRQ or event indicating packet done.)
  */
-bool Radio::isValidPacket(){
+bool Radio::isPacketCRCValid(){
 	// We don't sample RSSI
 	// We don't use DAI device address match (which is a prefix of the payload)
 	// We don't use RXMATCH to check which logical address was received
