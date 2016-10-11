@@ -49,7 +49,9 @@ remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-ou
 # Source from the SDK, needed by every nrf project
 C_SOURCE_FILES += $(abspath $(TEMPLATE_PATH)/../system_nrf51.c)
 
-
+# !!! other Nordic source files used by app CAN be soft links created in virtual folders e.g. ./Device or ./nrfLibraries
+# (but also need to be declared as sources using the link name)
+# OR as here defined directly
 
 # libraries
 C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/timer/app_timer.c
@@ -69,6 +71,7 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 # other source of my devising, some in a hard folder: modules
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
+# lkk uncomment one of the two following mains
 #C_SOURCE_FILES +=  testMain.c
 C_SOURCE_FILES +=  wedgedMain.c
 
@@ -88,14 +91,11 @@ C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 
 
-
-#$(abspath ../../../main.c) \
-#$(abspath ../../../../../../components/drivers_nrf/delay/nrf_delay.c) \
-
-#assembly files common to all targets
+#lkk was lower case .s
 ASM_SOURCE_FILES  = $(abspath $(TEMPLATE_PATH)/gcc_startup_nrf51.s)
 
-
+#lkk
+#ASM_SOURCE_FILES += modules/hardFaultHandler.s
 
 
 #includes common to all targets
@@ -149,8 +149,11 @@ CFLAGS  = -DNRF51
 # BLE Nano or other.  Uses custom_board.h in project via boards.h in SDK
 CFLAGS += -DBOARD_CUSTOM
 CFLAGS += -DBSP_DEFINES_ONLY
+
+#target
 CFLAGS += -mcpu=cortex-m0
-CFLAGS += -mthumb -mabi=aapcs 
+CFLAGS += -mthumb -mabi=aapcs
+CFLAGS += -mfloat-abi=soft
 
 # lkk not valid for g++: CFLAGS += --std=gnu11   original was gnu99
 # lkk excise -Werror
@@ -158,13 +161,16 @@ CFLAGS += -mthumb -mabi=aapcs
 # lkk add -std=c++11 for support of nullptr
 CFLAGS += -fpermissive -std=c++11
 
-CFLAGS += -Wall -O3 -g3
-CFLAGS += -mfloat-abi=soft
+CFLAGS += -Wall -O0 -g3
+CFLAGS += -Wextra
+
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
-CFLAGS += -fno-builtin 
-# lkk 
-#CFLAGS += --short-enums 
+CFLAGS += -fno-builtin
+# lkk !!! Was in example Makefile
+# breaks ABI? for libraries expecting int enums?
+# Or does compiler generate shortest int holding enum?
+#CFLAGS += --short-enums
 
 #lkk
 CFLAGS += -DDEBUG
