@@ -17,8 +17,6 @@ void Sleeper::init() {
 	assert(timer.isOSClockRunning());
 }
 
-bool Sleeper::isOSClockRunning() { return timer.isOSClockRunning(); }
-
 
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// units are ticks, when RTC has zero prescaler: 30uSec

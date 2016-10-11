@@ -23,9 +23,7 @@
 
 
 
-// Volatile: radio and mcu both write
-//TODO DYNAMIC  volatile uint8_t rxAndTxBuffer[Radio::PayloadCount];	// Must be as large as configured payload length.
-
+Radio radio;
 
 
 // Debugging code optional for production
@@ -60,6 +58,26 @@ void sleepWithRadioOff(){
 	sleeper.sleepUntilEventWithTimeout(10000 * foo);
 }
 
+void fillBufferWithConstant() {
+	uint8_t* buffer = radio.getBufferAddress();
+	for(int i=0; i<Radio::FixedPayloadCount; i++)
+	    	buffer[i]=i;
+}
+
+bool isBufferFilledWithConstant() {
+	uint8_t* buffer = radio.getBufferAddress();
+	bool result = true;
+	for(int i=0; i<Radio::FixedPayloadCount; i++) {
+		if (buffer[i] != i) {
+			result = false;
+			break;
+		}
+	}
+	return result;
+}
+
+
+
 /*
  * Test Raw wireless stack.
  * Basic loop:  xmit, rcv, sleep.
@@ -80,9 +98,6 @@ void sleepWithRadioOff(){
  */
 void testMain(void)
 {
-	Radio radio;
-
-
 	initLogging();	// debug
 
 	sleeper.init();
@@ -112,13 +127,7 @@ void testMain(void)
 
     	// TODO DYNAMIC radio.transmit(rxAndTxBuffer, 5);
 
-    	// put something in buffer
-    	uint8_t* buffer;
-    	buffer = radio.getBufferAddress();
-    	buffer[0]=1;
-    	buffer[1]=2;
-    	buffer[3]=5;
-    	buffer[4]=6;
+    	fillBufferWithConstant();
 
     	radio.transmitStaticSynchronously();
     	// assert xmit is complete (radio is synchronous to mcu)
@@ -139,10 +148,17 @@ void testMain(void)
     	// Some interrupt ??? event woke us up and set reasonForWake
     	switch ( sleeper.getReasonForWake() ) {
     	case MsgReceived:
-    		// !!! Note toggling of LED 2,3 is done in radio.c
+    		// !!! Note toggling of LED 2 usually done in radio.c on every receive
+    		if (radio.isPacketCRCValid()) {
+    			// stop if data is garbled despite CRC valid
+    			assert(isBufferFilledWithConstant());
+    		}
+    		else {
+    			ledLogger.toggleLED(3);
+    		}
     		break;
 
-    	case Timeout:
+    	case TimerExpired:
     		// !!! LED's scarce, currently using this for invalid packets.
     		//ledLogger.toggleLED(4);
     		break;

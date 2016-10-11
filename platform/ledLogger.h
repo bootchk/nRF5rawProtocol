@@ -1,6 +1,23 @@
 
-#include "boards.h"	// via nested includes, depends on -DBOARD_<FOO> , defines LEDS_NUMBER and LEDS_LIST
+#pragma once
 
+#ifdef FUTURE
+/*
+ * !!! hack.
+ *
+ * If you are just building this project, use:
+ * #include "boards.h"
+ * If you are wedging another library into this project,
+ * and that other library is #include ledLogger.h, it needs these hardcode paths.
+ */
+#include "/home/bootch/nrf5_sdk/components/toolchain/cmsis/
+#include "/home/bootch/nrf5_sdk/components/toolchain/cmsis/include/core_cm4.h"
+#include "/home/bootch/nrf5_sdk/components/device/nrf.h"
+#include "/home/bootch/nrf5_sdk/components/drivers_nrf/hal/nrf_gpio.h"
+#include "/home/bootch/nrf5_sdk/examples/bsp/boards.h"	// via nested includes, depends on -DBOARD_<FOO> , defines LEDS_NUMBER and LEDS_LIST
+#else
+#include "boards.h"
+#endif
 /*
  * Log to set of LED's.
  *

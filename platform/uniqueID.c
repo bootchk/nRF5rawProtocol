@@ -2,14 +2,12 @@
 #include "nrf.h"
 
 
-
-// Miscellaneous functions made available to library wedge
-
-
 /*
  * unique ID burned at factory
  * 6 bytes
  */
+
+// TODO typedef UnitID or MasterID
 
 uint64_t myID() {
 	/*

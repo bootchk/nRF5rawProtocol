@@ -1,16 +1,21 @@
 #include "timer.h"
+#include "osClock.h"   // OSTime
 
 /*
- * Sleep system, wake oh timeout or other event.
- * Knows reason for waking.
+ * Class providing clock and sleep
  *
- * Specific other event: radio receives msg.
+ * Responsibilities:
+ * - sleep the system (wake on timeout or other event.)
+ * - know reason for waking.
+ * - know OSTime from OSClock
+ *
+ * Owns and uses Timer, which uses app_timer lib from NRF SDK.
+ *
+ * Specific other event that wakes: radio receives msg.
  *
  * Sleeping puts mcu to idle, low-power mode.
  * Note much power management is automatic by nrf52.
  * E.G. when sleep, all unused peripherals are powered off automatically.
- *
- * Uses Timer, which uses app_timer lib from NRF SDK.
  */
 
 
@@ -22,7 +27,7 @@ typedef enum {
 } ReasonForWake;
 
 
-typedef uint32_t OSTime;
+
 
 
 class Sleeper {
@@ -32,7 +37,6 @@ private:
 
 public:
 	static void init();
-	static bool isOSClockRunning();
 
 	/*
 	 * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
@@ -41,7 +45,10 @@ public:
 	 * Passing address, so names can be C++ mangled
 	 */
 private:
-	static void rcvTimeoutTimerCallback(void * p_context) { reasonForWake = TimerExpired; }
+	static void rcvTimeoutTimerCallback(void * p_context) {
+		(void) p_context;
+		reasonForWake = TimerExpired;
+	}
 public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();
