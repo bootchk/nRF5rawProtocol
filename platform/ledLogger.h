@@ -10,7 +10,7 @@
  * If you are wedging another library into this project,
  * and that other library is #include ledLogger.h, it needs these hardcode paths.
  */
-#include "/home/bootch/nrf5_sdk/components/toolchain/cmsis/
+#include "/home/bootch/nrf5_sdk/components/toolchain/cmsis/"
 #include "/home/bootch/nrf5_sdk/components/toolchain/cmsis/include/core_cm4.h"
 #include "/home/bootch/nrf5_sdk/components/device/nrf.h"
 #include "/home/bootch/nrf5_sdk/components/drivers_nrf/hal/nrf_gpio.h"

@@ -18,7 +18,7 @@
 
 class SleepSyncAgent {
 public:
-	void init(
+	static void init(
 			Radio* radio,
 			void (*onWorkMsgQueued)()
 			);

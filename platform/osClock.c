@@ -5,7 +5,7 @@
 
 #ifdef FUTURE
 bool OSClock::isRunning() {
-	// TODO isRunning
+	// FUTURE isRunning
 	return true;
 }
 #endif

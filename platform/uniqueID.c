@@ -16,10 +16,10 @@ uint64_t myID() {
 	 * Cast: (uint64_t*) NRF_FICR->DEVICEADDR yields type (unit64_t*)
 	 * Dereferencing: *(uint64_t*) NRF_FICR->DEVICEADDR yields type uint64_t
 	 *
-	 * Upper two bytes should be all ones.
+	 * Nordic doc asserts upper two bytes all ones.
 	 */
 	uint64_t result = *((uint64_t*) NRF_FICR->DEVICEADDR);
-	// TODO assert all ones upper two bytes
+	// FUTURE assert all ones upper two bytes
 	return result;
 }
 

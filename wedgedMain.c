@@ -12,7 +12,7 @@
 
 void onWorkMsgQueued() {
 	// SleepSyncAgent received and queued a work msg.
-	// TODO schedule low priority work thread/task to do work
+	// FUTURE schedule low priority work thread/task to do work
 	// realtime constrained
 }
 

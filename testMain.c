@@ -162,11 +162,10 @@ void testMain(void)
     		// !!! LED's scarce, currently using this for invalid packets.
     		//ledLogger.toggleLED(4);
     		break;
+    	case None:
     	default:
-    		;
-    		// assert(false); // Unexpected
-    		// TODO we are getting here, figure it out because it may be corrupting a receive?
-    		// See errata, FPU is waking us???
+    		assert(false); // Unexpected
+
     	}
 
     	// assert receiver still enabled

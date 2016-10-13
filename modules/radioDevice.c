@@ -119,7 +119,6 @@ void RadioDevice::enableInterruptForDisabledEvent() { NRF_RADIO->INTENSET = RADI
 void RadioDevice::disableInterruptForDisabledEvent() { NRF_RADIO->INTENCLR = RADIO_INTENCLR_DISABLED_Msk; }
 bool RadioDevice::isEnabledInterruptForDisabledEvent() { return NRF_RADIO->INTENSET & RADIO_INTENSET_DISABLED_Msk; }
 
-// TODO we never disable the interrupt
 
 /*
  * The radio emits events for many state transitions we are not interested in.

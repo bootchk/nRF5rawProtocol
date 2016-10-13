@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 
+#include "osClock.h"  // OSTime
 
 /*
  * Thin wrapper around NRF SDK app_timer.
@@ -24,8 +25,8 @@ private:
 	// Only two timers, but +1 ???  See tutorial.
 	static const uint8_t TimerQueueSize = 3;
 
-	// TODO OSTime
-	static const uint32_t MaxTimeout = 0xFFFFFF;	// 24-bit
+
+	static const OSTime MaxTimeout = 0xFFFFFF;	// 24-bit
 
 	static bool isPlaceholderStarted;
 
@@ -36,8 +37,7 @@ private:
 		// Units mSec
 		static void restartInMSec(int timeout);
 		// Units OSTicks i.e. resolution of RTC1 counter
-		// TODO OSTIme
-		static void restartInTicks(uint32_t timeout);
+		static void restartInTicks(OSTime timeout);
 
 		static void startPlaceholder();
 		static bool isOSClockRunning();

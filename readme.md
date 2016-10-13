@@ -51,10 +51,12 @@ Dev environment
 -
 
 Uses:
+
     - Eclipse project.
     - GNU ARM toolchain (gcc and gdb for ARM)
     - hand maintained Makefile (as do most Nordic examples?)
     - linked resources (to the NRUF SDK, as do most Nordic examples?)
+    
 I followed the tutorial for this combination on Nordic website, and hacked the Makefile.
 
 

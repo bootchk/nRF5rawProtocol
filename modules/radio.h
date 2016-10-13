@@ -39,6 +39,47 @@ typedef enum {
  *
  * Singleton, all static class methods.
  */
+/*
+ * Algebra of valid call sequences:
+ *
+ *  Typical:
+ *    init(), powerOnAndConfigure(), transmitStaticSynchronously(), receiveStatic(), sleepUntilEventWithTimeout(),
+ *            powerOff(), powerOnAndConfigure(), ...
+ *
+ *  init() must be called once after mcu POR:
+ *    mcu.reset(), init(), powerOnAndConfigure(), ...., mcu.reset(), init(), ...
+ *
+ *  configure() must be called after powerOn() (use convenience function powerOnAndConfigure())
+ *    init(), powerOn(), configureStatic(), receiveStatic, ...
+ *
+ *  transmitStaticSynchronously blocks, but receiveStatic does not.  If reasonForWake is not MsgReceived,
+ *  you must stopReceive() before next radio operation:
+ *    receiveStatic(), sleepUntilEventWithTimeout(),
+ *      if sleeper.reasonForWake() != MsgReceived then stopReceive()
+ *
+ *  When reasonForWake is MsgReceived, buffer is full and radio is ready for next transmit or receive.
+ *  A packet received can have an invalidCRC.
+ *  A packet received having validCRC can be garbled (when count of bit errors greater than CRC can detect.)
+ *     receivedStatic(), sleepUntilEventWithTimeout(), if sleeper.reasonForWake() == MsgReceived then
+ *        getBuffer(), if isPacketCRCValid() then <use received buffer>,
+ *        transmitStaticSynchronously()
+ *
+ *  You can transmit or receive in any order, but Radio is half-duplex:
+ *    init(), powerOnAndConfigure(), receiveStatic(), ...stopReceive(),
+ *       receiveStatic(), ..., stopReceive
+ *       transmitStaticSynchronously(), ...
+ *
+ *	Radio isDisabledState() is true after certain other operations:
+ *	   powerOnAndConfigure(), assert(isDisabledState())
+ *	   transmitStaticSynchronously(), assert(isDisabledState())
+ *	   stopReceive(), assert(isDisabledState())
+ *	   receiveStatic(), sleepUntilEventWithTimeout(), if sleeper.reasonForWake() == MsgReceived assert(isDisabledState())
+ *
+ *	Radio isDisabledState() is false at least for a short time after a receive()
+ *	but if a packet is received, is true
+ *	    receiveStatic(), assert(! isDisabledState()), ..<packet received>, assert(isDisabledState())
+ *
+ */
 class Radio {
 public:
 	// Define protocol lengths
@@ -86,12 +127,17 @@ public:
 	// FUTURE DYNAMIC static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
 	// Can't define in-line, is exported
 	static BufferPointer getBufferAddress();
-	static void setupFixedDMA();
+
 
 	// Static: buffer owned by radio, of fixed length
 	static void transmitStatic();
 	static void transmitStaticSynchronously();
 	static void receiveStatic();
+
+	static bool isPacketCRCValid();
+
+	static bool isEnabledInterruptForMsgReceived();
+	static bool isEnabledInterruptForEndTransmit();
 
 #ifdef DYNAMIC
 	static void transmit(BufferPointer data, uint8_t length);
@@ -105,6 +151,8 @@ public:
 	static void spinUntilXmitComplete();
 
 private:
+	static void setupFixedDMA();
+
 	static void powerOn();	// public uses powerOnAndConfigure, a radio on is useless without configuration
 	static void spinUntilReady();
 	static void dispatchPacketCallback();
@@ -127,9 +175,4 @@ private:
 	static void enableInterruptForMsgReceived();
 	static void disableInterruptForMsgReceived();
 	static void disableInterruptForEndTransmit();
-public:
-	static bool isPacketCRCValid();
-
-	static bool isEnabledInterruptForMsgReceived();
-	static bool isEnabledInterruptForEndTransmit();
 };
