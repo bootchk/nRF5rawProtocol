@@ -35,7 +35,9 @@ void (*Radio::aRcvMsgCallback)();
 // State currently just used for assertions
 RadioState Radio::state;
 
-volatile uint8_t Radio::radioBuffer[FixedPayloadCount];
+//volatile int Radio::guard[10];
+volatile uint8_t Radio::radioBuffer[FixedPayloadCount+60];
+//volatile int Radio::guard2[10];
 
 
 
@@ -301,10 +303,11 @@ void Radio::getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr) {
  * Fixed: device always use single buffer owned by radio
  */
 void Radio::setupFixedDMA() {
-	device.configurePacketAddress(radioBuffer);
+	device.configurePacketAddress(getBufferAddress());
 }
 
-BufferPointer Radio::getBufferAddress() { return radioBuffer; }
+// Return a pointer to middle of buffer, guarded
+BufferPointer Radio::getBufferAddress() { return radioBuffer + 30; }
 
 
 

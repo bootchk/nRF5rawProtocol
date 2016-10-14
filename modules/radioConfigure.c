@@ -81,7 +81,7 @@ void RadioDevice::configureStaticOnAirPacketFormat() {
 void RadioDevice::configureStaticPayloadFormat(const uint8_t payloadCount, const uint8_t addressLength) {
 
 	// We don't use a mask when bit-oring regs, we assert parameters are not too large
-	assert(payloadCount<256);
+	// assert(payloadCount<256);	// uint8_t guarantees this
 	// Nordic docs disallow AddressLength 2 but others have reported it works
 	assert(addressLength >= 2);	// see "Disable standard addressing" on DevZone
 	assert(addressLength <= 5);
@@ -122,6 +122,5 @@ void RadioDevice::configurePacketAddress(BufferPointer data){
 	 *  Cast a pointer as ordinary 32-bit int.
 	 */
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
-	assert(NRF_RADIO->PACKETPTR == data);
-	assert(NRF_RADIO->PACKETPTR == 0x200000dc);
+	assert((uint8_t *) (NRF_RADIO->PACKETPTR) ==  data);
 }

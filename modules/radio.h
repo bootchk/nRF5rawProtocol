@@ -97,7 +97,10 @@ public:
 	static const uint8_t MediumNetworkAddressLength = 3;	// 1 byte preamble, 2 bytes base
 	static const uint8_t ShortNetworkAddressLength = 2;	// 1 byte preamble, 1 bytes base
 
-	static volatile uint8_t radioBuffer[FixedPayloadCount];
+	//static volatile int guard[10];
+	static volatile uint8_t radioBuffer[FixedPayloadCount+60];
+	//static volatile int guard2[10];
+
 	static RadioState state;
 
 

@@ -8,12 +8,20 @@
 
 #include <cstdlib>	// rand
 
+#ifdef FUTURE
 // lkk Can't get this to work
-//#define NRF_LOG_ENABLED 1
-//#define NRF_LOG_DEFAULT_LEVEL 0
+#define NRF_LOG_ENABLED 1
+#define NRF_LOG_DEFAULT_LEVEL 0
+#define NRF_LOG_USES_UART = 1
+#endif
+#include "SEGGER_RTT.h"
 
+#ifdef FUTURE
+// Macro definitions.
+// Leave NRF_LOG macros in place, these define them null ifndef NRF_LOG_ENABLED
 #include "nrf_log.h"	// writing to log
 #include "nrf_log_ctrl.h"	// initing log
+#endif
 
 #include "modules/radio.h"
 
@@ -36,13 +44,14 @@ ret_code_t nrf_log_init(nrf_log_timestamp_func_t timestamp_func);
 }
 */
 
+#ifdef FUTURE
 void initLogging(void)
 {
     // Initialize logging library.
 	__attribute__((unused)) uint32_t err_code = NRF_LOG_INIT((nrf_log_timestamp_func_t) NULL);
     // APP_ERROR_CHECK(err_code);
 }
-
+#endif
 
 Sleeper sleeper;
 
@@ -98,7 +107,9 @@ bool isBufferFilledWithConstant() {
  */
 void testMain(void)
 {
-	initLogging();	// debug
+	//initLogging();	// debug
+	SEGGER_RTT_Init();
+	SEGGER_RTT_WriteString(0, "Hello\r\n");
 
 	sleeper.init();
 
@@ -114,7 +125,8 @@ void testMain(void)
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
-    	NRF_LOG_INFO("Here\n");
+    	//NRF_LOG_INFO("Here\n");
+    	SEGGER_RTT_WriteString(0, "Hello\r\n");
 
     	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
     	ledLogger.toggleLED(1);	//

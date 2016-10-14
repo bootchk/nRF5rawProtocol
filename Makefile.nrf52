@@ -15,6 +15,7 @@ HOME = /home/bootch
 NRF_SDK_ROOT = $(HOME)/nrf5_sdk
 NRF_SDK_LIBS = $(HOME)/nrf5_sdk/components/libraries
 NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
+NRF_SDK_SEGGER = $(HOME)/nrf5_sdk/external/segger_rtt
 OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
 TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
 
@@ -61,18 +62,22 @@ C_SOURCE_FILES +=  $(NRF_SDK_LIBS)/util/app_util_platform.c
 C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/clock/nrf_drv_clock.c
 C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 
-# logging
+# logging UART???
+#C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/util/nrf_log.c
 #C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c
 #C_SOURCE_FILES +=  $(NRF_SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c
 
+# logging RTT
+C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT.c
+C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/RTT_Syscalls_GCC.c
 
 # lkk hack
 # other source of my devising, some in a hard folder: modules
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
 # lkk uncomment one of the two following mains
-#C_SOURCE_FILES +=  testMain.c
-C_SOURCE_FILES +=  wedgedMain.c
+C_SOURCE_FILES +=  testMain.c
+#C_SOURCE_FILES +=  wedgedMain.c
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
@@ -109,6 +114,8 @@ INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/device)
 #lkk v11 capitalization was INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/cmsis/include)
 INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/hal)
+#lkk logging
+INC_PATHS += -I$(abspath $(NRF_SDK_SEGGER))
 
 #includes specific to this project
 
