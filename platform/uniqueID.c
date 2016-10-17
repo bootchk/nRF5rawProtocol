@@ -1,3 +1,4 @@
+#include <cassert>
 #include <inttypes.h>
 #include "nrf.h"
 
@@ -7,19 +8,30 @@
  * 6 bytes
  */
 
-// TODO typedef UnitID or MasterID
+// Requires long long to hold it
+typedef uint64_t DeviceID ;
 
-uint64_t myID() {
+// But only use LSB six bytes
+#define MAX_DEVICE_ID   0xfFfFfFfFfFfF
+
+// FUTURE use a 48-bit bit field
+
+
+DeviceID myID() {
 	/*
 	 * NRF_FICR->DEVICEADDR[] is array of 32-bit words.
 	 * NRF_FICR->DEVICEADDR yields type (unit32_t*)
 	 * Cast: (uint64_t*) NRF_FICR->DEVICEADDR yields type (unit64_t*)
 	 * Dereferencing: *(uint64_t*) NRF_FICR->DEVICEADDR yields type uint64_t
 	 *
-	 * Nordic doc asserts upper two bytes all ones.
+	 * Nordic doc asserts upper two bytes read all ones.
 	 */
 	uint64_t result = *((uint64_t*) NRF_FICR->DEVICEADDR);
-	// FUTURE assert all ones upper two bytes
+
+	// Mask off upper bytes, to match over-the-air length of 6 bytes.
+	result = result & MAX_DEVICE_ID;
+
+	assert(result <= MAX_DEVICE_ID);
 	return result;
 }
 

@@ -69,6 +69,8 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 
 # logging RTT
 C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT.c
+C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT_printf.c
+
 
 # lkk hack
 # other source of my devising, some in a hard folder: modules

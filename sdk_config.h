@@ -20,13 +20,18 @@
 //#define USE_UART 1
 #define NRF_LOG_ENABLED 1
 // apparently not in sdk12 #define NRF_LOG_USES_UART = 1
-#define NRF_LOG_USES_RTT = 0
+
 //#define NRF_LOG_USES_TIMESTAMP 0
 //#define NRF_LOG_DEFERRED 0
 //#define NRF_LOG_BACKEND_MAX_STRING_LENGTH 64
 //#define NRF_LOG_TIMESTAMP_DIGITS 12
 #endif
 //#define NRF_LOG_ENABLED 1
+
+// Required to include SEGGER_RTT_printf, as shipped in /external
+// !!! except that file does not include this file
+// so either hack #ifdef NRF_LOG_USES_RTT out of ...printf
+// or use CFLAG -DNRF_LOG_USES_RTT
 //#define NRF_LOG_USES_RTT 1
 
 
