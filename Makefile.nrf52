@@ -10,7 +10,7 @@ export OUTPUT_FILENAME
 MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
 
-# lkk hack
+# lkk
 HOME = /home/bootch
 NRF_SDK_ROOT = $(HOME)/nrf5_sdk
 NRF_SDK_LIBS = $(HOME)/nrf5_sdk/components/libraries
@@ -69,7 +69,6 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 
 # logging RTT
 C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT.c
-C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/RTT_Syscalls_GCC.c
 
 # lkk hack
 # other source of my devising, some in a hard folder: modules
@@ -93,6 +92,7 @@ C_SOURCE_FILES +=  platform/ledLogger.c
 C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c
+C_SOURCE_FILES +=  platform/logger.c
 
 
 #lkk was lower case .s
