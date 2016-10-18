@@ -38,6 +38,7 @@ private:
 		static void restartInMSec(int timeout);
 		// Units OSTicks i.e. resolution of RTC1 counter
 		static void restartInTicks(OSTime timeout);
+		static void cancelTimeout();	// Cancel oneShot
 
 		static void startPlaceholder();
 		static bool isOSClockRunning();

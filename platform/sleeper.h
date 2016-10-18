@@ -35,8 +35,6 @@ private:
 	static ReasonForWake reasonForWake;
 	static Timer timer;
 
-public:
-	static void init();
 
 	/*
 	 * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
@@ -44,18 +42,17 @@ public:
 	 *
 	 * Passing address, so names can be C++ mangled
 	 */
-private:
-	static void rcvTimeoutTimerCallback(void * p_context) {
-		(void) p_context;
-		reasonForWake = TimerExpired;
-	}
+	static void rcvTimeoutTimerCallback(void * p_context);
 public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();
 
-	static void sleepUntilEventWithTimeout(OSTime);
 
-	// Not in-lined, used external libraries
+	static void init();
+	static void sleepUntilEventWithTimeout(OSTime);
+	static void cancelTimeout();
+
+	// Not in-lined, used by external libraries
 	static ReasonForWake getReasonForWake();
 	static void clearReasonForWake();
 

@@ -154,6 +154,9 @@ void RadioDevice::setShortcutsAvoidSomeEvents() {
 
 void RadioDevice::setRadioPowered(bool value){
 	NRF_RADIO->POWER = value;	// 1 or 0 per C++ standard and datasheet
+	// !!! Flush Cortex M4 write cache now so radio begins powering up
+	(void) NRF_RADIO->POWER;
+	assert( value == true ? NRF_RADIO->POWER == 1 : NRF_RADIO->POWER == 0);
 }
 
 bool RadioDevice::isPowerOn() { return NRF_RADIO->POWER; }

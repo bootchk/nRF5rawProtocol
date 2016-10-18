@@ -42,8 +42,35 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// Because of the latter possiblity we can't assert(reasonForWake != Cleared);
 }
 
-// !!! Note rcvTimeoutTimerCallback is implemented in-line in sleeper.h
-void Sleeper::msgReceivedCallback() { reasonForWake = MsgReceived; }
+
+void Sleeper::cancelTimeout(){
+	//TODO
+
+}
+
+
+
+/*
+ * IRQ handler callbacks
+ *
+ * Since there are two concurrent devices, there is a race to set reasonForWake
+ */
+
+void Sleeper::rcvTimeoutTimerCallback(void * p_context) {
+	(void) p_context;
+	if (reasonForWake == None)	// if msg didn't arrive just ahead of timeout, before main could cancel timeout
+		reasonForWake = TimerExpired;
+}
+void Sleeper::msgReceivedCallback() {
+	/*
+	 * If msg arrives after main read reasonForWake and before it stopped the receiver,
+	 * this reason will go ignored and msg lost.
+	 *
+	 * If msg arrives immediately after a timeout but before main has read reasonForWake,
+	 * the msg will be handled instead of the timeout.
+	 */
+	reasonForWake = MsgReceived;
+}
 
 ReasonForWake Sleeper::getReasonForWake() { return reasonForWake; }
 void Sleeper::clearReasonForWake() { reasonForWake = None; }

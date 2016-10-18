@@ -21,7 +21,7 @@
 // static class data
 // Macro defined by NRD SDK to define an app_timer instance
 // Thus difficult to cram into class??
-APP_TIMER_DEF(rcvTimeoutTimer);
+APP_TIMER_DEF(oneShotTimer);
 
 APP_TIMER_DEF(placeholderTimer);
 
@@ -82,7 +82,7 @@ void Timer::createTimers(void (*timerTimeoutHandler)(void*))
 
 void Timer::createOneShot(void (*timerTimeoutHandler)(void*))
 {
-	uint32_t err = app_timer_create(&rcvTimeoutTimer,
+	uint32_t err = app_timer_create(&oneShotTimer,
 	            APP_TIMER_MODE_SINGLE_SHOT,
 				timerTimeoutHandler);
 	APP_ERROR_CHECK(err);
@@ -100,14 +100,19 @@ void Timer::createPlaceholderTimer()
 void Timer::restartInMSec(int timeout) {
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
 	uint32_t timeoutTicks = APP_TIMER_TICKS(timeout, TimerPrescaler);
-	uint32_t err = app_timer_start(rcvTimeoutTimer, timeoutTicks, nullptr);
+	uint32_t err = app_timer_start(oneShotTimer, timeoutTicks, nullptr);
 	APP_ERROR_CHECK(err);
 }
 
 void Timer::restartInTicks(uint32_t timeout) {
 	// !!! Per Nordic docs, min timeout is 5 ticks.  Else returns NRF_ERROR_INVALID_PARAM
 	assert(timeout <= MaxTimeout);
-	uint32_t err = app_timer_start(rcvTimeoutTimer, timeout, nullptr);
+	uint32_t err = app_timer_start(oneShotTimer, timeout, nullptr);
+	APP_ERROR_CHECK(err);
+}
+
+void Timer::cancelTimeout(){
+	uint32_t err = app_timer_stop(oneShotTimer);
 	APP_ERROR_CHECK(err);
 }
 
