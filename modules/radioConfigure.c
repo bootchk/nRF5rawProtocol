@@ -126,7 +126,7 @@ void RadioDevice::configurePacketAddress(BufferPointer data){
 }
 
 
-static void configureXmitPower(unsigned int dBm) {
+void RadioDevice::configureXmitPower(unsigned int dBm) {
 	// Convert to platform constant
 	int8_t value;
 	switch(dBm) {

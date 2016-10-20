@@ -14,6 +14,7 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) )
 HOME = /home/bootch
 NRF_SDK_ROOT = $(HOME)/nrf5_sdk
 NRF_SDK_LIBS = $(HOME)/nrf5_sdk/components/libraries
+NRF_SDK_UTIL = $(HOME)/nrf5_sdk/components/libraries/util
 NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
 NRF_SDK_SEGGER = $(HOME)/nrf5_sdk/external/segger_rtt
 OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
@@ -138,6 +139,9 @@ INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log)
 INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log/src)
 # lkk app_timer.c, depends on nrf_delay.h, found here
 INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/delay)
+
+# debug CMSIS __get_IPSR
+#INC_PATHS += -I$(abspath $(NRF_SDK_UTIL))
 
 
 

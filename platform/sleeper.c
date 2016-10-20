@@ -44,8 +44,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 
 void Sleeper::cancelTimeout(){
-	//TODO
-
+	timer.cancelTimeout();
 }
 
 
@@ -54,6 +53,8 @@ void Sleeper::cancelTimeout(){
  * IRQ handler callbacks
  *
  * Since there are two concurrent devices, there is a race to set reasonForWake
+ *
+ * !!! Note using a placeholderTimer, which occasionally wakes us and does not set reasonForWake.
  */
 
 void Sleeper::rcvTimeoutTimerCallback(void * p_context) {
@@ -84,6 +85,8 @@ void Sleeper::clearReasonForWake() { reasonForWake = None; }
  * Here "system" means mcu.
  * Internal event flag is NOT same e.g. RADIO.EVENT_DONE.
  * Internal event flag is set by RTI in ISR.
+ *
+ * !!! Note using a placeholderTimer, which occasionally wakes us and does not set reasonForWake.
  */
 void Sleeper::sleepSystemOn() {
 
