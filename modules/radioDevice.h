@@ -27,6 +27,7 @@ public:
 	static void configureMediumCRC();
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
+	static void configureXmitPower(unsigned int dBm);
 private:
 	static void configureShortCRCLength();
 	static void configureShortCRCGeneratorInit();

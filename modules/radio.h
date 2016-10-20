@@ -43,7 +43,8 @@ typedef enum {
  * Algebra of valid call sequences:
  *
  *  Typical:
- *    init(), powerOnAndConfigure(), transmitStaticSynchronously(), receiveStatic(), sleepUntilEventWithTimeout(),
+ *    init(), powerOnAndConfigure(), getBufferAddress(), <put payload in buffer> transmitStaticSynchronously(),
+ *            receiveStatic(), sleepUntilEventWithTimeout(),  if isDisabledState() getBufferAddress(); <get payload from buffer>,
  *            powerOff(), powerOnAndConfigure(), ...
  *
  *  init() must be called once after mcu POR:
@@ -79,6 +80,7 @@ typedef enum {
  *	but if a packet is received, is true
  *	    receiveStatic(), assert(! isDisabledState()), ..<packet received>, assert(isDisabledState())
  *
+ *  Radio is has a single buffer, non-queuing.  After consecutive operations, first contents of buffer are overwritten.
  */
 class Radio {
 public:
@@ -105,12 +107,13 @@ public:
 
 
 private:
+	// peripherals
 	static HfClock hfClock;
 	static RadioDevice device;
-	static bool wasTransmitting;  // false: wasReceiving
 	static Nvic nvic;
 	static PowerSupply powerSupply;
 
+	// OBSOLETE static bool wasTransmitting;  // false: wasReceiving
 	static void (*aRcvMsgCallback)();
 
 
@@ -119,6 +122,9 @@ public:
 
 	static void init(void (*onRcvMsgCallback)());
 	static void configureStatic();
+	// platform independent 1: +4, 8: -40, else 0.   Units dBm.
+	// FUTURE enum
+	static void configureXmitPower(unsigned int dBm);
 
 	static void powerOnAndConfigure();
 	static void powerOff();

@@ -183,6 +183,7 @@ void Radio::init(void (*onRcvMsgCallback)()) {
  */
 //#define LONG_MESSAGE 1
 #define MEDIUM_MESSAGE
+
 void Radio::configureStatic() {
 
 	assert(isDisabledState());
@@ -216,6 +217,9 @@ void Radio::configureStatic() {
 
 // void Radio::isConfigured() { }
 
+void Radio::configureXmitPower(unsigned int dBm) {
+	device.configureXmitPower(dBm);
+}
 
 
 // Powering

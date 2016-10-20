@@ -124,3 +124,20 @@ void RadioDevice::configurePacketAddress(BufferPointer data){
 	NRF_RADIO->PACKETPTR = (uint32_t) data;
 	assert((uint8_t *) (NRF_RADIO->PACKETPTR) ==  data);
 }
+
+
+static void configureXmitPower(unsigned int dBm) {
+	// Convert to platform constant
+	int8_t value;
+	switch(dBm) {
+	case 1:
+		value = RADIO_TXPOWER_TXPOWER_Pos4dBm;
+		break;
+	case 8:
+		value = RADIO_TXPOWER_TXPOWER_Neg40dBm;
+		break;
+	default:
+		value = RADIO_TXPOWER_TXPOWER_0dBm;
+	}
+	NRF_RADIO->TXPOWER = value;
+}
