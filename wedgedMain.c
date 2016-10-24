@@ -16,8 +16,12 @@ void onWorkMsgQueued() {
 	// realtime constrained
 }
 
+void onSyncPoint() {
 
-Radio radio;
+}
+
+Radio myRadio;
+Mailbox myMailbox;
 SleepSyncAgent sleepSyncAgent;
 
 
@@ -25,7 +29,7 @@ int wedgedMain() {
 	// assert embedded system startup is done and calls main.
 	// assert platform initialized radio
 
-	sleepSyncAgent.init(&radio, onWorkMsgQueued);
+	sleepSyncAgent.init(&myRadio, &myMailbox, onWorkMsgQueued, onSyncPoint);
 	sleepSyncAgent.loopOnEvents();	// never returns
 	return 0;
 }

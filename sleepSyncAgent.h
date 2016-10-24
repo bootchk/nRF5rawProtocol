@@ -1,26 +1,16 @@
 #include "modules/radio.h"
+#include "platform/mailbox.h"
 
-/*
- * API of SleepSyncAgent
- *
- * SleepSyncAgent implements an event loop.
- * A call to loopOnEvents() never returns.
- *
- * SleepSyncAgent calls onWorkMsgQueued() when a work message is queued.
- * That function runs at the same priority as SleepSyncAgent.
- * It should be short to prevent loss of sync.
- * Work messages should be handled in a lower priority thread (say WorkThread.)
- * If the queue does not unblock readers, onWorkMsgQueued()
- * should signal the WorkThread.
- */
-
-// FUTURE pass the queue.  For now, there is no queue, just the signal.
+// !!! A copy, see original at sleepSyncAgent project
 
 class SleepSyncAgent {
+
 public:
 	static void init(
-			Radio* radio,
-			void (*onWorkMsgQueued)()
+			Radio*,
+			Mailbox*,
+			void (*onWorkMsg)(WorkPayload),
+			void (*onSyncPoint)()
 			);
 	static void loopOnEvents();	// never returns
 };
