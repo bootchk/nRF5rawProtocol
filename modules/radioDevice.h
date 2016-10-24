@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 #include "hfClock.h"
-#include "types.h"
+#include "../platform/types.h"
 
 
 /*

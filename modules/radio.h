@@ -4,7 +4,7 @@
 #include "hfClock.h"
 #include "radioDevice.h"
 #include "system.h"  // Nvic
-#include "types.h"
+#include "../platform/types.h"
 
 
 typedef enum {
