@@ -97,6 +97,7 @@ C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c
 C_SOURCE_FILES +=  platform/logger.c
+C_SOURCE_FILES +=  platform/mailbox.c
 
 
 #lkk was lower case .s

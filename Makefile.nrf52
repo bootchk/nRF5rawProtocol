@@ -95,6 +95,7 @@ C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c
 C_SOURCE_FILES +=  platform/logger.c
+C_SOURCE_FILES +=  platform/mailbox.c
 
 
 #lkk was lower case .s
@@ -322,7 +323,12 @@ clean:
 
 cleanobj:
 	$(RM) $(BUILD_DIRECTORIES)/*.o
+	
+# For locked BMD-300, insert this in flash
+#	$(OTHER_TOOLS)/nrfjprog --recover -f nrf52
+
 flash: nrf52832_xxaa
 	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
+
 	$(OTHER_TOOLS)/nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52  --chiperase
 	$(OTHER_TOOLS)/nrfjprog --reset -f nrf52
