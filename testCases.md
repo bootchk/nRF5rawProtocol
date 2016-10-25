@@ -125,6 +125,8 @@ Because they both have accurate xtal 32khz clocks, they won't just drift into sy
 
 Note that the units (Master and Slave) behave differently.
 
+The first set of tests are with the LED's configured as above (LED 1 toggles on every sync loop.)
+
 Master (unit with larger ID)
 -
 
@@ -179,7 +181,27 @@ Later expect forever:
 	LED4 not toggle (not xmitting Sync or MergeSync)
 
    
+Test Sync and Exchange of Work
+-
+
+Setup: Reconfigure LED1 to toggle only when units are in sync AND work is exchanged.
+
+Expect initially:
+
+    LED1's of the two units remain on or off
+    LED4 toggles irregularly (at least every six sync periods) as xmit sync in Master role as Master of self's initial clique
+
+Later expect:
+
+    LED2 toggle once as Sync msg received while fishing
+    LED3 toggle as swap to Slave/Merger role: merging self unit's clique (only member is self) into Master's clique
     
+Later expect:
+
+    LED1 of both units toggle infrequently (once units are in sync and exchange work)
+    
+    
+
 TODO Tests with more than two units
 -
 

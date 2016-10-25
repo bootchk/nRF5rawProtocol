@@ -10,7 +10,7 @@
 // static data members
 namespace {
 uint32_t item;
-bool isItem;
+bool isItem = false;
 }
 
 void Mailbox::put(uint32_t aItem){
