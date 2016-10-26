@@ -22,23 +22,7 @@ Mailbox myOutMailbox;
 SleepSyncAgent sleepSyncAgent;
 
 
-/*
- * SleepSyncAgent received and queued a work msg.
- * This method is realtime constrained.
- *
- * For testing, when we receive work, randomly send work.
- *
- * FUTURE schedule low priority work thread/task to do work.
- */
-void onWorkMsg(WorkPayload work) {
-
-	// Not using work in
-	(void) work;
-
-	// led 1 now means: work received (and thus in sync.)
-	ledLogger.toggleLED(1);
-
-	// Randomly send work out
+void randomlySendWork() {
 	if (rand() % 5 == 1) {
 		if (myOutMailbox.isMail() ){
 			// My last mail didn't go out yet
@@ -51,8 +35,24 @@ void onWorkMsg(WorkPayload work) {
 	}
 }
 
+/*
+ * SleepSyncAgent received and queued a work msg.
+ * This method is realtime constrained.
+ *
+ * FUTURE schedule low priority work thread/task to do work.
+ */
+void onWorkMsg(WorkPayload work) {
+	(void) work;	// Unused
+
+	// led 1 now means: work received (and thus in sync.)
+	ledLogger.toggleLED(1);
+}
+
 void onSyncPoint() {
 	// ledLogger.toggleLED(1);
+
+	// testing
+	randomlySendWork();
 }
 
 
