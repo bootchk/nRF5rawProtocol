@@ -29,7 +29,7 @@ void randomlySendWork() {
 			log("Mail still in mailbox\n");
 		}
 		else {
-			myOutMailbox.put(1);
+			myOutMailbox.put(333);
 			log("Put work\n");
 		}
 	}
@@ -49,8 +49,6 @@ void onWorkMsg(WorkPayload work) {
 }
 
 void onSyncPoint() {
-	// ledLogger.toggleLED(1);
-
 	// testing
 	randomlySendWork();
 }
@@ -61,8 +59,6 @@ void onSyncPoint() {
 int wedgedMain() {
 	// assert embedded system startup is done and calls main.
 	// assert platform initialized radio
-
-	// TODO start timer to periodically mail work
 
 	sleepSyncAgent.init(&myRadio, &myOutMailbox, onWorkMsg, onSyncPoint);
 	sleepSyncAgent.loopOnEvents();	// never returns
