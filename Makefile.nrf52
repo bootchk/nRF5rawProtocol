@@ -134,10 +134,13 @@ INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/nrf_soc_nosd)
 INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/clock)
 # lkk nrf_drv_clock.h, depends on nrf_drv_common.h, found here
 INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/common)
-# lkk app_error.c, depends on nrf_logon.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log)
-# lkk nrf_log.h, depends on nrf_log_inhternal.h, found here
-INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log/src)
+
+# lkk app_error.c SPURIOUSLY depends on nrf_log.h, found here
+# lkk I hacked the SDK to remove two includes
+#INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log)
+# lkk nrf_log.h, depends on nrf_log_internal.h, found here
+#INC_PATHS += -I$(abspath $(NRF_SDK_LIBS)/log/src)
+
 # lkk app_timer.c, depends on nrf_delay.h, found here
 INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/delay)
 
@@ -194,8 +197,13 @@ CFLAGS += -fno-builtin
 # breaks ABI? for libraries expecting int enums?
 # Or does compiler generate shortest int holding enum?
 #CFLAGS += --short-enums
-#lkk
+#lkk include symbols so executable can be debugged
 CFLAGS += -DDEBUG
+
+#lkk For nrf52dk, my Segger RTT logging enabled
+CFLAGS += -DLOGGING
+
+#lkk this was to suppress link warnings, but didn't work?
 #CFLAGS += -fshort-wchar
 
 # keep every function in separate section. This will allow linker to dump unused functions

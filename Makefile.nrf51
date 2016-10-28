@@ -183,7 +183,7 @@ CFLAGS += -fno-builtin
 # Or does compiler generate shortest int holding enum?
 #CFLAGS += --short-enums
 
-#lkk
+#lkk include symbols so executable can be debugged
 CFLAGS += -DDEBUG
 
 # keep every function in separate section. This will allow linker to dump unused functions

@@ -30,7 +30,7 @@ void randomlySendWork() {
 		}
 		else {
 			myOutMailbox.put(333);
-			log("Put work\n");
+			log("App put work\n");
 		}
 	}
 }
@@ -44,13 +44,15 @@ void randomlySendWork() {
 void onWorkMsg(WorkPayload work) {
 	(void) work;	// Unused
 
-	// led 1 now means: work received (and thus in sync.)
-	ledLogger.toggleLED(1);
+	// led 3 now means: work received (and thus in sync.)
+	// Also used for SyncAgent role change?
+	ledLogger.toggleLED(3);
 }
 
 void onSyncPoint() {
 	// testing
 	randomlySendWork();
+	ledLogger.toggleLED(1);
 }
 
 
