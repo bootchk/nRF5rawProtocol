@@ -140,8 +140,14 @@ public:
 
 	// Static: buffer owned by radio, of fixed length
 	static void transmitStatic();
+	static void spinUntilXmitComplete();
 	static void transmitStaticSynchronously();
+	static void stopXmit();
+
 	static void receiveStatic();
+	static bool isReceiveInProgress();
+	static void spinUntilReceiveComplete();
+	static void stopReceive();
 
 	static bool isPacketCRCValid();
 
@@ -154,10 +160,10 @@ public:
 	static void receive(BufferPointer data, uint8_t length);
 #endif
 
-	static void stopXmit();
-	static void stopReceive();
 
-	static void spinUntilXmitComplete();
+
+
+
 
 private:
 	static void setupFixedDMA();

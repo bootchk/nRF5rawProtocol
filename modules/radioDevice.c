@@ -76,6 +76,12 @@ bool RadioDevice::isDisabledState() {
 	return NRF_RADIO->STATE == RADIO_STATE_STATE_Disabled;
 }
 
+// Is radio in middle of receiving packet?
+static bool RadioDevice::isReceiveInProgress() {
+	return NRF_RADIO->STATE == RADIO_STATE_STATE_Rx;
+}
+
+
 bool RadioDevice::isDisabledEventSet() {
 	// Used to spin until clear
 	return NRF_RADIO->EVENTS_DISABLED; // == 1

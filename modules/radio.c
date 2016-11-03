@@ -338,6 +338,15 @@ void Radio::receiveStatic() {
 	// assert will get IRQ on message received
 }
 
+bool Radio::isReceiveInProgress() {
+	return device.isReceiveInProgress();
+}
+void Radio::spinUntilReceiveComplete() {
+	// Same as:
+	spinUntilXmitComplete();
+}
+
+
 #ifdef DYNAMIC
 void Radio::transmit(volatile uint8_t * data, uint8_t length){
 	state = Transmitting;
