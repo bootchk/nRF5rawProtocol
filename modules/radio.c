@@ -155,13 +155,18 @@ void Radio::dispatchPacketCallback() {
 void Radio::init(void (*onRcvMsgCallback)()) {
 	aRcvMsgCallback = onRcvMsgCallback;
 
-	// Not require device power on
+	// Not require radio device power on
+
+	// See Nordic docs: this saves power for certain high Vcc and large currents (e.g. radio)
+	// The radio manages its use automatically?
+	// There is a startup time before transmission can subsequently be started.
 	powerSupply.enableDCDCPower();	// Radio device wants this enabled.
 
-	// assert radio is configured to device reset defaults.
-	// But this code doesn't handle all default events from radio,
-	// and default configuration of radio is non-functional.
-	// Caller must do additional configuration.
+	/*
+	 * assert radio is configured to device reset defaults.
+	 * But default configuration of radio is non-functional (No packetPtr, etc.)
+	 * Caller must do additional configuration.
+	 */
 
 	// not ensure Radio or its underlying RadioDevice is functional.
 	// not ensure isPowerOn()
@@ -201,6 +206,7 @@ void Radio::configureStatic() {
 #endif
 	device.setShortcutsAvoidSomeEvents();
 	device.configureMegaBitrate(2);
+	device.configureFastRampUp();
 
 	// FUTURE, not working: device.configureWhiteningOn();
 	// Convention: whitening seed derived from channel

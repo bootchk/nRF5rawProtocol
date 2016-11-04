@@ -145,6 +145,7 @@ void RadioDevice::configureXmitPower(unsigned int dBm) {
 
 // Nordic calls it MODE
 // Defaults on reset to 1M
+// Here omitting certain values (250k) the device supports.
 void RadioDevice::configureMegaBitrate(unsigned int baud) {
 	int8_t value;
 		switch(baud) {
@@ -157,3 +158,15 @@ void RadioDevice::configureMegaBitrate(unsigned int baud) {
 		}
 		NRF_RADIO->MODE = value;
 }
+
+
+/*
+ * Reduces rampup from 140uSec (nrf51) to 40uSec.
+ */
+void RadioDevice::configureFastRampUp() {
+#ifdef NRF52
+	NRF_RADIO->MODECNF0 = RADIO_MODECNF0_RU_Fast;
+	// Not a bitset: alters other fields of the register.
+#endif
+}
+

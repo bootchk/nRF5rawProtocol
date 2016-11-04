@@ -29,6 +29,7 @@ public:
 	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
 	static void configureXmitPower(unsigned int dBm);
 	static void configureMegaBitrate(unsigned int baud);
+	static void configureFastRampUp();
 private:
 	static void configureShortCRCLength();
 	static void configureShortCRCGeneratorInit();
