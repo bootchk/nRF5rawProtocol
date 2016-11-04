@@ -200,6 +200,7 @@ void Radio::configureStatic() {
 	device.configureStaticPacketFormat(FixedPayloadCount, MediumNetworkAddressLength);
 #endif
 	device.setShortcutsAvoidSomeEvents();
+	device.configureMegaBitrate(2);
 
 	// FUTURE, not working: device.configureWhiteningOn();
 	// Convention: whitening seed derived from channel

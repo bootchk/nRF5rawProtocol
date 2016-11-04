@@ -198,7 +198,7 @@ CFLAGS += -fno-builtin
 # Or does compiler generate shortest int holding enum?
 #CFLAGS += --short-enums
 #lkk include symbols so executable can be debugged
-CFLAGS += -DDEBUG
+#CFLAGS += -DDEBUG
 
 #lkk For nrf52dk, my Segger RTT logging enabled
 CFLAGS += -DLOGGING

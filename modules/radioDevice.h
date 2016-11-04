@@ -28,6 +28,7 @@ public:
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
 	static void configureXmitPower(unsigned int dBm);
+	static void configureMegaBitrate(unsigned int baud);
 private:
 	static void configureShortCRCLength();
 	static void configureShortCRCGeneratorInit();
@@ -77,7 +78,7 @@ public:
 	static void clearDisabledEvent();
 	// state remains in effect even after even is cleared
 	static bool isDisabledState();
-	static bool isReceiveInProgress();
+	static bool isReceiveInProgress();	// FUTURE
 
 #ifdef USE_PACKET_DONE_FOR_EOT
 	static void enableInterruptForPacketDoneEvent();

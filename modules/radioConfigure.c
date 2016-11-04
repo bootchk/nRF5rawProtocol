@@ -141,3 +141,19 @@ void RadioDevice::configureXmitPower(unsigned int dBm) {
 	}
 	NRF_RADIO->TXPOWER = value;
 }
+
+
+// Nordic calls it MODE
+// Defaults on reset to 1M
+void RadioDevice::configureMegaBitrate(unsigned int baud) {
+	int8_t value;
+		switch(baud) {
+		case 1:
+			value = RADIO_MODE_MODE_Nrf_1Mbit;
+			break;
+		case 2:
+		default:
+			value = RADIO_MODE_MODE_Nrf_2Mbit;
+		}
+		NRF_RADIO->MODE = value;
+}

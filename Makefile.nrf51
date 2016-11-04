@@ -184,7 +184,7 @@ CFLAGS += -fno-builtin
 #CFLAGS += --short-enums
 
 #lkk include symbols so executable can be debugged
-CFLAGS += -DDEBUG
+#CFLAGS += -DDEBUG
 
 # keep every function in separate section. This will allow linker to dump unused functions
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
