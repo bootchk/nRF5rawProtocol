@@ -79,7 +79,9 @@ public:
 	static void clearDisabledEvent();
 	// state remains in effect even after even is cleared
 	static bool isDisabledState();
-	static bool isReceiveInProgress();	// FUTURE
+
+	static bool isReceiveInProgressEvent();
+	static void clearReceiveInProgressEvent();
 
 #ifdef USE_PACKET_DONE_FOR_EOT
 	static void enableInterruptForPacketDoneEvent();

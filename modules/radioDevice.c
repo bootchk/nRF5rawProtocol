@@ -77,15 +77,22 @@ bool RadioDevice::isDisabledState() {
 }
 
 // Is radio in middle of receiving packet?
-static bool RadioDevice::isReceiveInProgress() {
+bool RadioDevice::isReceiveInProgressEvent() {
 	// FUTURE this is wrong
 	// We need to enable interrupt on event Address and set a flag.
 	/*
 	 * In progress is indicated by AddressEvent.
-	 * NOT by STATE_RX, which just indicates radio is monitoring listening for addresses.
+	 *
+	 * NOT by NRF_RADIO->STATE==RADIO_STATE_STATE_Rx, which just indicates radio is listening for addresses.
+	 *
 	 *
 	 */
-	return NRF_RADIO->STATE == RADIO_STATE_STATE_Rx;
+	return NRF_RADIO->EVENTS_ADDRESS;
+}
+
+void RadioDevice::clearReceiveInProgressEvent() {
+	return NRF_RADIO->EVENTS_ADDRESS = 0;
+	(void) NRF_RADIO->EVENTS_ADDRESS;	// flush ARM write cache
 }
 
 

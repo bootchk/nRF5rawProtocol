@@ -346,7 +346,7 @@ void Radio::receiveStatic() {
 }
 
 bool Radio::isReceiveInProgress() {
-	return device.isReceiveInProgress();
+	return device.isReceiveInProgressEvent();
 }
 void Radio::spinUntilReceiveComplete() {
 	// Same as:
