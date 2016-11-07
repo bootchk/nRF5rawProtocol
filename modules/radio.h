@@ -145,7 +145,9 @@ public:
 	static void stopXmit();
 
 	static void receiveStatic();
+	// Only returns true once, until after startReceive again.
 	static bool isReceiveInProgress();
+	static void clearReceiveInProgress();
 	static void spinUntilReceiveComplete();
 	static void stopReceive();
 

@@ -352,7 +352,9 @@ void Radio::spinUntilReceiveComplete() {
 	// Same as:
 	spinUntilXmitComplete();
 }
-
+void Radio::clearReceiveInProgress() {
+	device.clearReceiveInProgressEvent();
+}
 
 #ifdef DYNAMIC
 void Radio::transmit(volatile uint8_t * data, uint8_t length){

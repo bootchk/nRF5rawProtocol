@@ -13,7 +13,7 @@
 #include "platform/logger.h"
 #include "sleepSyncAgent.h"
 
-
+#include "nrf_delay.h"	// For debugging
 
 LEDLogger ledLogger;
 
@@ -56,7 +56,22 @@ void onSyncPoint() {
 }
 
 
+void testLEDFlash() {
+	// Test minimum perceivable LED flash
+	// Web says 0.15ms should be perceptible.
+	// 1ms is barely perceptible in normal ambient light
+	// 5ms is adequate
+	// 10ms is just as bright as always on
 
+	ledLogger.init();
+	ledLogger.toggleLED(1);
+	while (true) {
+		ledLogger.toggleLED(1);
+		nrf_delay_ms(5);
+		ledLogger.toggleLED(1);
+		nrf_delay_ms(1000);
+	}
+}
 
 int wedgedMain() {
 	// assert embedded system startup is done and calls main.
