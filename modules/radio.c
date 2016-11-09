@@ -470,6 +470,14 @@ void Radio::stopReceive() {
 		// DISABLED event was just set, clear it now before we later enable interrupts for it
 		device.clearMsgReceivedEvent();
 	}
+
+	/*
+	 * The above checked a state returned by the radio,
+	 * which experience shows can differ from the event for the state.
+	 * So here we explicitly clear the event to ensure it corresponds with radio state.
+	 */
+	device.clearMsgReceivedEvent();
+
 	state = Idle;
 
 	assert(device.isDisabledState());
