@@ -35,7 +35,7 @@ typedef uint64_t SystemID;	// lower 6 btyes
  * !!! Must be same size as DeltaSync.
  * Constrained by current implementation of SyncAgent.
  */
-typedef uint32_t WorkPayload;
+typedef uint8_t WorkPayload;
 
 
 /*
