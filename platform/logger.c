@@ -18,7 +18,7 @@ void log(const char* aString) {
 
 void logLongLong(uint64_t value ){
 	// Print 64-bit int as two uint32-t on same line, hex notation
-	// TODO this should work, but it doesn't????
+	// FUTURE this should work, but it doesn't????
 	//(void) SEGGER_RTT_printf(0, "%x %x\n", *(((uint32_t*) &value) + 1), value);
 
 	// Print pieces on separate lines

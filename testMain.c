@@ -20,10 +20,12 @@
 #include "platform/sleeper.h"
 
 #include "platform/logger.h"
+#include "platform/supplyVoltage.h"
 
 
 
 Radio radio;
+SupplyVoltage supplyVoltage;
 
 
 // Debugging code optional for production
@@ -101,7 +103,9 @@ void testMain(void)
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
-    	log("Hello");
+    	log("Hello\n");
+
+    	logLongLong(supplyVoltage.getProportionTo1024());
 
     	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
     	ledLogger.toggleLED(1);	//

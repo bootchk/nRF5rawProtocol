@@ -14,6 +14,16 @@
 // Project component app_timer.c includes this file and compiles conditionally on this definition
 #define APP_TIMER_ENABLED 1
 
+// My app uses saadc
+#define SAADC_ENABLED 1
+// lkk ??? why is this needed
+#define SAADC_CONFIG_RESOLUTION 1
+#define SAADC_CONFIG_OVERSAMPLE 0
+#define SAADC_CONFIG_LP_MODE 1
+#define SAADC_CONFIG_IRQ_PRIORITY 3
+
+
+
 #ifdef FUTURE
 // Because using NRF_LOG
 // older SDK #define UART0_ENABLED 1

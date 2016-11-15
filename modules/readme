@@ -1,5 +1,5 @@
 This directory:  "radio" modules implementing custom wireless stack.
 We are not using any wireless stack from NRF SDK.
 
-Other modules used(optionally) by app (not by wireless stack) found in platform dir.
+Other modules used(optionally) by app (not by wireless stack) found in directory /platform.
 

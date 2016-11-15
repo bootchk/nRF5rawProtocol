@@ -16,6 +16,8 @@ NRF_SDK_ROOT = $(HOME)/nrf5_sdk
 NRF_SDK_LIBS = $(HOME)/nrf5_sdk/components/libraries
 NRF_SDK_UTIL = $(HOME)/nrf5_sdk/components/libraries/util
 NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
+NRF_SDK_HAL = $(HOME)/nrf5_sdk/components/drivers_nrf/hal
+
 NRF_SDK_SEGGER = $(HOME)/nrf5_sdk/external/segger_rtt
 OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
 TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
@@ -72,13 +74,18 @@ C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/common/nrf_drv_common.c
 C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT.c
 C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT_printf.c
 
+# SAADC: using hal, not nrf_drv_saadc.c
+# C_SOURCE_FILES +=  $(NRF_SDK_DRVS)/saadc/nrf_drv_saadc.c
+# lkk I don't know why the saadc driver depends on hal
+C_SOURCE_FILES +=  $(NRF_SDK_HAL)/nrf_saadc.c
+
 # lkk hack
 # other source of my devising, some in a hard folder: modules
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
 # lkk uncomment one of the two following mains
-#C_SOURCE_FILES +=  testMain.c
-C_SOURCE_FILES +=  wedgedMain.c
+C_SOURCE_FILES +=  testMain.c
+#C_SOURCE_FILES +=  wedgedMain.c
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
@@ -96,6 +103,7 @@ C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c
 C_SOURCE_FILES +=  platform/logger.c
 C_SOURCE_FILES +=  platform/mailbox.c
+C_SOURCE_FILES +=  platform/supplyVoltage.c
 
 
 #lkk was lower case .s
@@ -112,11 +120,13 @@ INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain)
 #INC_PATHS += -I$(abspath ../../..)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/examples/bsp)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/device)
+# lkk using saadc
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/saadc)
 # lkk not using delay
 #INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/drivers_nrf/delay)
 #lkk v11 capitalization was INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/CMSIS/Include)
 INC_PATHS += -I$(abspath $(NRF_SDK_ROOT)/components/toolchain/cmsis/include)
-INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/hal)
+INC_PATHS += -I$(abspath $(NRF_SDK_HAL))
 #lkk logging
 INC_PATHS += -I$(abspath $(NRF_SDK_SEGGER))
 
@@ -143,6 +153,9 @@ INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/common)
 
 # lkk app_timer.c, depends on nrf_delay.h, found here
 INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/delay)
+
+# lkk nrf_drv_saadc.c, depends on nrf_drv_saadc.h, found here
+INC_PATHS += -I$(abspath $(NRF_SDK_DRVS)/saadc)
 
 # debug CMSIS __get_IPSR
 #INC_PATHS += -I$(abspath $(NRF_SDK_UTIL))
