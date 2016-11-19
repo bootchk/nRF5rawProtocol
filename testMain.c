@@ -21,11 +21,13 @@
 
 #include "platform/logger.h"
 #include "platform/supplyVoltage.h"
+#include "platform/powerComparator.h"
 
 
 
 Radio radio;
 SupplyVoltage supplyVoltage;
+PowerComparator powerComparator;
 
 
 // Debugging code optional for production
@@ -99,13 +101,14 @@ void testMain(void)
     ledLogger.init();
     ledLogger.toggleLEDs();	// off
 
+    log("Hello\n");
 
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
     {
-    	log("Hello\n");
-
+    	// Test SAADC and PowerComparator
     	logLongLong(supplyVoltage.getProportionTo1024());
+    	logLongLong(powerComparator.isVddGreaterThan2_1V());
 
     	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
     	ledLogger.toggleLED(1);	//
