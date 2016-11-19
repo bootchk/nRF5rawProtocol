@@ -83,9 +83,12 @@ C_SOURCE_FILES +=  $(NRF_SDK_HAL)/nrf_saadc.c
 # other source of my devising, some in a hard folder: modules
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
-# lkk uncomment one of the two following mains
-C_SOURCE_FILES +=  testMain.c
-#C_SOURCE_FILES +=  wedgedMain.c
+# lkk only one of the following mains is actually called
+# uncomment only one, they can't be all compiled because they create multiple definition errors
+#C_SOURCE_FILES +=  mains/testMain.c
+#C_SOURCE_FILES += mains/wedgedMain.c
+C_SOURCE_FILES += mains/powerManagedMain.c
+
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
 C_SOURCE_FILES +=  modules/radioConfigure.c
@@ -105,6 +108,7 @@ C_SOURCE_FILES +=  platform/logger.c
 C_SOURCE_FILES +=  platform/mailbox.c
 C_SOURCE_FILES +=  platform/supplyVoltage.c
 C_SOURCE_FILES +=  platform/powerComparator.c
+C_SOURCE_FILES +=  platform/powerManager.c
 
 
 #lkk was lower case .s

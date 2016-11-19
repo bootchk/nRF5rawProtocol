@@ -1,7 +1,9 @@
 /*
- * Main is library that implements an application
+ * Main is application.
+ * But it relinquishes (inversion) control to SleepSync library, which calls back.
  *
- * SleepSync library
+ * This is a more advanced test harness for SleepSync,
+ * where application and SleepSync are also cognizant of power.
  */
 
 
@@ -11,6 +13,8 @@
 #include "platform/sleeper.h"
 #include "platform/ledLogger.h"
 #include "platform/logger.h"
+#include "platform/powerManager.h"
+
 #include "sleepSyncAgent.h"
 
 #include "nrf_delay.h"	// For debugging
@@ -20,6 +24,7 @@ LEDLogger ledLogger;
 Radio myRadio;
 Mailbox myOutMailbox;
 SleepSyncAgent sleepSyncAgent;
+PowerManager powerManager;
 
 
 void randomlySendWork() {
@@ -36,6 +41,18 @@ void randomlySendWork() {
 }
 
 /*
+ * The app understands power for work.
+ * SleepSyncAgent further understands power for radio.
+ *
+ * SleepSyncAgent will sync-keep, or sync-maintain depending on power.
+ *
+ * The app sends work OUT only if self has enough power.
+ * SleepSyncAgent will convey work IN if it hears it,
+ * but app will not act on it if not enough power..
+ */
+
+
+/*
  * SleepSyncAgent received and queued a work msg.
  * This method is realtime constrained.
  *
@@ -44,16 +61,33 @@ void randomlySendWork() {
 void onWorkMsg(WorkPayload work) {
 	(void) work;	// Unused
 
+	if (powerManager.isPowerForWork()) {
+
+		// TODO blink, not toggle
 	// led 3 now means: work received (and thus in sync.)
 	// Also used for SyncAgent role change?
 	ledLogger.toggleLED(3);
+	}
+	// else omit doing work
 }
 
 void onSyncPoint() {
-	// testing
-	randomlySendWork();
+
+	if (powerManager.isPowerForWork()) {
+		randomlySendWork();
+	}
+
+	// debug indication
 	ledLogger.toggleLED(1);
+
+	// TODO drain power
+	// Can't do it here because this routine should be kept short.
+	if (powerManager.isExcessVoltage()) {
+
+	}
 }
+
+
 
 
 void testLEDFlash() {
@@ -73,7 +107,7 @@ void testLEDFlash() {
 	}
 }
 
-int wedgedMain() {
+int powerManagedMain() {
 	// assert embedded system startup is done and calls main.
 	// assert platform initialized radio
 
