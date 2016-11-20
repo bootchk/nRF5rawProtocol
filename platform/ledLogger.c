@@ -1,18 +1,25 @@
 
-
 // #include "nrf_delay.h"	// For debugging
-
 
 #include "ledLogger.h"
 
+#include "boards.h"	// macros giving platform specific LED count, pin numbers
 
-// see board.h for macros
 
-// array of pin numbers of leds
-constexpr uint8_t LEDLogger::leds_list[LEDS_NUMBER] = LEDS_LIST;
+namespace {
+
+// Sized and initialized from constants defined by macros
+const uint8_t ledPinsArray[LEDS_NUMBER] = LEDS_LIST;
+
+}	// namespace
+
+
 
 void LEDLogger::init(){
-	// configure GPIO pins as digital out to LED
+	/*
+	 * configure GPIO pins as digital out to LED.
+	 * This references constants defined by macros, not ledPinsArray.
+	 */
 	LEDS_CONFIGURE(LEDS_MASK);
 
 	// Initial state not set, may depend on whether board was reset
@@ -32,6 +39,6 @@ void LEDLogger::toggleLED(int ordinal) {
 	// no effect if ordinal out of range
 	if ((ordinal < 1) || (ordinal > LEDS_NUMBER)) return;
 
-	LEDS_INVERT(1 << leds_list[ordinal-1]);
+	LEDS_INVERT(1 << ledPinsArray[ordinal-1]);
 }
 

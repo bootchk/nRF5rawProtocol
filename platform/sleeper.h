@@ -1,7 +1,8 @@
 
-#include "timerService.h"
+#pragma once
+
 #include "osClock.h"   // OSTime
-#include "timer.h"
+
 
 /*
  * Class providing clock and sleep
@@ -35,9 +36,6 @@ typedef enum {
 class Sleeper {
 private:
 	static ReasonForWake reasonForWake;
-	static Timer timer;
-	static TimerService timerService;
-
 
 	/*
 	 * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.

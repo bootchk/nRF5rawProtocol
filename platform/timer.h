@@ -2,16 +2,18 @@
 #pragma once
 
 /*
- * Nasty hack: these includes are for the implementation, not the API.
- * Better to hide these.
- * For now, any caller must define include paths:
+ * Nasty hack: app_timer.h is for the implementation, not the API.
+ * So referencing the Timer API drags in much.
+ * Better to hide these, by defing compatible but private structs for timerData?
+ * For now, project must define include paths:
  * - to the nordic SDK/components/libraries/timer directory where app_timer.h is located,
  * - to the nordic SDK/components/libraries/util directory where app_error.h is located,
  * - to the nordic SDK/components/device directory where nrf.h is located,
  * - to the nordic SDK/components/toolchain/cmsis/include directory where core_cm4.h is located,
  * - to the nordic SDK/components/toolchain/ directory where system_nrf52.h is located,
  * - to the nordic SDK/components/drivers_nrf/nrf_soc_nosd/ directory where nrf_error.h is located,
- * - to nRFrawProtocol to find sdk_config.h
+ * - to nRFrawProtocol to find sdk_config
+ * - -DNRF52 to include platform error defs
  */
 #include <sdk_config.h>
 #include <app_timer.h>

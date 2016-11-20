@@ -1,22 +1,30 @@
 
 #include <cassert>
 
-#include "sleeper.h"
 #include "nrf.h"	// SEV, WEV
+
+#include "sleeper.h"
+
+// implementation needs
+#include "timerService.h"
+#include "timer.h"
+
 
 
 namespace {
 
 //TimerService Sleeper::timerService;
-
-
+//TimerService Sleeper::timerService;
+Timer timer;
+TimerService timerService;
 } // namespace
 
 
 // static data member
 ReasonForWake Sleeper::reasonForWake;
-Timer Sleeper::timer;
-TimerService Sleeper::timerService;
+//Timer Sleeper::timer;
+
+
 
 
 

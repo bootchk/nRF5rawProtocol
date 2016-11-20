@@ -44,7 +44,7 @@ void TimerService::init(){
 }
 
 
-static bool TimerService::isOSClockRunning(){
+bool TimerService::isOSClockRunning(){
 	// TODO access RTC1 state
 	// !!! For now, sdk_config defines APP_TIMER_KEEPS_RTC_ACTIVE 1 to configure app_timer to keep RTC1 running
 	return true;
