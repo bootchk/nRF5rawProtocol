@@ -90,7 +90,7 @@ bool RadioDevice::isReceiveInProgressEvent() {
 }
 
 void RadioDevice::clearReceiveInProgressEvent() {
-	return NRF_RADIO->EVENTS_ADDRESS = 0;
+	NRF_RADIO->EVENTS_ADDRESS = 0;
 	(void) NRF_RADIO->EVENTS_ADDRESS;	// flush ARM write cache
 }
 

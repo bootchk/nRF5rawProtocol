@@ -14,6 +14,9 @@
 // Project component app_timer.c includes this file and compiles conditionally on this definition
 #define APP_TIMER_ENABLED 1
 
+// app_timer not disable RTC1
+#define APP_TIMER_KEEPS_RTC_ACTIVE 1
+
 // My app uses saadc
 #define SAADC_ENABLED 1
 // lkk ??? why is this needed

@@ -22,9 +22,8 @@ TimerService Sleeper::timerService;
 
 void Sleeper::init() {
 	timerService.init();
-	timer.createTimers(rcvTimeoutTimerCallback);
-	timer.startPlaceholder();	// runs forever, does nothing but keep OSClock running
-	assert(timer.isOSClockRunning());
+	timer.create(rcvTimeoutTimerCallback);
+	assert(timerService.isOSClockRunning());
 }
 
 
@@ -42,7 +41,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		reasonForWake = TimerExpired;
 	}
 	else {
-		timer.restartInTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
+		timer.restartInUnitsTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
 		sleepSystemOn();	// wake by received msg or timeout
 		// assert IRQ
 	}
@@ -54,7 +53,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 
 void Sleeper::cancelTimeout(){
-	timer.cancelTimeout();
+	timer.cancel();
 }
 
 

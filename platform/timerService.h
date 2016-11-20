@@ -8,6 +8,14 @@
  * Manages set of timers and a clock on which they are based.
  *
  * Thin wrapper on Nordic library "timer" aka app_timer.
+ *
+ * Implementation notes:
+ *
+ * !!! app_timer will stop RTCounter unless define APP_TIMER_KEEPS_RTC_ACTIVE=1 in sdk_config.h
+ * SleepSyncAgent requires RTCCounter always running, since:
+ * LongClock depends on OSClock
+ * OSClock depend on RTCounter
+ * all of which we want ticking always (except for brownout.)
  */
 
 

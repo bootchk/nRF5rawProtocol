@@ -1,7 +1,7 @@
 
-#include "timer.h"
 #include "timerService.h"
 #include "osClock.h"   // OSTime
+#include "timer.h"
 
 /*
  * Class providing clock and sleep
@@ -11,7 +11,7 @@
  * - know reason for waking.
  * - know OSTime from OSClock
  *
- * Owns and uses Timer, which uses app_timer lib from NRF SDK.
+ * Owns and uses instance of Timer.
  *
  * Specific other event that wakes: radio receives msg.
  *

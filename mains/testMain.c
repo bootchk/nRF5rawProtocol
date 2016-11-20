@@ -8,6 +8,7 @@
 
 #include <cstdlib>	// rand
 
+#include "../platform/timerFoo.h"
 
 
 
@@ -15,7 +16,6 @@
 
 #include "modules/radio.h"
 
-#include "platform/timer.h"
 #include "platform/ledLogger.h"
 #include "platform/sleeper.h"
 

@@ -33,19 +33,19 @@ void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 
 void TimerService::init(){
 	initLowFreqXtalOsc();
-
-	// Null scheduler function
-	//APP_TIMER_INIT(TimerPrescaler, TimerQueueSize, nullptr);
+	// Taken from macro APP_TIMER_INIT()
 	static uint32_t appTimerBuffer[CEIL_DIV(APP_TIMER_BUF_SIZE(TimerQueueSize),  sizeof(uint32_t))];
 	uint32_t err = app_timer_init(TimerPrescaler,
 			TimerQueueSize + 1,
 			appTimerBuffer,
-			NULL);	// nullptr);
+			NULL);	// Null scheduler function
 	APP_ERROR_CHECK(err);
-	// not assert OSClock is running, until app_timer needs it
+	// not assert OSClock is running, until app_timer needs it???
 }
 
 
 static bool TimerService::isOSClockRunning(){
-
+	// TODO access RTC1 state
+	// !!! For now, sdk_config defines APP_TIMER_KEEPS_RTC_ACTIVE 1 to configure app_timer to keep RTC1 running
+	return true;
 }

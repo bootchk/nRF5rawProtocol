@@ -8,32 +8,24 @@
 #include "timerService.h"	// TimerPrescaler
 
 /*
- * Hacky, non-general.
+ * One-shot timer, restartable.
  *
- * Two timers:
- * - one-shot, reused by app, times out a sleep while receiver on.
- * - repeating, just keeps app_timer from shutting down RTC1
- * (because app reads RTC1 as free-running clock.)
+ * Thin wrapper on app_timer library.
+ * See Nordic "Application timer tutorial" for implementation details.
+ * The underlying implementation uses several critical sections where interrupts are disabled.
  *
- * See Nordic "Application timer tutorial"
+ * The timeoutFunc (callback when timer expires) should be kept short.
+ * It is called back in SWI priority??
+ *
+ * Requires TimerService.init() before Timer.create()
+ * Timer does not deeply know the TimerService, but the underlying implemention of Timer
+ * knows the underlying implementation of TimerService.
  */
 
 
-// static class data
-// Macro defined by NRD SDK to define an app_timer instance
-// Thus difficult to cram into class??
-APP_TIMER_DEF(oneShotTimer);
-
-APP_TIMER_DEF(placeholderTimer);
 
 
-
-
-// type app_timer_timeout_handler_t {aka void (*)(void*)}
-void placeholderTimeoutHandler(void*){
-	// Nothing.
-}
-
+// FUTURE: why can't this be in a namespace, and is it duplicated in TimerService?
 
 void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 	// gdb break will stop here
@@ -44,74 +36,35 @@ void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 
 
 
-bool Timer::isPlaceholderStarted = false;
-
-
-
-
-void Timer::createTimers(void (*timerTimeoutHandler)(void*))
+void Timer::create(void (*timerTimeoutHandler)(void*))
 {
-	createOneShot(timerTimeoutHandler);
-	createPlaceholderTimer();
-}
-
-void Timer::createOneShot(void (*timerTimeoutHandler)(void*))
-{
-	uint32_t err = app_timer_create(&oneShotTimer,
+	// Pass handle to timerData i.e. pointer to pointer
+	uint32_t err = app_timer_create(&timerDataPtr,
 	            APP_TIMER_MODE_SINGLE_SHOT,
 				timerTimeoutHandler);
 	APP_ERROR_CHECK(err);
 }
 
-void Timer::createPlaceholderTimer()
-{
-	uint32_t err = app_timer_create(&placeholderTimer,
-		            APP_TIMER_MODE_REPEATED,
-					placeholderTimeoutHandler);
-	APP_ERROR_CHECK(err);
-}
 
-
-void Timer::restartInMSec(int timeout) {
+void Timer::restartInUnitsMSec(int timeout) {
+	// FUTURE migrate conversion to TimerService
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
 	uint32_t timeoutTicks = APP_TIMER_TICKS(timeout, TimerService::TimerPrescaler);
-	uint32_t err = app_timer_start(oneShotTimer, timeoutTicks, nullptr);
+
+	uint32_t err = app_timer_start(timerDataPtr, timeoutTicks, nullptr);
 	APP_ERROR_CHECK(err);
 }
 
-void Timer::restartInTicks(uint32_t timeout) {
+void Timer::restartInUnitsTicks(uint32_t timeout) {
 	// !!! Per Nordic docs, min timeout is 5 ticks.  Else returns NRF_ERROR_INVALID_PARAM
 	assert(timeout <= TimerService::MaxTimeout);
-	uint32_t err = app_timer_start(oneShotTimer, timeout, nullptr);
+	uint32_t err = app_timer_start(timerDataPtr, timeout, nullptr);
 	APP_ERROR_CHECK(err);
 }
 
-void Timer::cancelTimeout(){
-	uint32_t err = app_timer_stop(oneShotTimer);
+void Timer::cancel(){
+	uint32_t err = app_timer_stop(timerDataPtr);
 	APP_ERROR_CHECK(err);
 }
 
-void Timer::startPlaceholder() {
-
-	// By starting with max possible timeout, it expires and repeats as infrequently as possible
-	// saving cpu cycles.
-	uint32_t err = app_timer_start(placeholderTimer, TimerService::MaxTimeout, nullptr);
-	APP_ERROR_CHECK(err);
-
-	isPlaceholderStarted = true;
-	// assert OSClock is running, since app_timer needs it
-}
-
-bool Timer::isOSClockRunning() {
-	return isPlaceholderStarted;
-}
-
-
-#ifdef FUTURE
-Not exposed by app_timer.h
-bool Timer::isPlaceholderRunning() {
-	// Copied from app_timer.c
-	return (((timer_node_t*)*placeholderTimer)->is_running);
-}
-#endif
 
