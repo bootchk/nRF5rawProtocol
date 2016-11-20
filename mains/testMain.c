@@ -8,30 +8,30 @@
 
 #include <cstdlib>	// rand
 
-#include "../platform/timerFoo.h"
-
-
-
-
 
 #include "modules/radio.h"
 
+#include "platform/timer.h"
 #include "platform/ledLogger.h"
+#include "platform/ledFlasher.h"
 #include "platform/sleeper.h"
 
 #include "platform/logger.h"
 #include "platform/supplyVoltage.h"
 #include "platform/powerComparator.h"
+#include "platform/timerService.h"
 
 
 
 Radio radio;
 SupplyVoltage supplyVoltage;
 PowerComparator powerComparator;
+TimerService timerService;
 
 
 // Debugging code optional for production
 LEDLogger ledLogger;
+LEDFlasher ledFlasher;
 
 Sleeper sleeper;
 
@@ -89,9 +89,8 @@ void testMain(void)
 {
 	initLogging();	// debug
 
-	log("Hello\r\n");
-
-	sleeper.init();
+	timerService.init();
+	sleeper.init();	// requires initialized TimerService
 
 	radio.init(&sleeper.msgReceivedCallback);
 	radio.powerOff();	// for case not reset i.e. using debugger
@@ -101,7 +100,10 @@ void testMain(void)
     ledLogger.init();
     ledLogger.toggleLEDs();	// off
 
-    log("Hello\n");
+    ledFlasher.init();	// requires initialized TimerService
+
+    log("Hello\r\n");
+
 
     // Basic test loop:  xmit, listen, toggleLeds when hear message
     while (true)
@@ -111,7 +113,9 @@ void testMain(void)
     	logLongLong(powerComparator.isVddGreaterThan2_1V());
 
     	// On custom board (BLE Nano) with only one LED, this is only indication app is working.
-    	ledLogger.toggleLED(1);	//
+    	// Choice: toggle or flash
+    	// ledLogger.toggleLED(1);
+    	ledFlasher.flashLED(1);
 
     	// assert configuration is lost after power is cycled
     	radio.powerOnAndConfigure();	// Configures for fixed length messages

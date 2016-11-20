@@ -13,25 +13,25 @@
 
 namespace {
 
-//TimerService Sleeper::timerService;
-//TimerService Sleeper::timerService;
-Timer timer;
-TimerService timerService;
+Timer receiveTimer;
+
+// !!! not own TimerService
+
 } // namespace
 
 
 // static data member
 ReasonForWake Sleeper::reasonForWake;
-//Timer Sleeper::timer;
+
 
 
 
 
 
 void Sleeper::init() {
-	timerService.init();
-	timer.create(rcvTimeoutTimerCallback);
-	assert(timerService.isOSClockRunning());
+	// assert a TimerService exists and is initialized (creating a Timer depends on it.)
+	receiveTimer.create(rcvTimeoutTimerCallback);
+	// assert(receiveTimerService.isOSClockRunning());
 }
 
 
@@ -49,7 +49,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		reasonForWake = TimerExpired;
 	}
 	else {
-		timer.restartInUnitsTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
+		receiveTimer.restartInUnitsTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
 		sleepSystemOn();	// wake by received msg or timeout
 		// assert IRQ
 	}
@@ -61,7 +61,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 
 void Sleeper::cancelTimeout(){
-	timer.cancel();
+	receiveTimer.cancel();
 }
 
 
@@ -71,7 +71,7 @@ void Sleeper::cancelTimeout(){
  *
  * Since there are two concurrent devices, there is a race to set reasonForWake
  *
- * !!! Note using a placeholderTimer, which occasionally wakes us and does not set reasonForWake.
+ * !!! Note there may be other Timers which wake us but whose callbacks do not set reasonForWake.
  */
 
 void Sleeper::rcvTimeoutTimerCallback(void * p_context) {

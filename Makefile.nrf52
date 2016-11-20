@@ -102,6 +102,7 @@ C_SOURCE_FILES +=  platform/timerService.c
 C_SOURCE_FILES +=  platform/irqHandlers.c
 C_SOURCE_FILES +=  platform/hardFaultHandler.c
 C_SOURCE_FILES +=  platform/ledLogger.c
+C_SOURCE_FILES +=  platform/ledFlasher.c
 C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c

@@ -42,6 +42,11 @@ private:
 	const app_timer_id_t timerDataPtr = &timerData;
 
 public:
+	/*
+	 * !!! create() requires initialized TimerService,
+	 * but Timer doesn't explicitly know the TimerService
+	 * so we can't assert that dependency.
+	 */
 	void create(void (*timeoutFunc)(void*));
 	void restartInUnitsMSec(int timeout);
 	// Units OSTicks i.e. resolution of RTC1 counter

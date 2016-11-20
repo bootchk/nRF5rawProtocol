@@ -4,6 +4,9 @@
  *
  * This is a more advanced test harness for SleepSync,
  * where application and SleepSync are also cognizant of power.
+ *
+ * The differences are:
+ * we flash LED to save power instead of leaving it on
  */
 
 
@@ -12,19 +15,24 @@
 #include "modules/radio.h"
 #include "platform/sleeper.h"
 #include "platform/ledLogger.h"
+#include "platform/ledFlasher.h"
+
 #include "platform/logger.h"
 #include "platform/powerManager.h"
+#include "platform/timerService.h"
 
 #include "sleepSyncAgent.h"
 
 #include "nrf_delay.h"	// For debugging
 
-LEDLogger ledLogger;
+// LEDLogger ledLogger;
+LEDFlasher ledFlasher;
 
 Radio myRadio;
 Mailbox myOutMailbox;
 SleepSyncAgent sleepSyncAgent;
 PowerManager powerManager;
+TimerService timerService;
 
 
 void randomlySendWork() {
@@ -63,53 +71,46 @@ void onWorkMsg(WorkPayload work) {
 
 	if (powerManager.isPowerForWork()) {
 
-		// TODO blink, not toggle
-	// led 3 now means: work received (and thus in sync.)
-	// Also used for SyncAgent role change?
-	ledLogger.toggleLED(3);
+		// Work is: blink, not toggle
+		ledFlasher.flashLED(1);
 	}
 	// else omit doing work
 }
 
+/*
+ * Must be short duration, else interferes with sync.
+ */
 void onSyncPoint() {
 
 	if (powerManager.isPowerForWork()) {
 		randomlySendWork();
 	}
 
-	// debug indication
-	ledLogger.toggleLED(1);
+	// debug indication, when not low power supply
+	// ledLogger.toggleLED(1);
 
 	// TODO drain power
 	// Can't do it here because this routine should be kept short.
 	if (powerManager.isExcessVoltage()) {
-
+		// Flash here to indicate: plenty of power and alive
+		ledFlasher.flashLED(1);
 	}
 }
 
 
 
-
-void testLEDFlash() {
-	// Test minimum perceivable LED flash
-	// Web says 0.15ms should be perceptible.
-	// 1ms is barely perceptible in normal ambient light
-	// 5ms is adequate
-	// 10ms is just as bright as always on
-
-	ledLogger.init();
-	ledLogger.toggleLED(1);
-	while (true) {
-		ledLogger.toggleLED(1);
-		nrf_delay_ms(5);
-		ledLogger.toggleLED(1);
-		nrf_delay_ms(1000);
-	}
-}
 
 int powerManagedMain() {
 	// assert embedded system startup is done and calls main.
 	// assert platform initialized radio
+
+	/*
+	 * sleepSyncAgent owns and inits Sleeper instance which requires TimerService.
+	 */
+	timerService.init();
+	ledFlasher.init();
+	ledFlasher.flashLED(1);
+
 
 	sleepSyncAgent.init(&myRadio, &myOutMailbox, onWorkMsg, onSyncPoint);
 	sleepSyncAgent.loopOnEvents();	// never returns

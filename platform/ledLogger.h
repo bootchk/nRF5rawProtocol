@@ -10,10 +10,14 @@
  * Safe to have more than one instance.
  * E.G. a library can have its own instance,
  * but of course you must coordinate use of LEDs.
+ *
+ * Toggle: LED's stay on/off until the next call,
+ * so they indicate state of debugging by their transitions.
  */
 class LEDLogger {
 public:
 	static void init();
 	static void toggleLEDs();	// all
 	static void toggleLED(int ordinal);
+	static void switchLED(int ordinal, bool state);
 };

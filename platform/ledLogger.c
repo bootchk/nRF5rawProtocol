@@ -42,3 +42,14 @@ void LEDLogger::toggleLED(int ordinal) {
 	LEDS_INVERT(1 << ledPinsArray[ordinal-1]);
 }
 
+void LEDLogger::switchLED(int ordinal, bool state) {
+	// no effect if ordinal out of range
+	if ((ordinal < 1) || (ordinal > LEDS_NUMBER)) return;
+
+	uint32_t mask = 1 << ledPinsArray[ordinal-1];
+	if (state)
+		LEDS_ON(mask);
+	else
+		LEDS_OFF(mask);
+}
+

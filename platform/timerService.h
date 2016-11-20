@@ -9,6 +9,10 @@
  *
  * Thin wrapper on Nordic library "timer" aka app_timer.
  *
+ * This is a very minimal OS.
+ * It must be initialized before Timer can be created
+ * (because the implementation using app_timer library requires it.)
+ *
  * Implementation notes:
  *
  * !!! app_timer will stop RTCounter unless define APP_TIMER_KEEPS_RTC_ACTIVE=1 in sdk_config.h
