@@ -5,6 +5,7 @@
 #include "nrf_drv_clock.h"
 
 #include "timer.h"
+#include "timerService.h"	// TimerPrescaler
 
 /*
  * Hacky, non-general.
@@ -27,19 +28,6 @@ APP_TIMER_DEF(placeholderTimer);
 
 
 
-// Ordinary functions
-
-
-/*
- * Needed by RTC1 which is needed by app_timer.
- * Not needed if SoftDevice is used.
- */
-void initLowFreqXtalOsc() {
-	uint32_t err = nrf_drv_clock_init();
-	APP_ERROR_CHECK(err);
-	nrf_drv_clock_lfclk_request(NULL);
-}
-
 
 // type app_timer_timeout_handler_t {aka void (*)(void*)}
 void placeholderTimeoutHandler(void*){
@@ -58,19 +46,6 @@ void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
 
 bool Timer::isPlaceholderStarted = false;
 
-void Timer::init() {
-	initLowFreqXtalOsc();
-
-	// Null scheduler function
-	//APP_TIMER_INIT(TimerPrescaler, TimerQueueSize, nullptr);
-	static uint32_t appTimerBuffer[CEIL_DIV(APP_TIMER_BUF_SIZE(TimerQueueSize),  sizeof(uint32_t))];
-	uint32_t err = app_timer_init(TimerPrescaler,
-			TimerQueueSize + 1,
-			appTimerBuffer,
-			NULL);	// nullptr);
-	APP_ERROR_CHECK(err);
-	// not assert OSClock is running, until app_timer needs it
-}
 
 
 
@@ -99,14 +74,14 @@ void Timer::createPlaceholderTimer()
 
 void Timer::restartInMSec(int timeout) {
 	// APP_TIMER_TICKS converts first arg in msec to timer ticks
-	uint32_t timeoutTicks = APP_TIMER_TICKS(timeout, TimerPrescaler);
+	uint32_t timeoutTicks = APP_TIMER_TICKS(timeout, TimerService::TimerPrescaler);
 	uint32_t err = app_timer_start(oneShotTimer, timeoutTicks, nullptr);
 	APP_ERROR_CHECK(err);
 }
 
 void Timer::restartInTicks(uint32_t timeout) {
 	// !!! Per Nordic docs, min timeout is 5 ticks.  Else returns NRF_ERROR_INVALID_PARAM
-	assert(timeout <= MaxTimeout);
+	assert(timeout <= TimerService::MaxTimeout);
 	uint32_t err = app_timer_start(oneShotTimer, timeout, nullptr);
 	APP_ERROR_CHECK(err);
 }
@@ -120,7 +95,7 @@ void Timer::startPlaceholder() {
 
 	// By starting with max possible timeout, it expires and repeats as infrequently as possible
 	// saving cpu cycles.
-	uint32_t err = app_timer_start(placeholderTimer, MaxTimeout, nullptr);
+	uint32_t err = app_timer_start(placeholderTimer, TimerService::MaxTimeout, nullptr);
 	APP_ERROR_CHECK(err);
 
 	isPlaceholderStarted = true;

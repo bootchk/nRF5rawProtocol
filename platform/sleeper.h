@@ -1,4 +1,6 @@
+
 #include "timer.h"
+#include "timerService.h"
 #include "osClock.h"   // OSTime
 
 /*
@@ -34,6 +36,7 @@ class Sleeper {
 private:
 	static ReasonForWake reasonForWake;
 	static Timer timer;
+	static TimerService timerService;
 
 
 	/*

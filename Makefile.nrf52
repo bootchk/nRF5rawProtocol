@@ -98,6 +98,7 @@ C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
 
 C_SOURCE_FILES +=  platform/timer.c
+C_SOURCE_FILES +=  platform/timerService.c
 C_SOURCE_FILES +=  platform/irqHandlers.c
 C_SOURCE_FILES +=  platform/hardFaultHandler.c
 C_SOURCE_FILES +=  platform/ledLogger.c

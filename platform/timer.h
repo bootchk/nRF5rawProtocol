@@ -17,34 +17,25 @@
  */
 class Timer {
 private:
-	// 32/khz divide by 17 is about 1ms per tick
-	// 16 = 2^5
-	// 2^8-1 yields 125ms per tick
-	static const uint32_t TimerPrescaler = 0;
 
-	// Only two timers, but +1 ???  See tutorial.
-	static const uint8_t TimerQueueSize = 3;
-
-
-	static const OSTime MaxTimeout = 0xFFFFFF;	// 24-bit
 
 	static bool isPlaceholderStarted;
 
 
-	public:
-		static void init();
-		static void createTimers(void (*func)(void*));
-		// Units mSec
-		static void restartInMSec(int timeout);
-		// Units OSTicks i.e. resolution of RTC1 counter
-		static void restartInTicks(OSTime timeout);
-		static void cancelTimeout();	// Cancel oneShot
+public:
+	//static void init();
+	static void createTimers(void (*func)(void*));
+	// Units mSec
+	static void restartInMSec(int timeout);
+	// Units OSTicks i.e. resolution of RTC1 counter
+	static void restartInTicks(OSTime timeout);
+	static void cancelTimeout();	// Cancel oneShot
 
-		static void startPlaceholder();
-		static bool isOSClockRunning();
+	static void startPlaceholder();
+	static bool isOSClockRunning();
 
-	private:
-		static void createOneShot(void (*func)(void*));
-		static void createPlaceholderTimer();
+private:
+	static void createOneShot(void (*func)(void*));
+	static void createPlaceholderTimer();
 
 };

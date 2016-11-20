@@ -2,16 +2,26 @@
 #include <cassert>
 
 #include "sleeper.h"
-#include "nrf.h"
+#include "nrf.h"	// SEV, WEV
+
+
+namespace {
+
+//TimerService Sleeper::timerService;
+
+
+} // namespace
 
 
 // static data member
 ReasonForWake Sleeper::reasonForWake;
 Timer Sleeper::timer;
+TimerService Sleeper::timerService;
+
 
 
 void Sleeper::init() {
-	timer.init();
+	timerService.init();
 	timer.createTimers(rcvTimeoutTimerCallback);
 	timer.startPlaceholder();	// runs forever, does nothing but keep OSClock running
 	assert(timer.isOSClockRunning());
