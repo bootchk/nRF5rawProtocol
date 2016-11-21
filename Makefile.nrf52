@@ -30,7 +30,7 @@ RM := rm -rf
 
 #echo suspend
 ifeq ("$(VERBOSE)","1")
-NO_ECHO := 
+NO_ECHO :=
 else
 NO_ECHO := @
 endif
@@ -108,7 +108,7 @@ C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c
 C_SOURCE_FILES +=  platform/logger.c
 C_SOURCE_FILES +=  platform/mailbox.c
-C_SOURCE_FILES +=  platform/supplyVoltage.c
+#C_SOURCE_FILES +=  platform/supplyVoltage.c
 C_SOURCE_FILES +=  platform/powerComparator.c
 C_SOURCE_FILES +=  platform/powerManager.c
 

@@ -15,7 +15,10 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) )
 HOME = /home/bootch
 NRF_SDK_ROOT = $(HOME)/nrf5_sdk
 NRF_SDK_LIBS = $(HOME)/nrf5_sdk/components/libraries
+NRF_SDK_UTIL = $(HOME)/nrf5_sdk/components/libraries/util
 NRF_SDK_DRVS = $(HOME)/nrf5_sdk/components/drivers_nrf
+NRF_SDK_HAL = $(HOME)/nrf5_sdk/components/drivers_nrf/hal
+
 NRF_SDK_SEGGER = $(HOME)/nrf5_sdk/external/segger_rtt
 OTHER_TOOLS = $(HOME)/Downloads/nrfjprog
 TEMPLATE_PATH = $(NRF_SDK_ROOT)/components/toolchain/gcc
@@ -76,9 +79,11 @@ C_SOURCE_FILES +=  $(NRF_SDK_SEGGER)/SEGGER_RTT_printf.c
 # other source of my devising, some in a hard folder: modules
 # Note that nrf_delay.c does not exist, implemented entirely in nrf_delay.h
 C_SOURCE_FILES +=  main.c
-# lkk uncomment one of the two following mains
-#C_SOURCE_FILES +=  testMain.c
-C_SOURCE_FILES +=  wedgedMain.c
+# lkk only one of the following mains is actually called
+# uncomment only one, they can't be all compiled because they create multiple definition errors
+#C_SOURCE_FILES +=  mains/testMain.c
+#C_SOURCE_FILES +=  mains/wedgedMain.c
+C_SOURCE_FILES += mains/powerManagedMain.c
 
 C_SOURCE_FILES +=  modules/radio.c
 C_SOURCE_FILES +=  modules/radioDevice.c
@@ -89,16 +94,21 @@ C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
 
 C_SOURCE_FILES +=  platform/timer.c
+C_SOURCE_FILES +=  platform/timerService.c
 C_SOURCE_FILES +=  platform/irqHandlers.c
 #lkk Curiously, this seemed to compile, then stopped compiling, for M0 thumb
 #C_SOURCE_FILES +=  platform/hardFaultHandler.c
 C_SOURCE_FILES +=  platform/ledLogger.c
+C_SOURCE_FILES +=  platform/ledFlasher.c
 C_SOURCE_FILES +=  platform/uniqueID.c
 C_SOURCE_FILES +=  platform/sleeper.c
 C_SOURCE_FILES +=  platform/osClock.c
 C_SOURCE_FILES +=  platform/logger.c
 C_SOURCE_FILES +=  platform/mailbox.c
-C_SOURCE_FILES +=  platform/supplyVoltage.c
+# Depends on SAADC not present on nrf51
+#C_SOURCE_FILES +=  platform/supplyVoltage.c
+C_SOURCE_FILES +=  platform/powerComparator.c
+C_SOURCE_FILES +=  platform/powerManager.c
 
 
 #lkk was lower case .s
