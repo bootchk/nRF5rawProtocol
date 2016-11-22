@@ -22,8 +22,13 @@ void logLongLong(uint64_t value ){
 	//(void) SEGGER_RTT_printf(0, "%x %x\n", *(((uint32_t*) &value) + 1), value);
 
 	// Print pieces on separate lines
-	(void) SEGGER_RTT_printf(0, "%x \n", value);
-	(void) SEGGER_RTT_printf(0, "%x \n", *(((uint32_t*) &value) + 1)  );
+	//(void) SEGGER_RTT_printf(0, "%x \n", value);
+	//(void) SEGGER_RTT_printf(0, "%x \n", *(((uint32_t*) &value) + 1)  );
+
+	// Print on one line
+	(void) SEGGER_RTT_printf(0, "0x%x", *(((uint32_t*) &value) + 1)  );	// MS word
+	(void) SEGGER_RTT_printf(0, "%x\n", value);	// LS word and newline
+
 }
 
 #else
