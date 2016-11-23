@@ -25,6 +25,7 @@ void setThreshold2_1AndDisable() {
 	NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V21 << POWER_POFCON_THRESHOLD_Pos;
 }
 void setThreshold2_3AndDisable() { NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V23 << POWER_POFCON_THRESHOLD_Pos; }
+void setThreshold2_5AndDisable() { NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V25 << POWER_POFCON_THRESHOLD_Pos; }
 void setThreshold2_7AndDisable() { NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V27 << POWER_POFCON_THRESHOLD_Pos; }
 
 /*
@@ -112,6 +113,10 @@ bool PowerComparator::isVddGreaterThan2_1V() {
 
 bool PowerComparator::isVddGreaterThan2_3V(){
 	setThreshold2_3AndDisable();
+	return testVddThenDisable();
+}
+bool PowerComparator::isVddGreaterThan2_5V(){
+	setThreshold2_5AndDisable();
 	return testVddThenDisable();
 }
 bool PowerComparator::isVddGreaterThan2_7V(){

@@ -42,6 +42,6 @@ public:
 	// These are portable nrf51 and nrf52
 	static bool isVddGreaterThan2_1V();
 	static bool isVddGreaterThan2_3V();
-	// Not implemented 2_5
+	static bool isVddGreaterThan2_5V();
 	static bool isVddGreaterThan2_7V();
 };
