@@ -1,31 +1,37 @@
 
 //#define USE_TESTMAIN 1
 //#define USE_WEDGED_MAIN 1
-#define USE_POWERMANAGED_MAIN 1
-//#define USE_SNIFFER_MAIN 1
+//#define USE_POWERMANAGED_MAIN 1
+#define USE_SNIFFER_MAIN 1
 
 
+
+
+void testMain();
+void wedgedMain();
+void powerManagedMain();
+void snifferMain();
+
+int main() {
 
 #ifdef USE_TESTMAIN
-// Test without real app
-void testMain();
-int main() {testMain();}
+	// Test without real app
+	testMain();
 #endif
 
 
 #ifdef USE_WEDGED_MAIN
-void wedgedMain();
-int main() {wedgedMain();}
+	wedgedMain();}
 #endif
 
 #ifdef USE_POWERMANAGED_MAIN
-void powerManagedMain();
-int main() {powerManagedMain();}
-
+powerManagedMain();
 #endif
 
 
 #ifdef USE_SNIFFER_MAIN
-void snifferMain();
-int main() {snifferMain();}
+snifferMain();
 #endif
+
+
+}  // main

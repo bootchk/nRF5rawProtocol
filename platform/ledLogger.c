@@ -1,6 +1,7 @@
 
 // #include "nrf_delay.h"	// For debugging
 
+#include <cassert>
 #include "ledLogger.h"
 
 #include "boards.h"	// macros giving platform specific LED count, pin numbers
@@ -22,7 +23,11 @@ void LEDLogger::init(){
 	 */
 	LEDS_CONFIGURE(LEDS_MASK);
 
-	// Initial state not set, may depend on whether board was reset
+	LEDS_OFF(LEDS_MASK);
+
+	// assert LED pins configured
+
+	assert(! LED_IS_ON(LEDS_MASK));	// All LED pins in off state
 }
 
 // Toggle LEDs in order

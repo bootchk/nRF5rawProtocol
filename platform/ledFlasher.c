@@ -24,7 +24,12 @@ void ledOffCallback(void* context) {
 } // namespace
 
 void LEDFlasher::init() {
+	// require TimerService() started
+	ledLogger.init();
 	ledTimer.create(ledOffCallback);
+	// ensure LEDs are configured
+	// ensure LEDs are off
+	// ensure ledTimer ready
 }
 
 void LEDFlasher::flashLED(int ordinal) {

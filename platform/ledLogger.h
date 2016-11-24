@@ -13,6 +13,12 @@
  *
  * Toggle: LED's stay on/off until the next call,
  * so they indicate state of debugging by their transitions.
+ *
+ * !!! This is not thread safe: it doesn't test that pins remain configured as outputs.
+ * I assume that writing to a pin that is configured as input is harmless.
+ *
+ * You must call init() to guarantee pins are configured properly:
+ * Valid sequence is: init(), toggleLEDs(), ...
  */
 class LEDLogger {
 public:
