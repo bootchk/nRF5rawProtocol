@@ -28,11 +28,15 @@ void LEDFlasher::init() {
 }
 
 void LEDFlasher::flashLED(int ordinal) {
+	flashLEDByAmount(ordinal, 1);
+}
+
+void LEDFlasher::flashLEDByAmount(int ordinal, int amount){
 	// assert ledLogger initialized
 	// assert TimerService initialized
 
 	ledLogger.switchLED(ordinal, true);
 
-	// startTimerToOff
-	ledTimer.restartInUnitsTicks(20);	// 20 ticks is 0.6 mSec
+	// start timer to turn LED off
+	ledTimer.restartInUnitsTicks(amount * MinTicksPerFlash);
 }

@@ -5,9 +5,11 @@
 #include "osClock.h"  // OSTime
 
 /*
- * Manages set of timers and a clock on which they are based.
+ * Manages set of Timers and a clock on which they are based.
  *
  * Thin wrapper on Nordic library "timer" aka app_timer.
+ * (Which basically keeps a queue of timers, in order of next timer to expire,
+ * and set the RTCounter compare register to expire the Timer at the head of the queue.)
  *
  * This is a very minimal OS.
  * It must be initialized before Timer can be created

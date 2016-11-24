@@ -50,8 +50,9 @@ void sendWork() {
 	}
 }
 
-void randomlySendWork() {
+void randomlyWork() {
 	if (rand() % 5 == 1) {
+		worker.work();
 		sendWork();
 	}
 }
@@ -85,57 +86,61 @@ void onWorkMsg(WorkPayload work) {
 }
 
 
-// TODO this is not right yet
-// Should do work, out of sync, if voltage > 2.5
+/*
+ * Part of the total voltage/power management.
+ * This is high side.
+ * See also SyncSleep, which also does power managment on the low side.
+ *
+ * Here, if voltage is climbing, do more work.
+ * Note work is asynchronous, more work does not require more time in this routine.
+ *
+ * This is at syncpoint (but it may be drifted.)
+ *
+ * This also determines the behaviour of the flashing:
+ * - units try to flash in sync
+ * - units with excess power may flash when other units can't
+ * - when all units have moderate power, some unit may randomly trigger all to flash
+ *
+ */
 void manageVoltageByWork() {
-	/*
-	 * Part of the total voltage/power management.
-	 * This is high side.
-	 * See also SyncSleep, which also assists power managment on the low side.
-	 *
-	 * Here, if voltage is climbing, do more work.
-	 * Note work is asynchronous, more work does not require more time in this routine.
-	 */
-	if (powerManager.isGreaterThanMaxVoltageForWork()) {
-		// e.g. > 2.5V
-		if (powerManager.isExcessVoltage()) {
-			// e.g. > 2.7V
-			worker.increaseAmount();
-		}
-		else {
-			// not change amount of work
-		}
 
+	// Exclusive cases
+	if (powerManager.isVoltageExcess()) {
+		// e.g. > 2.7V
 		/*
-		 * This is at syncpoint (but it may be drifted.)
-		 * Do work even without receiving work, to manage my own power.
-		 * Other units need not work at the same time.
+		 * Self must work to keep voltage from exceeding Vmax
 		 */
+		// TODO no randomness, collisions?  Need additional randomness in time of transmittal within slot?
+		worker.increaseAmount();
 		worker.work();
 		sendWork();
-	}
-	else {
-		// e.g. < 2.5V
-		if (powerManager.isLessThanMaxVoltageForWork()) {
-			// e.g. 2.1-2.3V
-			worker.decreaseAmount();
-			/*
-			 * Is
-			 */not work, until others tell me to
-		}
-		else {
-			/*
-			 * Leave amount same, voltage in range [minVForWork, maxVForWork]
-			 */
-			// e.g. 2.5-2.7V
-		}
+	};
 
-		// enough power, use it for work
-		// This may be out of sync.
-		worker.work();
+	if (powerManager.isVoltageHigh()) {
+		// e.g. 2.5V - 2.7V
+		/*
+		 * I could work.
+		 */
+		worker.decreaseAmount();
+		randomlyWork();
 	}
-	else {
-		// Next work done (if ever) is least amount.
+
+	if (powerManager.isVoltageMedium()) {
+		// e.g. 2.3-2.5V
+		/*
+		 *  not change amount of work
+		 *
+		 *  not work, until others tell me to
+		 */
+	};
+
+	if (powerManager.isVoltageLow()) {
+		// e.g. 2.1-2.3V
+
+		/*
+		 * Not enough power to work.
+		 * Next work done (if ever) is least amount.
+		 */
 		worker.setLeastAmount();
 	}
 }
@@ -148,10 +153,6 @@ void onSyncPoint() {
 	// managing voltage requires periodic checking, this is a convenient place
 	manageVoltageByWork();
 
-	// If I have enough power to work, send work to others, they may ignore it
-	if (powerManager.isPowerForWork()) {
-		randomlySendWork();
-	}
 	// debug indication, when power supply is not constrained
 	// ledLogger.toggleLED(1);
 }

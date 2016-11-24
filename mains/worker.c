@@ -12,23 +12,26 @@ namespace {
 
 LEDFlasher ledFlasher;
 
+int amount = 1;
+
 }
 
 void Worker::init() {
 	ledFlasher.init();
+	setLeastAmount();
 }
 
 void Worker::work() {
-
+	ledFlasher.flashLEDByAmount(1, amount);
 }
 
 void Worker::setLeastAmount() {
-
+	amount = 1;
 }
 void Worker::increaseAmount() {
-
+	if (amount < LEDFlasher::MaxFlashAmount) amount++;
 }
 void Worker::decreaseAmount() {
-
+	if (amount > 1) amount--;
 }
 

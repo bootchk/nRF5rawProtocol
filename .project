@@ -46,11 +46,6 @@
 			<locationURI>NRF_SDK_ROOT/components/toolchain/system_nrf52.c</locationURI>
 		</link>
 		<link>
-			<name>nrfLibraries/app_error.c</name>
-			<type>1</type>
-			<locationURI>NRF_SDK_ROOT/components/libraries/util/app_error.c</locationURI>
-		</link>
-		<link>
 			<name>nrfLibraries/app_timer.c</name>
 			<type>1</type>
 			<locationURI>NRF_SDK_ROOT/components/libraries/timer/app_timer.c</locationURI>

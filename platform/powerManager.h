@@ -10,8 +10,8 @@
  *
  * The levels in descending order of power required:
  * - work
- * - sync keeping (radio)
- * - sync maintenance (clock)
+ * - sync keeping (radio and clock)
+ * - sync maintenance (clock only)
  *
  *
  * For example all the above are duty-cycled (bursts of):
@@ -22,7 +22,7 @@
  * If there is not enough power to maintain Vmin for the mcu, brownout and reset occurs.
  *
  * Depends on some device that read system Vcc (Vdd).
- * These voltage levels on some charge storage (capacitor) indicates power level.
+ * Voltage levels on some charge storage (capacitor) indicates power level.
  *
  * Also understand excessVoltage level.
  * The power supply may be unregulated (solar)
@@ -31,7 +31,20 @@
 class PowerManager {
 
 public:
-	static bool isExcessVoltage();
+	/*
+	 * Levels
+	 */
+	static bool isPowerExcess();
+	static bool isPowerForReserve();
 	static bool isPowerForWork();
 	static bool isPowerForRadio();
+
+	/*
+	 * Ranges
+	 */
+	static bool isVoltageExcess();
+	static bool isVoltageHigh();
+	static bool isVoltageMedium();
+	static bool isVoltageLow();
+	static bool isVoltageNearBrownout();
 };
