@@ -12,7 +12,7 @@ namespace {
 
 LEDFlasher ledFlasher;
 
-int amount = 1;
+unsigned int amount = 1;
 
 }
 

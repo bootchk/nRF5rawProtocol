@@ -84,6 +84,7 @@ C_SOURCE_FILES +=  main.c
 #C_SOURCE_FILES +=  mains/testMain.c
 #C_SOURCE_FILES +=  mains/wedgedMain.c
 C_SOURCE_FILES += mains/powerManagedMain.c
+#C_SOURCE_FILES += mains/snifferMain.c
 
 
 # specific to certain application mains

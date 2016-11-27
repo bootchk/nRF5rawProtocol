@@ -5,6 +5,7 @@
 #include "SEGGER_RTT.h"
 
 
+// may be defined in Makefilenrf52 -DLOGGING
 #ifdef LOGGING
 
 void initLogging() {
@@ -15,6 +16,9 @@ void log(const char* aString) {
 	SEGGER_RTT_WriteString(0, aString);
 }
 
+void logByte(uint8_t value){
+	(void) SEGGER_RTT_printf(0, "x%02x\n", value);
+}
 
 void logLongLong(uint64_t value ){
 	// Print 64-bit int as two uint32-t on same line, hex notation
@@ -26,8 +30,8 @@ void logLongLong(uint64_t value ){
 	//(void) SEGGER_RTT_printf(0, "%x \n", *(((uint32_t*) &value) + 1)  );
 
 	// Print on one line
-	(void) SEGGER_RTT_printf(0, "0x%x", *(((uint32_t*) &value) + 1)  );	// MS word
-	(void) SEGGER_RTT_printf(0, "%x\n", value);	// LS word and newline
+	(void) SEGGER_RTT_printf(0, "x%04x", *(((uint32_t*) &value) + 1)  );	// MS word
+	(void) SEGGER_RTT_printf(0, "%04x\n", value);	// LS word and newline
 
 }
 

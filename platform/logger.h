@@ -29,6 +29,7 @@ void initLogging(void)
 
 void initLogging();
 void log(const char* aString);
+void logByte(uint8_t);
 void logLongLong(uint64_t);
 // Until I wrap it, use original prototype
 //extern "C" {

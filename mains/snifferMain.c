@@ -8,6 +8,18 @@
  *
  * LED1 alive but no message
  * LED3 message CRC invalid
+ *
+ * Currently specialized:
+ * - logMessage understands SleepSync encoded messages
+ * - uses RTT logging
+ *
+ * To use:
+ * - start debugger in Eclipse
+ * - start JLinkRTTClient which attaches to debugger and displays log of sniffed messages
+ *
+ * In the log:
+ * - "." means a sleeping period where no message was received
+ * - "Bad CRC" means message was received but CRC invalid.
  */
 
 // c++ includes
@@ -30,13 +42,38 @@ Sleeper sleeper;
 LEDLogger ledLogger;
 
 
+/*
+ * Understands logical layer is SleepSync.
+ */
 void logMessage() {
 	BufferPointer buffer;
 
 	buffer = radio.getBufferAddress();
+
+	if (buffer[0] == 17)
+		// Print two LSB's of MasterID
+		SEGGER_RTT_printf(0, "Sync %02x%02x\n", buffer[1], buffer[2]);
+	else if (buffer[0] == 136)
+		SEGGER_RTT_printf(0, "Work %02x%02x\n", buffer[1], buffer[2]);
+	else
+		SEGGER_RTT_printf(0, "%02x %02x%02x\n", buffer[0], buffer[1], buffer[2]);
+	#ifdef OBSOLETE
 	// First byte is message type
-	// Crude formatting: longLong format, even though it is only a byte
-	logLongLong(buffer[0]);
+	logByte(buffer[0]);
+
+	// MasterID is bytes 1-6 of OTA serialized data
+	//dereference value at address of second byte in buffer
+	/*
+	 * This doesn't work, it gives a hardfault (for unaligned access?)
+	long long masterID = *((long long*) &buffer[1]);
+	masterID &= 0x00ffffff;	// Mask 6 bytes
+	logLongLong(masterID);
+	*/
+
+	// print two LSB byte of six bytes of MasterID
+	logByte(buffer[1]);
+	logByte(buffer[2]);
+#endif
 }
 
 
