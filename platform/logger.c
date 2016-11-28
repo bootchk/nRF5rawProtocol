@@ -38,8 +38,8 @@ void logLongLong(uint64_t value ){
 #else
 
 void initLogging() {}
-void log(const char* aString) {}
-void logLongLong(uint64_t value ){}
+void log(const char* aString) { (void) aString; }
+void logLongLong(uint64_t value ){ (void) value; }
 
 
 #endif

@@ -20,14 +20,6 @@ void initLowFreqXtalOsc() {
 	nrf_drv_clock_lfclk_request(NULL);
 }
 
-void app_error_fault_handler(uint32_t id, uint32_t lineNum, uint32_t fileName) {
-	// gdb break will stop here
-	__disable_irq();
-	while(true);
-	// FUTURE attempt recovery and log
-}
-
-
 }  // namespace
 
 

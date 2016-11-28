@@ -16,6 +16,7 @@ LEDLogger ledLogger;
  * The timer interrupt wakes the mcu if was sleeping.
  */
 void ledOffCallback(void* context) {
+	(void) context;
 	ledLogger.switchLED(1, false);
 }
 

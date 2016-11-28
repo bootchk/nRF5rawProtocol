@@ -99,11 +99,15 @@ C_SOURCE_FILES +=  modules/radioAddress.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
 
+C_SOURCE_FILES +=  exceptions/irqHandlers.c
+#lkk Curiously, this won't compile for M0 thumb
+#C_SOURCE_FILES +=  platform/hardFaultHandler.c
+C_SOURCE_FILES +=  exceptions/appErrorFaultHandler.c
+
+
 C_SOURCE_FILES +=  platform/timer.c
 C_SOURCE_FILES +=  platform/timerService.c
-C_SOURCE_FILES +=  platform/irqHandlers.c
-#lkk Curiously, this seemed to compile, then stopped compiling, for M0 thumb
-#C_SOURCE_FILES +=  platform/hardFaultHandler.c
+
 C_SOURCE_FILES +=  platform/ledLogger.c
 C_SOURCE_FILES +=  platform/ledFlasher.c
 C_SOURCE_FILES +=  platform/uniqueID.c
@@ -200,8 +204,13 @@ CFLAGS += -fno-builtin
 # Or does compiler generate shortest int holding enum?
 #CFLAGS += --short-enums
 
-#lkk include symbols so executable can be debugged
-#CFLAGS += -DDEBUG
+#lkk Debugging options.
+# Whether the executable has symbols to support debugger is controlled by -g flags on compiler
+
+# This controls local coding for debugging: certain exception handling, etc.
+CFLAGS += -DDEBUG
+# This controls assert(): if NDEBUG is defined, assertions do nothing
+#CFLAGS += -DNDEBUG
 
 # keep every function in separate section. This will allow linker to dump unused functions
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map

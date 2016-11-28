@@ -103,10 +103,11 @@ C_SOURCE_FILES +=  modules/radioAddress.c
 C_SOURCE_FILES +=  modules/hfClock.c
 C_SOURCE_FILES +=  modules/system.c
 
+C_SOURCE_FILES +=  exceptions/irqHandlers.c
+C_SOURCE_FILES +=  exceptions/hardFaultHandler.c
+
 C_SOURCE_FILES +=  platform/timer.c
 C_SOURCE_FILES +=  platform/timerService.c
-C_SOURCE_FILES +=  platform/irqHandlers.c
-C_SOURCE_FILES +=  platform/hardFaultHandler.c
 C_SOURCE_FILES +=  platform/ledLogger.c
 C_SOURCE_FILES +=  platform/ledFlasher.c
 C_SOURCE_FILES +=  platform/uniqueID.c
