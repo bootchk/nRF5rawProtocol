@@ -447,7 +447,13 @@ void Radio::startXmit() {
 void Radio::startRcv() {
 	assert(device.isDisabledState());  // require, else behaviour undefined per datasheet
 	enableRXTask();
-	// assert radio state will soon be RXRU, then since shortcut, RX
+	/*
+	 * assert: (since shortcuts)
+	 * 1. radio state will soon be RXRU
+	 * 2. ramp up delay incurred of 130us (nrf52) or 40us (nrf52)
+	 * 3. radio state RXIDLE (shortcut)
+	 * 4. radio state RX (shortcut)
+	 */
 }
 
 void Radio::stopReceive() {

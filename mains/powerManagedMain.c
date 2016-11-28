@@ -45,7 +45,7 @@ void sendWork() {
 		log("Mail still in mailbox\n");
 	}
 	else {
-		myOutMailbox.put(333);
+		myOutMailbox.put(33);
 		log("App put work\n");
 	}
 }

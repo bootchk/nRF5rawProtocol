@@ -4,27 +4,32 @@
 #include "mailbox.h"
 
 
-// This implementation holds only one item
+/*
+ * This implementation:
+ * - holds only one item.
+ * - is not generic on type of object held
+ * - is not thread safe
+ */
 
 
 // static data members
 namespace {
 
-uint32_t item;
+WorkPayload item;
 bool isItem = false;
 
 }
 
-void Mailbox::put(uint32_t aItem){
-	// TODO Thread safe: atomic
+void Mailbox::put(WorkPayload aItem){
+	// FUTURE Thread safe: atomic
 	item = aItem;
 	isItem = true;
 }
 
-uint32_t Mailbox::fetch(){
+WorkPayload Mailbox::fetch(){
 	assert(isItem);
 	// Thread safe: copy item before deleting from queue
-	uint32_t result = item;
+	WorkPayload result = item;
 	isItem = false;
 	return result;
 }

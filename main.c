@@ -1,7 +1,10 @@
-
-//#define USE_TESTMAIN 1
-//#define USE_WEDGED_MAIN 1
-//#define USE_POWERMANAGED_MAIN 1
+/*
+ * Choose one at compile time:
+#define USE_TESTMAIN 1
+#define USE_WEDGED_MAIN 1
+#define USE_POWERMANAGED_MAIN 1
+#define USE_SNIFFER_MAIN 1
+ */
 #define USE_SNIFFER_MAIN 1
 
 

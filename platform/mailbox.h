@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <inttypes.h>
+#include "types.h"	// local types
 
 /*
  * Simple mailbox:
@@ -23,10 +23,10 @@
 class Mailbox {
 public:
 	// put overwrites a mail when overflows
-	static void put(uint32_t item);
+	static void put(WorkPayload item);
 
 	// fetch first mail in box (if queued)
-	static uint32_t fetch();
+	static WorkPayload fetch();
 
 	//
 	static bool isMail();
