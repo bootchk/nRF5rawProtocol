@@ -31,11 +31,11 @@ void simpleManagePowerWithWork() {
 	if (powerManager.isVoltageExcess()) {
 		// e.g. > 2.7V
 		/*
-		 * Self must work to keep voltage from exceeding Vmax
+		 * Self MUST work locally to keep voltage from exceeding Vmax
+		 * Not sent to group.
 		 */
-		// TODO no randomness, collisions?  Need additional randomness in time of transmittal within slot?
 		worker.increaseAmount();
-		groupWork.randomlyInitiateGroupWork();
+		groupWork.workInIsolation();
 	};
 
 	if (powerManager.isVoltageHigh()) {

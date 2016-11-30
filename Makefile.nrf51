@@ -88,7 +88,9 @@ C_SOURCE_FILES += mains/powerManagedMain.c
 
 
 # specific to certain application mains
-C_SOURCE_FILES += mains/worker.c
+C_SOURCE_FILES += mains/firefly/worker.c
+C_SOURCE_FILES += mains/firefly/groupWork.c
+C_SOURCE_FILES += mains/firefly/workSupervisor.c
 
 
 C_SOURCE_FILES +=  modules/radio.c
