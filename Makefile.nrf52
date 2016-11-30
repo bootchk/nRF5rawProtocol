@@ -87,12 +87,14 @@ C_SOURCE_FILES +=  main.c
 # uncomment only one, they can't be all compiled because they create multiple definition errors
 #C_SOURCE_FILES +=  mains/testMain.c
 #C_SOURCE_FILES +=  mains/wedgedMain.c
-#C_SOURCE_FILES += mains/powerManagedMain.c
-C_SOURCE_FILES += mains/snifferMain.c
+C_SOURCE_FILES += mains/powerManagedMain.c
+#C_SOURCE_FILES += mains/snifferMain.c
 
 
 # specific to certain application mains
-C_SOURCE_FILES += mains/worker.c
+C_SOURCE_FILES += mains/firefly/worker.c
+C_SOURCE_FILES += mains/firefly/groupWork.c
+C_SOURCE_FILES += mains/firefly/workSupervisor.c
 
 
 C_SOURCE_FILES +=  modules/radio.c
@@ -105,6 +107,7 @@ C_SOURCE_FILES +=  modules/system.c
 
 C_SOURCE_FILES +=  exceptions/irqHandlers.c
 C_SOURCE_FILES +=  exceptions/hardFaultHandler.c
+C_SOURCE_FILES +=  exceptions/appErrorFaultHandler.c
 
 C_SOURCE_FILES +=  platform/timer.c
 C_SOURCE_FILES +=  platform/timerService.c

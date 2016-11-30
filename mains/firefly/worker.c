@@ -34,4 +34,7 @@ void Worker::increaseAmount() {
 void Worker::decreaseAmount() {
 	if (amount > 1) amount--;
 }
+void Worker::setAmountModerate() {
+	amount = 20; 	// for 0.6mSec unit, gives 12mSec flash.
+}
 

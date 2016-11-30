@@ -10,52 +10,26 @@
  */
 
 
-#include <cstdlib>	// rand
-
 #include "modules/radio.h"
 #include "platform/sleeper.h"
 #include "platform/ledLogger.h"
-//#include "platform/ledFlasher.h"
-
-#include "platform/logger.h"
-#include "platform/powerManager.h"
 #include "platform/timerService.h"
 
-#include "worker.h"
+#include "firefly/groupWork.h"
+#include "firefly/workSupervisor.h"
 
 #include "sleepSyncAgent.h"
 
-#include "nrf_delay.h"	// For debugging
 
-// LEDLogger ledLogger;
-//LEDFlasher ledFlasher;
-Worker worker;
 
 Radio myRadio;
-Mailbox myOutMailbox;
+
 SleepSyncAgent sleepSyncAgent;
-PowerManager powerManager;
 TimerService timerService;
+Mailbox myOutMailbox;
 
+WorkSupervisor workSupervisor;
 
-
-void sendWork() {
-	if (myOutMailbox.isMail() ){
-		// My last mail didn't go out yet
-		log("Mail still in mailbox\n");
-	}
-	else {
-		myOutMailbox.put(33);
-		log("App put work\n");
-	}
-}
-
-void randomlyWork() {
-	if (rand() % 5 == 1) {
-		worker.work();
-		sendWork();
-	}
-}
 
 /*
  * The app understands power for work.
@@ -71,6 +45,8 @@ void randomlyWork() {
 
 /*
  * SleepSyncAgent received and queued a work msg.
+ * I.E. other units are working, in sync, so self should work if it can.
+ *
  * This method is realtime constrained.
  *
  * FUTURE schedule low priority work thread/task to do work.
@@ -78,80 +54,21 @@ void randomlyWork() {
 void onWorkMsg(WorkPayload work) {
 	(void) work;	// Unused
 
-	if (powerManager.isPowerForWork()) {
-		// do work at the managed amount
-		worker.work();
-	}
-	// else omit work, not enough power
+	workSupervisor.tryWorkInIsolation();
 }
 
 
-/*
- * Part of the total voltage/power management.
- * This is high side.
- * See also SyncSleep, which also does power managment on the low side.
- *
- * Here, if voltage is climbing, do more work.
- * Note work is asynchronous, more work does not require more time in this routine.
- *
- * This is at syncpoint (but it may be drifted.)
- *
- * This also determines the behaviour of the flashing:
- * - units try to flash in sync
- * - units with excess power may flash when other units can't
- * - when all units have moderate power, some unit may randomly trigger all to flash
- *
- */
-void manageVoltageByWork() {
-
-	// Exclusive cases
-	if (powerManager.isVoltageExcess()) {
-		// e.g. > 2.7V
-		/*
-		 * Self must work to keep voltage from exceeding Vmax
-		 */
-		// TODO no randomness, collisions?  Need additional randomness in time of transmittal within slot?
-		worker.increaseAmount();
-		worker.work();
-		sendWork();
-	};
-
-	if (powerManager.isVoltageHigh()) {
-		// e.g. 2.5V - 2.7V
-		/*
-		 * I could work.
-		 */
-		worker.decreaseAmount();
-		randomlyWork();
-	}
-
-	if (powerManager.isVoltageMedium()) {
-		// e.g. 2.3-2.5V
-		/*
-		 *  not change amount of work
-		 *
-		 *  not work, until others tell me to
-		 */
-	};
-
-	if (powerManager.isVoltageLow()) {
-		// e.g. 2.1-2.3V
-
-		/*
-		 * Not enough power to work.
-		 * Next work done (if ever) is least amount.
-		 */
-		worker.setLeastAmount();
-	}
-}
-
 
 /*
+ * Managing voltage requires periodic checking, this is a convenient place.
+ *
+ * This may initiate group work (working locally and as a group.)
+ *
  * Must be short duration, else interferes with sync.
+ * FUTURE make this a thread and yield to higher priority sleep sync thread
  */
 void onSyncPoint() {
-	// managing voltage requires periodic checking, this is a convenient place
-	manageVoltageByWork();
+	workSupervisor.manageVoltageByWork();
 
 	// debug indication, when power supply is not constrained
 	// ledLogger.toggleLED(1);
@@ -168,7 +85,7 @@ int powerManagedMain() {
 	 * sleepSyncAgent owns and inits Sleeper instance which requires TimerService.
 	 */
 	timerService.init();
-	worker.init();
+	workSupervisor.init(&myOutMailbox);
 
 
 	sleepSyncAgent.init(&myRadio, &myOutMailbox, onWorkMsg, onSyncPoint);

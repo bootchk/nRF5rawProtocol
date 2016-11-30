@@ -48,4 +48,14 @@
 //#define NRF_LOG_USES_RTT 1
 
 
+/*
+ * Not related to SDK, related to my testing
+ *
+ * If defined, LedLogger.toggleLED() works
+ *
+ * LedLogger.switchLED() is not controlled by this.
+ * I disable this when I want only to flash one LED when work, instead of toggling LEDS 2 and 3 on rcv, xmit
+ */
+//#define LED_LOGGING_TOGGLE 1
+
 

@@ -5,7 +5,7 @@
 #define USE_POWERMANAGED_MAIN 1
 #define USE_SNIFFER_MAIN 1
  */
-#define USE_SNIFFER_MAIN 1
+#define USE_POWERMANAGED_MAIN 1
 
 
 
