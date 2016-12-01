@@ -66,6 +66,7 @@ void simpleManagePowerWithWork() {
 		 */
 		worker.setLeastAmount();
 	}
+	// One more range we don't use: isVoltageUltraLow()
 }
 
 } // namespace

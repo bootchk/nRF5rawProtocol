@@ -46,5 +46,5 @@ public:
 	static bool isVoltageHigh();
 	static bool isVoltageMedium();
 	static bool isVoltageLow();
-	static bool isVoltageNearBrownout();
+	static bool isVoltageUltraLow();
 };
