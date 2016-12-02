@@ -1,7 +1,10 @@
 
 #pragma once
 
-
+/*
+ * Four levels gives five ranges.
+ */
+enum class VoltageRange { Excess, High, Medium, Low, UltraLow };
 
 /*
  * Understands:
@@ -42,9 +45,11 @@ public:
 	/*
 	 * Ranges
 	 */
-	static bool isVoltageExcess();
+	static VoltageRange getVoltageRange();
+	/*static bool isVoltageExcess();
 	static bool isVoltageHigh();
 	static bool isVoltageMedium();
 	static bool isVoltageLow();
 	static bool isVoltageUltraLow();
+	*/
 };

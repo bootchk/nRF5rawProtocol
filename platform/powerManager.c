@@ -40,7 +40,7 @@ PowerComparator powerComparator;
  *
  * Here we also attach meaning, used by SleepSync algorithm/application.
  *
- * You can swap the middle ones.
+ * You can swap the middle meanings.
  * Currently the firefly algorithm uses most current for work, so reserve is below that.
  *
  * Radio is required to keep sync.
@@ -50,12 +50,30 @@ bool PowerManager::isPowerForWork()    { return powerComparator.isVddGreaterThan
 bool PowerManager::isPowerForReserve() {return powerComparator.isVddGreaterThan2_3V();}
 bool PowerManager::isPowerForRadio()   { return powerComparator.isVddGreaterThan2_1V();}
 
-/*
- * Ranges
- *
- * Four levels gives five ranges.
- */
-bool PowerManager::isVoltageExcess() { return powerComparator.isVddGreaterThan2_7V();}
+VoltageRange PowerManager::getVoltageRange() {
+	VoltageRange result;
+	if (powerComparator.isVddGreaterThan2_7V()) {
+		result = VoltageRange::Excess;
+	}
+	else if (powerComparator.isVddGreaterThan2_5V()) {
+		result = VoltageRange::High;
+	}
+	else if (powerComparator.isVddGreaterThan2_3V()) {
+		result = VoltageRange::Medium;
+	}
+	else if (powerComparator.isVddGreaterThan2_1V()) {
+		result = VoltageRange::Low;
+	}
+	else {
+		// < 2.1V, near brownout of say 1.8V
+		result = VoltageRange::UltraLow;
+	}
+
+	return result;
+}
+
+#ifdef OLD
+bool PowerManager::isVoltageExcess() { return ;}
 
 bool PowerManager::isVoltageHigh() {
 	return ! powerComparator.isVddGreaterThan2_7V()
@@ -70,9 +88,10 @@ bool PowerManager::isVoltageLow() {
 			& powerComparator.isVddGreaterThan2_1V();
 }
 bool PowerManager::isVoltageUltraLow() {
-	// Near brownout of say 1.8V
+
 	return ! powerComparator.isVddGreaterThan2_1V();
 }
+#endif
 
 
 

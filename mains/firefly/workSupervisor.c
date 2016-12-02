@@ -27,46 +27,53 @@ GroupWork groupWork;
 // TODO replace this with a state machine that is more effective
 
 void simpleManagePowerWithWork() {
-	// Exclusive cases
-	if (powerManager.isVoltageExcess()) {
-		// e.g. > 2.7V
-		/*
+	switch (powerManager.getVoltageRange()) {
+	case VoltageRange::Excess:
+		/* e.g. > 2.7V.
 		 * Self MUST work locally to keep voltage from exceeding Vmax
 		 * Not sent to group.
 		 */
 		worker.increaseAmount();
 		groupWork.workInIsolation();
-	};
+		break;
 
-	if (powerManager.isVoltageHigh()) {
-		// e.g. 2.5V - 2.7V
-		/*
+	case VoltageRange::High:
+		/* e.g. 2.5V - 2.7V
 		 * I could work.
 		 */
 		worker.decreaseAmount();
 		groupWork.randomlyInitiateGroupWork();
-	}
+		break;
 
-	if (powerManager.isVoltageMedium()) {
-		// e.g. 2.3-2.5V
-		/*
-		 *  not change amount of work
+	case VoltageRange::Medium:
+		/* e.g. 2.3-2.5V
+		 * not change amount of work
 		 *
-		 *  not initiate work.
-		 *  Others may ask me to work, see elsewhere.
+		 * not initiate work.
+		 * Others may ask me to work, see elsewhere.
 		 */
-	};
+		break;
 
-	if (powerManager.isVoltageLow()) {
-		// e.g. 2.1-2.3V
-
-		/*
-		 * Not enough power to work.
+	case VoltageRange::Low:
+		/* e.g. 2.1-2.3V
+		 * Not enough power to work, and power getting low.
 		 * Next work done (if ever) is least amount.
 		 */
 		worker.setLeastAmount();
+		break;
+
+	case VoltageRange::UltraLow:
+		/* e.g. <2.1-2.3V
+		 * Not enough power to work.
+		 * Power nearing brownout.
+		 * Next work done (if ever) is least amount.
+		 *
+		 * It is possible for power levels to drop so precipitously that
+		 * we didnt' pass through case above for Low.
+		 */
+		worker.setLeastAmount();
+		break;
 	}
-	// One more range we don't use: isVoltageUltraLow()
 }
 
 } // namespace

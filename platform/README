@@ -1,2 +1,3 @@
 This directory contains modules that support the app or debugging.
-Said modules are not required by the wireless stack.
+Drivers for peripherals other than the radio.
+Not required by the radio stack.
