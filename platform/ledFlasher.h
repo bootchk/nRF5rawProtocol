@@ -34,12 +34,12 @@ public:
 	 */
 
 	/* Flash the minimal visible time. */
-	static void flashLED(int ordinal);
+	static void flashLED(unsigned int ordinal);
 
 	/*
 	 * Flash at least minimal visible time, but less than MaxFlashAmount.
 	 *
 	 * Units are multiples of least visible time.
 	 */
-	static void flashLEDByAmount(int ordinal, int amount);
+	static void flashLEDByAmount(unsigned int ordinal, unsigned int amount);
 };

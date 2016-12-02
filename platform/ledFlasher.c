@@ -33,11 +33,12 @@ void LEDFlasher::init() {
 	// ensure ledTimer ready
 }
 
-void LEDFlasher::flashLED(int ordinal) {
+void LEDFlasher::flashLED(unsigned int ordinal) {
+	// amount==1, minimum amount
 	flashLEDByAmount(ordinal, 1);
 }
 
-void LEDFlasher::flashLEDByAmount(int ordinal, int amount){
+void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	// assert ledLogger initialized
 	// assert TimerService initialized
 

@@ -27,6 +27,11 @@ GroupWork groupWork;
 // TODO replace this with a state machine that is more effective
 
 void simpleManagePowerWithWork() {
+
+	/* It is possible for power levels to drop so precipitously that
+	 * on consecutive calls, the VoltageRange's are not adjacent,
+	 * i.e. pass from Excess to Medium or worse.
+	 */
 	switch (powerManager.getVoltageRange()) {
 	case VoltageRange::Excess:
 		/* e.g. > 2.7V.
@@ -42,16 +47,24 @@ void simpleManagePowerWithWork() {
 		 * I could work.
 		 */
 		worker.decreaseAmount();
+
+		/*
+		 * This may cause local work.
+		 * Thus is can be that we do two local works in consecutive calls.
+		 * I.E. For Excess, then for High
+		 * I.E. For High, then High (when both random results are true.)
+		 */
 		groupWork.randomlyInitiateGroupWork();
 		break;
 
 	case VoltageRange::Medium:
 		/* e.g. 2.3-2.5V
-		 * not change amount of work
+		 * Decrease amount of work
 		 *
 		 * not initiate work.
 		 * Others may ask me to work, see elsewhere.
 		 */
+		worker.decreaseAmount();
 		break;
 
 	case VoltageRange::Low:

@@ -46,10 +46,4 @@ public:
 	 * Ranges
 	 */
 	static VoltageRange getVoltageRange();
-	/*static bool isVoltageExcess();
-	static bool isVoltageHigh();
-	static bool isVoltageMedium();
-	static bool isVoltageLow();
-	static bool isVoltageUltraLow();
-	*/
 };
