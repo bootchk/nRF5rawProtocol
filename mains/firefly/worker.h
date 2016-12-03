@@ -24,7 +24,8 @@ public:
 	static void decreaseAmount();
 
 	/*
-	 * Amount enough to easily see, when power is line power and regulated.
+	 * Amount enough that tester can easily perceive, when power is line power and regulated.
+	 * For an LED or other transceiver.
 	 */
-	static void setAmountModerate();
+	static void setAmountPerceivable();
 };

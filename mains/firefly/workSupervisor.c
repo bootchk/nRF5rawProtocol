@@ -135,8 +135,14 @@ void WorkSupervisor::manageVoltageByWork() {
  *
  * (The solar cells can produce a max of 4.8V, which is not exceedingly dangerous to the chips.)
  */
-#ifdef NRF52
-	// amount of work is enough to perceive
+#ifdef NRF52	// Really this means: power supply is unlimited
+
+	/*
+	 * Default amount of work is enough to perceive,
+	 * but to make it more visible...
+	 */
+	worker.setAmountPerceivable();
+
 	groupWork.randomlyInitiateGroupWork();
 #else
 	simpleManagePowerWithWork();
@@ -156,7 +162,6 @@ void WorkSupervisor::tryWorkInIsolation() {
 
 
 void WorkSupervisor::workInIsolation() {
-
 	// do work at the managed amount
 	groupWork.workInIsolation();
 }
