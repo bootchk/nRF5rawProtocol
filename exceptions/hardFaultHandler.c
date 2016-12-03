@@ -1,6 +1,15 @@
 
 #include <stdio.h>
 
+/*
+ * For debugging.
+ * A minimal "core" dump.
+ * Put registers from the ARM normal context (not the IRQ context) in variables in memory
+ * so they are more easily accessible using a debugger.
+ * Only provides last function call i.e. minimal stack trace?
+ *
+ * Currently Only for the nrf52.
+ */
 // There is better .asm here
 // https://www.element14.com/community/thread/54959/l/gdb-assisted-debugging-of-hard-faults?displayFullThread=true
 // From Joseph Yiu, minor edits by FVH
@@ -54,7 +63,7 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
 */
 
 
-
+#ifdef FUTURE
 // Avoid C++ name mangling
 extern "C" {
 
@@ -63,6 +72,7 @@ static void HardFault_Handler( void ) __attribute__( ( naked ) );
 
 /* The fault handler implementation calls a function called prvGetRegistersFromStack(). */
 // Unused means not referenced, is an ISR
+
 __attribute__((unused)) static void HardFault_Handler(void)
 {
     __asm volatile
@@ -126,6 +136,6 @@ of this function. */
     for( ;; );
 }
 
-
+#endif
 
 

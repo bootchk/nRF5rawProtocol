@@ -107,7 +107,7 @@ C_SOURCE_FILES +=  modules/system.c
 
 C_SOURCE_FILES +=  exceptions/irqHandlers.c
 C_SOURCE_FILES +=  exceptions/hardFaultHandler.c
-C_SOURCE_FILES +=  exceptions/appErrorFaultHandler.c
+C_SOURCE_FILES +=  exceptions/faultHandler.c
 
 C_SOURCE_FILES +=  platform/timer.c
 C_SOURCE_FILES +=  platform/timerService.c

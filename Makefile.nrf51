@@ -104,7 +104,7 @@ C_SOURCE_FILES +=  modules/system.c
 C_SOURCE_FILES +=  exceptions/irqHandlers.c
 #lkk Curiously, this won't compile for M0 thumb
 #C_SOURCE_FILES +=  platform/hardFaultHandler.c
-C_SOURCE_FILES +=  exceptions/appErrorFaultHandler.c
+C_SOURCE_FILES +=  exceptions/faultHandler.c
 
 
 C_SOURCE_FILES +=  platform/timer.c
