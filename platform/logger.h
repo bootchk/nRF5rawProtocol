@@ -30,12 +30,13 @@ void initLogging(void)
 void initLogging();
 void log(const char* aString);
 void logByte(uint8_t);
+void logInt(uint32_t);
 void logLongLong(uint64_t);
 // Until I wrap it, use original prototype
 //extern "C" {
 
 // !!! Note this does not support ll conversion code
-int SEGGER_RTT_printf(unsigned, const char* formatString, ...);
+//int SEGGER_RTT_printf(unsigned, const char* formatString, ...);
 //}
 
 //void logf(const char* formatString, ...);

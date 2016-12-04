@@ -20,6 +20,10 @@ void logByte(uint8_t value){
 	(void) SEGGER_RTT_printf(0, "x%02x\n", value);
 }
 
+void logInt(uint32_t value){
+	(void) SEGGER_RTT_printf(0, "%u", value);
+}
+
 void logLongLong(uint64_t value ){
 	// Print 64-bit int as two uint32-t on same line, hex notation
 	// FUTURE this should work, but it doesn't????
@@ -39,6 +43,7 @@ void logLongLong(uint64_t value ){
 
 void initLogging() {}
 void log(const char* aString) { (void) aString; }
+void logInt(uint32_t value ){ (void) value; }
 void logLongLong(uint64_t value ){ (void) value; }
 
 

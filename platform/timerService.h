@@ -50,6 +50,8 @@ public:
 
 	/*
 	 * Max timeout provided by RTCounter device underlying OSClock.
+	 *
+	 * 24-bit is 2^24-1 == 16 million ticks ~= 8512 sec ~= 8.5 minutes
 	 */
 	static const OSTime MaxTimeout = 0xFFFFFF;	// 24-bit
 
