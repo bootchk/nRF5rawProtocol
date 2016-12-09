@@ -11,6 +11,7 @@
  * - sleep the system (wake on timeout or other event.)
  * - know reason for waking.
  * - know OSTime from OSClock
+ * - know and enforce max timeout a sane app would ask for (currently an assertion, should be exception.)
  *
  * Owns and uses instance of Timer.
  *
@@ -48,9 +49,13 @@ public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();
 
+	/* maxSaneTimeout: max timeout a sane app should ask for. */
+	static void init(OSTime maxSaneTimeout);
 
-	static void init();
+	/* Sleep until any system event, and set a Timer that generates a waking event after timeout ticks. */
 	static void sleepUntilEventWithTimeout(OSTime);
+
+	/* Cancel Timer that would generate waking event. */
 	static void cancelTimeout();
 
 	// Not in-lined, used by external libraries

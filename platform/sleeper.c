@@ -15,6 +15,8 @@ namespace {
 
 Timer receiveTimer;
 
+OSTime maxSaneTimeout;
+
 // !!! not own TimerService
 
 } // namespace
@@ -28,9 +30,11 @@ ReasonForWake Sleeper::reasonForWake;
 
 
 
-void Sleeper::init() {
+void Sleeper::init(OSTime maxAppTimeout) {
 	// assert a TimerService exists and is initialized (creating a Timer depends on it.)
 	receiveTimer.create(rcvTimeoutTimerCallback);
+	maxSaneTimeout = maxAppTimeout;
+
 	// assert(receiveTimerService.isOSClockRunning());
 }
 
@@ -48,7 +52,14 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 */
 		reasonForWake = TimerExpired;
 	}
-	else {
+	else { // timeout >= 5
+
+		/*
+		 * Sanity of SleepSync: never sleeps longer than two SyncPeriodDuration
+		 */
+		// TODO this should be a clamp, or throw
+		assert(timeout <= maxSaneTimeout );
+
 		receiveTimer.restartInUnitsTicks(timeout);	// oneshot timer must not trigger before we sleep, else sleep forever
 		sleepSystemOn();	// wake by received msg or timeout
 		// assert IRQ
