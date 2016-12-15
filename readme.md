@@ -1,6 +1,8 @@
 
 Raw Wireless Protocol for nRF5
 
+This project is obsolete.  Code moved to nRF5x library.  Some of this documentation is still valid and needs to move also.
+
 Status: Works, but changes still in progress.  
 
     - Usually compiles cleanly.  
